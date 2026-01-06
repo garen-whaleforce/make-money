@@ -183,12 +183,46 @@ class FMPEnricher(BaseEnricher):
             return None
 
         quote = data[0]
+        current_price = quote.get("price")
+
+        # B2: Get 52-week high/low and YTD data from key metrics
+        high_52w = None
+        low_52w = None
+        change_ytd = None
+        avg_volume = None
+
+        # Try to get 52W data from key metrics
+        cache_key_metrics = f"fmp:key_metrics_ttm:{ticker}"
+        metrics = self._cached_request(cache_key_metrics, "key-metrics-ttm", {"symbol": ticker})
+        if metrics and isinstance(metrics, list) and len(metrics) > 0:
+            m = metrics[0]
+            # FMP provides these in key metrics
+            high_52w = m.get("yearHigh")
+            low_52w = m.get("yearLow")
+
+        # Get YTD change from stock price change endpoint
+        try:
+            cache_key_change = f"fmp:stock_price_change:{ticker}"
+            change_data = self._cached_request(cache_key_change, "stock-price-change", {"symbol": ticker})
+            if change_data and isinstance(change_data, list) and len(change_data) > 0:
+                change_ytd = change_data[0].get("ytd")
+        except Exception as e:
+            logger.debug(f"Could not get YTD change for {ticker}: {e}")
+
+        # Get average volume from quote (avgVolume field)
+        avg_volume = quote.get("avgVolume")
+
         return PriceData(
-            last=quote.get("price"),
+            last=current_price,
             change_pct_1d=quote.get("changePercentage") or quote.get("changesPercentage"),
             volume=quote.get("volume"),
             market_cap=quote.get("marketCap"),
             as_of=datetime.now(timezone.utc).isoformat(),
+            # B2: Additional fields for Deep Dive completeness
+            change_ytd=change_ytd,
+            high_52w=high_52w,
+            low_52w=low_52w,
+            avg_volume=avg_volume,
         )
 
     def get_fundamentals(self, ticker: str) -> Optional[Fundamentals]:
@@ -214,25 +248,48 @@ class FMPEnricher(BaseEnricher):
         ratios = self._cached_request(cache_key_ratios, "ratios-ttm", {"symbol": ticker})
         r = ratios[0] if ratios and isinstance(ratios, list) and len(ratios) > 0 else {}
 
-        # 取得 income statement
-        cache_key_income = f"fmp:income:{ticker}"
-        income = self._cached_request(cache_key_income, "income-statement", {"symbol": ticker, "limit": 1})
-        inc = income[0] if income and isinstance(income, list) and len(income) > 0 else {}
+        # 取得最近 4 季 income statement 來計算 TTM
+        cache_key_income = f"fmp:income_4q:{ticker}"
+        income = self._cached_request(cache_key_income, "income-statement", {"symbol": ticker, "limit": 4, "period": "quarter"})
+
+        # 計算 TTM 數值 (加總最近 4 季)
+        revenue_ttm = None
+        net_income_ttm = None
+        ebitda_ttm = None
+
+        if income and isinstance(income, list) and len(income) >= 4:
+            # 確保有足夠的季度資料
+            try:
+                revenue_ttm = sum(q.get("revenue", 0) or 0 for q in income[:4])
+                net_income_ttm = sum(q.get("netIncome", 0) or 0 for q in income[:4])
+                ebitda_ttm = sum(q.get("ebitda", 0) or 0 for q in income[:4])
+            except (TypeError, ValueError) as e:
+                logger.warning(f"Error calculating TTM for {ticker}: {e}")
+        elif income and isinstance(income, list) and len(income) > 0:
+            # Fallback: 使用最近一季的年化數據
+            latest = income[0]
+            revenue_ttm = latest.get("revenue")
+            net_income_ttm = latest.get("netIncome")
+            ebitda_ttm = latest.get("ebitda")
 
         # 取得 cash flow
-        cache_key_cf = f"fmp:cashflow:{ticker}"
-        cashflow = self._cached_request(cache_key_cf, "cash-flow-statement", {"symbol": ticker, "limit": 1})
-        cf = cashflow[0] if cashflow and isinstance(cashflow, list) and len(cashflow) > 0 else {}
+        cache_key_cf = f"fmp:cashflow_4q:{ticker}"
+        cashflow = self._cached_request(cache_key_cf, "cash-flow-statement", {"symbol": ticker, "limit": 4, "period": "quarter"})
+
+        fcf_ttm = None
+        if cashflow and isinstance(cashflow, list) and len(cashflow) >= 4:
+            try:
+                fcf_ttm = sum(q.get("freeCashFlow", 0) or 0 for q in cashflow[:4])
+            except (TypeError, ValueError):
+                pass
+        elif cashflow and isinstance(cashflow, list) and len(cashflow) > 0:
+            fcf_ttm = cashflow[0].get("freeCashFlow")
 
         return Fundamentals(
-            revenue_ttm=m.get("revenuePerShareTTM", 0) * m.get("marketCapTTM", 0) / m.get("peRatioTTM", 1)
-                if m.get("revenuePerShareTTM") and m.get("marketCapTTM")
-                else inc.get("revenue"),
-            ebitda_ttm=inc.get("ebitda"),
-            net_income_ttm=m.get("netIncomePerShareTTM", 0) * m.get("marketCapTTM", 0) / m.get("peRatioTTM", 1)
-                if m.get("netIncomePerShareTTM") and m.get("marketCapTTM")
-                else inc.get("netIncome"),
-            fcf_ttm=cf.get("freeCashFlow"),
+            revenue_ttm=revenue_ttm,
+            ebitda_ttm=ebitda_ttm,
+            net_income_ttm=net_income_ttm,
+            fcf_ttm=fcf_ttm,
             gross_margin=r.get("grossProfitMarginTTM"),
             operating_margin=r.get("operatingProfitMarginTTM"),
             net_margin=r.get("netProfitMarginTTM"),
@@ -337,6 +394,153 @@ class FMPEnricher(BaseEnricher):
                 snapshot["vix"] = f"{vix['price']:.2f}"
 
         return snapshot
+
+    def get_earnings_calendar(
+        self,
+        from_date: Optional[str] = None,
+        to_date: Optional[str] = None,
+        tickers: Optional[list[str]] = None,
+    ) -> list[dict]:
+        """取得財報日曆
+
+        Args:
+            from_date: 起始日期 (YYYY-MM-DD)
+            to_date: 結束日期 (YYYY-MM-DD)
+            tickers: 篩選特定 tickers（可選）
+
+        Returns:
+            財報事件列表
+        """
+        from datetime import datetime, timedelta
+
+        # 預設取得未來 14 天
+        if not from_date:
+            from_date = datetime.now().strftime("%Y-%m-%d")
+        if not to_date:
+            to_date = (datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d")
+
+        cache_key = f"fmp:earnings_calendar:{from_date}:{to_date}"
+        data = self._cached_request(
+            cache_key,
+            "earning-calendar",
+            {"from": from_date, "to": to_date}
+        )
+
+        if not data or not isinstance(data, list):
+            return []
+
+        # 轉換為標準格式
+        results = []
+        for item in data:
+            ticker = item.get("symbol")
+
+            # 如果指定 tickers，只保留這些
+            if tickers and ticker not in tickers:
+                continue
+
+            results.append({
+                "ticker": ticker,
+                "date": item.get("date"),
+                "time": item.get("time"),  # "bmo" (before market open) or "amc" (after market close)
+                "eps_estimated": item.get("epsEstimated"),
+                "eps_actual": item.get("eps"),
+                "revenue_estimated": item.get("revenueEstimated"),
+                "revenue_actual": item.get("revenue"),
+                "fiscal_quarter": item.get("fiscalDateEnding"),
+            })
+
+        # 按日期排序
+        results.sort(key=lambda x: x.get("date", ""))
+
+        return results
+
+    def get_upcoming_earnings_for_universe(
+        self,
+        universe_tickers: list[str],
+        days_ahead: int = 7,
+    ) -> list[dict]:
+        """取得觀察清單中即將發布財報的公司
+
+        Args:
+            universe_tickers: 觀察清單 tickers
+            days_ahead: 往後看幾天
+
+        Returns:
+            即將發布財報的公司列表
+        """
+        from datetime import datetime, timedelta
+
+        from_date = datetime.now().strftime("%Y-%m-%d")
+        to_date = (datetime.now() + timedelta(days=days_ahead)).strftime("%Y-%m-%d")
+
+        all_earnings = self.get_earnings_calendar(from_date, to_date)
+
+        # 只保留 universe 中的
+        universe_set = set(universe_tickers)
+        return [e for e in all_earnings if e.get("ticker") in universe_set]
+
+    def get_recent_earnings(self, ticker: str, limit: int = 4) -> list[dict]:
+        """取得最近的財報數據（歷史實際數據）
+
+        使用 income-statement 取得實際財務數據，而非 earnings calendar。
+        這樣可以取得歷史已發布的財報，而不是未來預期。
+
+        Args:
+            ticker: 股票代碼
+            limit: 取幾筆（預設 4 = 最近 4 季）
+
+        Returns:
+            財報數據列表，包含 EPS、revenue、日期等
+        """
+        # 使用 income-statement 取得實際財報數據
+        cache_key = f"fmp:income_stmt:{ticker}:{limit}"
+        income_data = self._cached_request(
+            cache_key,
+            "income-statement",
+            {"symbol": ticker, "limit": limit, "period": "quarter"}
+        )
+
+        if not income_data or not isinstance(income_data, list):
+            return []
+
+        results = []
+        for item in income_data:
+            # 計算 EPS (使用 weighted average shares)
+            net_income = item.get("netIncome")
+            shares = item.get("weightedAverageShsOut") or item.get("weightedAverageShsOutDil")
+            eps = None
+            if net_income is not None and shares and shares > 0:
+                eps = net_income / shares
+
+            results.append({
+                "ticker": ticker,
+                "date": item.get("date"),  # 財報發布日期 (e.g., "2024-10-30")
+                "fiscal_period": item.get("period"),  # e.g., "Q3"
+                "fiscal_year": item.get("calendarYear"),
+                "eps_actual": round(eps, 3) if eps else None,
+                "eps_diluted": item.get("epsdiluted"),
+                "revenue_actual": item.get("revenue"),
+                "gross_profit": item.get("grossProfit"),
+                "operating_income": item.get("operatingIncome"),
+                "net_income": net_income,
+                "gross_margin": self._calc_margin(item.get("grossProfit"), item.get("revenue")),
+                "operating_margin": self._calc_margin(item.get("operatingIncome"), item.get("revenue")),
+                "net_margin": self._calc_margin(net_income, item.get("revenue")),
+            })
+
+        return results
+
+    def _calc_margin(self, numerator: Optional[float], denominator: Optional[float]) -> Optional[float]:
+        """計算 margin percentage"""
+        if numerator is None or denominator is None or denominator == 0:
+            return None
+        return round((numerator / denominator) * 100, 2)
+
+    def _calc_surprise(self, actual: Optional[float], estimated: Optional[float]) -> Optional[float]:
+        """計算 surprise percentage"""
+        if actual is None or estimated is None or estimated == 0:
+            return None
+        return ((actual - estimated) / abs(estimated)) * 100
 
     def get_analyst_estimates(self, ticker: str) -> Optional[Estimates]:
         """取得分析師預估

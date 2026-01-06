@@ -14,6 +14,11 @@ class PriceData:
     volume: Optional[int] = None
     market_cap: Optional[float] = None
     as_of: Optional[str] = None
+    # B2: Added YTD and 52W fields for Deep Dive completeness
+    change_ytd: Optional[float] = None  # YTD percentage change
+    high_52w: Optional[float] = None    # 52-week high
+    low_52w: Optional[float] = None     # 52-week low
+    avg_volume: Optional[int] = None    # Average volume
 
     def to_dict(self) -> dict:
         return {
@@ -22,6 +27,10 @@ class PriceData:
             "volume": self.volume,
             "market_cap": self.market_cap,
             "as_of": self.as_of,
+            "change_ytd": self.change_ytd,
+            "high_52w": self.high_52w,
+            "low_52w": self.low_52w,
+            "avg_volume": self.avg_volume,
         }
 
 

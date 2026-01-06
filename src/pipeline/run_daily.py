@@ -57,6 +57,8 @@ class EditionPack:
     valuations: Dict[str, Dict] = field(default_factory=dict)
     deep_dive_ticker: Optional[str] = None
     deep_dive_reason: Optional[str] = None
+    deep_dive_data: Optional[Dict] = None  # P1-2: Thicker data pack for deep dive
+    recent_earnings: Optional[Dict] = None  # v4.2: 最近一次財報資料（用於 Earnings 文章）
 
     def to_dict(self) -> Dict:
         return asdict(self)
@@ -197,9 +199,23 @@ def publish_post(
     newsletter: str,
     segment: str,
     send_email: bool = False,
-    confirm_high_risk: bool = False
+    confirm_high_risk: bool = False,
+    visibility: str = "paid",  # P0-4: Default to paid for paywall
 ) -> Dict:
-    """Publish a single post to Ghost with safety rails"""
+    """Publish a single post to Ghost with safety rails
+
+    Args:
+        post: PostOutput object with json_data
+        mode: 'test' or 'prod'
+        newsletter: Newsletter slug
+        segment: Email segment for newsletter
+        send_email: Whether to send newsletter email
+        confirm_high_risk: Confirm high-risk segments
+        visibility: Post visibility - 'public', 'members', or 'paid'
+            - public: Visible to all (no paywall)
+            - members: Requires free membership to unlock
+            - paid: Requires paid membership to unlock
+    """
     from ..publishers.ghost_admin import GhostPublisher
 
     # Support both PostOutput object and duck typing
@@ -229,13 +245,18 @@ def publish_post(
         result["error"] = "Quality gates not passed - blocking newsletter send"
         send_email = False
 
+    # Determine Ghost publish mode
+    ghost_mode = "publish" if mode == "prod" else "draft"
+
     try:
-        with GhostPublisher() as publisher:
-            # Create the post
+        with GhostPublisher(newsletter_slug=newsletter) as publisher:
+            # Create the post with all parameters (P0-4 fix)
             pub_result = publisher.publish(
                 json_data,
-                mode=mode,
+                mode=ghost_mode,
                 send_newsletter=send_email,
+                email_segment=segment,
+                visibility=visibility,
             )
 
             result["success"] = pub_result.success
@@ -289,6 +310,7 @@ def stage_ingest(run_date: str, theme: Optional[str] = None) -> Dict:
         "earnings_calendar": [],
         "companies": {},
         "universe_tickers": universe_tickers,
+        "market_snapshot": {},
     }
 
     # Collect news from Google RSS
@@ -297,6 +319,18 @@ def stage_ingest(run_date: str, theme: Optional[str] = None) -> Dict:
     events = collector.collect_from_universe(items_per_query=5)
     data["news_items"] = [e.to_dict() for e in events]
     console.print(f"  ✓ Collected {len(events)} news items from Google RSS")
+
+    # Collect earnings calendar for universe tickers
+    console.print("  Collecting earnings calendar...")
+    with FMPEnricher() as enricher:
+        # Get earnings for next 7 days for our universe
+        earnings = enricher.get_upcoming_earnings_for_universe(universe_tickers, days_ahead=7)
+        data["earnings_calendar"] = earnings
+        console.print(f"  ✓ Found {len(earnings)} upcoming earnings in universe")
+
+        # Get market snapshot
+        data["market_snapshot"] = enricher.get_market_snapshot()
+        console.print("  ✓ Collected market snapshot")
 
     # Ensure minimum 8 news items with Layer 2 Radar Fillers
     MIN_NEWS_ITEMS = 8
@@ -361,6 +395,7 @@ def stage_pack(ingest_data: Dict, run_date: str, run_id: str) -> EditionPack:
     from ..analyzers.event_scoring import EventScorer
     from ..analyzers.valuation_models import ValuationAnalyzer
     from ..analyzers.peer_comp import PeerComparisonBuilder
+    from ..enrichers.fmp import FMPEnricher
 
     console.print("\n[bold cyan]Stage 2: Pack[/bold cyan]")
 
@@ -476,6 +511,90 @@ def stage_pack(ingest_data: Dict, run_date: str, run_id: str) -> EditionPack:
         except Exception as e:
             console.print(f"  [yellow]⚠ Peer table build failed: {e}[/yellow]")
 
+    # P1-2: Build thicker deep dive data pack
+    deep_dive_data = None
+    if deep_ticker and deep_ticker in companies_data:
+        console.print(f"  Building deep dive data for {deep_ticker}...")
+        try:
+            company = companies_data[deep_ticker]
+            deep_dive_data = {
+                "ticker": deep_ticker,
+                "company_profile": {
+                    "name": company.get("name", ""),
+                    "sector": company.get("sector", ""),
+                    "industry": company.get("industry", ""),
+                    "peers": company.get("peers", []),
+                },
+                "price_data": company.get("price", {}),
+                "fundamentals": company.get("fundamentals", {}),
+                "estimates": company.get("estimates", {}),
+                "valuation": valuations.get(deep_ticker, {}),
+                "peer_comparison": peer_table,
+                # Add quarterly data if available
+                "quarterly_history": [],
+                # Add segment breakdown if available
+                "segment_breakdown": [],
+                # Add competitive position
+                "competitive_moat": {
+                    "type": [],
+                    "durability": "moderate",
+                    "description": "",
+                },
+            }
+
+            # Get related news for deep dive ticker
+            ticker_news = [
+                item for item in ingest_data.get("news_items", [])
+                if deep_ticker in item.get("affected_tickers", []) or
+                   deep_ticker in item.get("headline", "")
+            ]
+            deep_dive_data["related_news"] = ticker_news[:5]
+
+            # Get upcoming earnings for deep dive ticker
+            ticker_earnings = [
+                e for e in ingest_data.get("earnings_calendar", [])
+                if e.get("ticker") == deep_ticker
+            ]
+            deep_dive_data["upcoming_earnings"] = ticker_earnings
+
+            console.print(f"  ✓ Built deep dive data pack with {len(ticker_news)} related news items")
+        except Exception as e:
+            console.print(f"  [yellow]⚠ Deep dive data build failed: {e}[/yellow]")
+
+    # v4.2: 取得 deep dive ticker 的最近財報（用於 Earnings 文章）
+    # 使用 income-statement 取得實際歷史財報，而非未來預期
+    recent_earnings = None
+    if deep_ticker:
+        console.print(f"  Fetching recent earnings for {deep_ticker}...")
+        try:
+            with FMPEnricher() as enricher:
+                earnings_history = enricher.get_recent_earnings(deep_ticker, limit=4)
+                if earnings_history:
+                    latest = earnings_history[0]
+                    recent_earnings = {
+                        "ticker": deep_ticker,
+                        "earnings_date": latest.get("date"),
+                        "fiscal_period": latest.get("fiscal_period"),
+                        "fiscal_year": latest.get("fiscal_year"),
+                        "eps_actual": latest.get("eps_actual"),
+                        "eps_diluted": latest.get("eps_diluted"),
+                        "revenue_actual": latest.get("revenue_actual"),
+                        "gross_profit": latest.get("gross_profit"),
+                        "operating_income": latest.get("operating_income"),
+                        "net_income": latest.get("net_income"),
+                        "gross_margin": latest.get("gross_margin"),
+                        "operating_margin": latest.get("operating_margin"),
+                        "net_margin": latest.get("net_margin"),
+                        "history": earnings_history,  # 最近 4 季
+                    }
+                    eps_display = f"${latest.get('eps_diluted'):.2f}" if latest.get('eps_diluted') else "N/A"
+                    rev_display = f"${latest.get('revenue_actual')/1e9:.1f}B" if latest.get('revenue_actual') else "N/A"
+                    console.print(f"  ✓ Found recent earnings: {latest.get('fiscal_year')} {latest.get('fiscal_period')} (EPS: {eps_display}, Rev: {rev_display})")
+                else:
+                    console.print(f"  [yellow]⚠ No earnings history found for {deep_ticker}[/yellow]")
+        except Exception as e:
+            console.print(f"  [yellow]⚠ Failed to fetch recent earnings: {e}[/yellow]")
+
     # Build pack
     pack = EditionPack(
         meta={
@@ -489,13 +608,20 @@ def stage_pack(ingest_data: Dict, run_date: str, run_id: str) -> EditionPack:
         primary_theme=primary_theme,
         news_items=ingest_data.get("news_items", [])[:20],
         market_data=ingest_data.get("market_data", {}),
+        earnings_calendar=ingest_data.get("earnings_calendar", []),  # P0-2: Added earnings calendar
         key_stocks=key_stocks,
         peer_data=peer_data,  # Contains fundamentals for all companies
         peer_table=peer_table,  # Formatted peer comparison table
         valuations=valuations,
         deep_dive_ticker=deep_ticker,
         deep_dive_reason=deep_reason,
+        deep_dive_data=deep_dive_data,  # P1-2: Thicker data pack for deep dive
+        recent_earnings=recent_earnings,  # v4.2: 最近財報資料
     )
+
+    # Add market_snapshot to pack meta
+    if ingest_data.get("market_snapshot"):
+        pack.meta["market_snapshot"] = ingest_data["market_snapshot"]
 
     # Save
     pack_path = pack.save()
@@ -511,9 +637,9 @@ def stage_write(
 ) -> Dict[str, Optional[PostOutput]]:
     """
     Stage 3: Generate posts using skills
-    - Post A (Flash): Always
-    - Post B (Earnings): Conditional
-    - Post C (Deep Dive): Always
+    - Post A (Flash): Always - uses postA.prompt.md and postA.schema.json
+    - Post B (Earnings): Conditional - uses postB.prompt.md and postB.schema.json
+    - Post C (Deep Dive): Always - uses postC.prompt.md and postC.schema.json
     """
     from ..writers.codex_runner import CodexRunner
     from ..writers.cross_links import generate_cross_links, inject_cross_links
@@ -521,14 +647,8 @@ def stage_write(
     console.print("\n[bold cyan]Stage 3: Write[/bold cyan]")
 
     if post_types is None:
-        post_types = ["flash", "deep"]  # Earnings is conditional
-
-        # Check if earnings should be generated
-        has_earnings = bool(edition_pack.earnings_calendar)
-        has_core_holding_upcoming = False  # TODO: Check earnings calendar
-
-        if has_earnings or has_core_holding_upcoming:
-            post_types.insert(1, "earnings")
+        # v4.2: Earnings 永遠觸發，分析 deep dive ticker 的最近一次財報
+        post_types = ["flash", "earnings", "deep"]
 
     # Generate cross-links for all posts
     topic = "market"
@@ -545,12 +665,15 @@ def stage_write(
     console.print(f"  ✓ Generated cross-links for {len(post_types)} posts")
 
     posts = {}
-    writer = CodexRunner()
 
     for post_type in post_types:
         console.print(f"  Generating {post_type}...")
 
         try:
+            # Create post-type specific writer with corresponding prompt and schema
+            writer = CodexRunner(post_type=post_type)
+            console.print(f"    Using prompt: {writer.prompt_path}")
+
             # Determine slug parameters
             ticker = None
 
@@ -568,8 +691,7 @@ def stage_write(
             if not validate_slug(slug, post_type):
                 raise ValueError(f"Invalid slug format: {slug}")
 
-            # Generate content
-            # TODO: Use post-type specific prompts
+            # Generate content using post-type specific prompt
             post = writer.generate(
                 edition_pack.to_dict(),
                 run_id=run_id,
@@ -657,7 +779,8 @@ def stage_qa(
 def stage_publish(
     posts: Dict[str, Optional[PostOutput]],
     mode: str,
-    confirm_high_risk: bool = False
+    confirm_high_risk: bool = False,
+    visibility: str = "paid",  # P0-4: Default visibility for paywall
 ) -> Dict[str, Dict]:
     """
     Stage 5: Publish to Ghost
@@ -666,6 +789,8 @@ def stage_publish(
     - Post A (Flash): publish-send (email)
     - Post B (Earnings): publish only (no email)
     - Post C (Deep Dive): publish only (no email)
+
+    All posts use paywall (visibility=paid) by default.
     """
     console.print("\n[bold cyan]Stage 5: Publish[/bold cyan]")
 
@@ -677,7 +802,9 @@ def stage_publish(
         segment = "label:internal"
     else:
         newsletter = "daily-brief"
-        segment = "status:-free"
+        segment = "status:-free"  # Paid members only
+
+    console.print(f"  Newsletter: {newsletter}, Segment: {segment}, Visibility: {visibility}")
 
     # Publish order: B, C first (no email), then A (with email)
     publish_order = ["earnings", "deep", "flash"]
@@ -706,6 +833,7 @@ def stage_publish(
             segment=segment,
             send_email=send_email,
             confirm_high_risk=confirm_high_risk,
+            visibility=visibility,  # P0-4: Pass visibility to Ghost
         )
 
         results[post_type] = result
