@@ -1,0 +1,21 @@
+{
+  "mode": "publish-send",
+  "post_data": {
+    "title": "NVDA 深度：推理經濟學與估值框架完整拆解",
+    "slug": "nvda-deep-dive-2026-01-05-deep"
+  },
+  "draft": {
+    "id": "695c3fb66a90a40001baf584",
+    "slug": "nvda-deep-dive-2026-01-05-deep",
+    "status": "draft"
+  },
+  "quality_passed": true,
+  "timestamp": "2026-01-05T22:48:22.878305",
+  "published": {
+    "id": "695c3fb66a90a40001baf584",
+    "url": "https://rocket-screener.ghost.io/nvda-deep-dive-2026-01-05-deep/",
+    "status": "published",
+    "newsletter": "daily-brief-test",
+    "segment": "label:internal"
+  }
+}

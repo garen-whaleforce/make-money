@@ -1,0 +1,321 @@
+# Theme Universe Configuration
+# Used for news scoring, ticker selection, and content prioritization
+
+themes:
+  # ============================================================
+  # AI & Semiconductors (Priority: Highest)
+  # ============================================================
+  ai-semis:
+    name: AI Semiconductors
+    name_zh: AI 半導體
+    tag: theme-ai-semis
+    priority_weight: 1.5
+    tickers:
+      - NVDA   # NVIDIA - GPU leader
+      - AMD    # AMD - GPU challenger
+      - AVGO   # Broadcom - AI ASIC
+      - TSM    # TSMC - Foundry
+      - ASML   # ASML - Litho equipment
+      - MRVL   # Marvell - AI networking chips
+      - ARM    # ARM - Architecture
+      - MU     # Micron - HBM memory
+      - INTC   # Intel - Legacy + foundry pivot
+      - QCOM   # Qualcomm - Edge AI
+    keywords:
+      en: ["AI chip", "GPU", "data center", "inference", "training", "HBM", "CoWoS", "Blackwell", "MI400"]
+      zh: ["AI 晶片", "GPU", "資料中心", "推理", "訓練", "高頻寬記憶體"]
+    key_metrics:
+      - data_center_revenue
+      - gross_margin
+      - capex_guidance
+      - lead_time
+
+  ai-cloud:
+    name: AI Cloud Infrastructure
+    name_zh: AI 雲端基礎建設
+    tag: theme-ai-cloud
+    priority_weight: 1.4
+    tickers:
+      - MSFT   # Microsoft - Azure
+      - GOOGL  # Google - GCP
+      - AMZN   # Amazon - AWS
+      - META   # Meta - AI infra
+      - ORCL   # Oracle - Cloud growth
+      - CRM    # Salesforce - AI SaaS
+      - NOW    # ServiceNow - Enterprise AI
+    keywords:
+      en: ["cloud capex", "hyperscaler", "Azure", "AWS", "GCP", "AI infrastructure"]
+      zh: ["雲端資本支出", "超大規模", "雲端部署"]
+    key_metrics:
+      - cloud_revenue_growth
+      - capex
+      - ai_revenue_disclosure
+
+  ai-networking:
+    name: AI Networking
+    name_zh: AI 網通
+    tag: theme-ai-networking
+    priority_weight: 1.3
+    tickers:
+      - MRVL   # Marvell
+      - CRDO   # Credo - Optical DSP
+      - ALAB   # Astera Labs - CXL
+      - ANET   # Arista - Switches
+      - CSCO   # Cisco
+    keywords:
+      en: ["AI networking", "optical", "interconnect", "CXL", "InfiniBand", "NVLink"]
+      zh: ["AI 網通", "光通訊", "互連", "交換器"]
+    key_metrics:
+      - ai_revenue_mix
+      - design_wins
+      - backlog
+
+  ai-security:
+    name: AI Security
+    name_zh: AI 資安
+    tag: theme-ai-security
+    priority_weight: 1.2
+    tickers:
+      - CRWD   # CrowdStrike
+      - PANW   # Palo Alto
+      - FTNT   # Fortinet
+      - ZS     # Zscaler
+      - S      # SentinelOne
+      - NET    # Cloudflare
+    keywords:
+      en: ["cybersecurity", "endpoint", "zero trust", "SIEM", "XDR"]
+      zh: ["資安", "端點防護", "零信任"]
+    key_metrics:
+      - arr_growth
+      - net_retention
+      - platform_adoption
+
+  # ============================================================
+  # Energy & Infrastructure
+  # ============================================================
+  power-grid:
+    name: Power & Grid
+    name_zh: 電力與電網
+    tag: theme-power-grid
+    priority_weight: 1.2
+    tickers:
+      - CEG    # Constellation - Nuclear
+      - VST    # Vistra - Power gen
+      - NEE    # NextEra - Renewables
+      - ETN    # Eaton - Electrical
+      - PWR    # Quanta Services
+      - GEV    # GE Vernova - Grid
+    keywords:
+      en: ["data center power", "grid", "electricity demand", "utility", "PPA"]
+      zh: ["資料中心電力", "電網", "電力需求", "購電協議"]
+    key_metrics:
+      - ppa_signings
+      - capacity_additions
+      - regulated_rate_base
+
+  nuclear:
+    name: Nuclear Energy
+    name_zh: 核能
+    tag: theme-nuclear
+    priority_weight: 1.1
+    tickers:
+      - CEG    # Constellation
+      - OKLO   # Oklo - SMR
+      - NNE    # Nano Nuclear
+      - SMR    # NuScale
+      - CCJ    # Cameco - Uranium
+      - UEC    # Uranium Energy
+    keywords:
+      en: ["nuclear", "SMR", "uranium", "reactor", "fission"]
+      zh: ["核能", "小型模組化反應爐", "鈾"]
+    key_metrics:
+      - reactor_orders
+      - nrc_approvals
+      - uranium_price
+
+  # ============================================================
+  # Defense & Aerospace
+  # ============================================================
+  drones-defense:
+    name: Drones & Defense Tech
+    name_zh: 無人機與國防科技
+    tag: theme-drones-defense
+    priority_weight: 1.1
+    tickers:
+      - PLTR   # Palantir - Defense AI
+      - AXON   # Axon - Law enforcement
+      - LMT    # Lockheed Martin
+      - RTX    # RTX
+      - NOC    # Northrop
+      - GD     # General Dynamics
+      - LDOS   # Leidos
+    keywords:
+      en: ["drone", "defense", "military", "DOD contract", "autonomous"]
+      zh: ["無人機", "國防", "軍工", "國防合約"]
+    key_metrics:
+      - backlog
+      - contract_wins
+      - international_revenue
+
+  space:
+    name: Space Economy
+    name_zh: 太空經濟
+    tag: theme-space
+    priority_weight: 1.0
+    tickers:
+      - RKLB   # Rocket Lab
+      - LUNR   # Intuitive Machines
+      - ASTS   # AST SpaceMobile
+      - SPCE   # Virgin Galactic
+      - MNTS   # Momentus
+    keywords:
+      en: ["space", "launch", "satellite", "orbit", "lunar"]
+      zh: ["太空", "發射", "衛星", "軌道", "月球"]
+    key_metrics:
+      - launch_cadence
+      - manifest_backlog
+      - constellation_deployment
+
+  # ============================================================
+  # Emerging Tech
+  # ============================================================
+  quantum:
+    name: Quantum Computing
+    name_zh: 量子運算
+    tag: theme-quantum
+    priority_weight: 1.0
+    tickers:
+      - IONQ   # IonQ
+      - RGTI   # Rigetti
+      - QBTS   # D-Wave
+      - IBM    # IBM Quantum
+      - GOOGL  # Google Quantum
+    keywords:
+      en: ["quantum", "qubit", "quantum supremacy", "error correction"]
+      zh: ["量子", "量子位元", "量子霸權", "錯誤修正"]
+    key_metrics:
+      - qubit_count
+      - error_rates
+      - commercial_contracts
+
+  crypto:
+    name: Crypto & Digital Assets
+    name_zh: 加密貨幣與數位資產
+    tag: theme-crypto
+    priority_weight: 1.0
+    tickers:
+      - COIN   # Coinbase
+      - MSTR   # MicroStrategy
+      - MARA   # Marathon Digital
+      - RIOT   # Riot Platforms
+      - CLSK   # CleanSpark
+      - HUT    # Hut 8
+    keywords:
+      en: ["bitcoin", "crypto", "blockchain", "ETF", "mining", "halving"]
+      zh: ["比特幣", "加密貨幣", "區塊鏈", "挖礦", "減半"]
+    key_metrics:
+      - btc_holdings
+      - hash_rate
+      - trading_volume
+      - staking_revenue
+
+  # ============================================================
+  # Consumer & Platform
+  # ============================================================
+  consumer-tech:
+    name: Consumer Tech
+    name_zh: 消費科技
+    tag: theme-consumer-tech
+    priority_weight: 0.9
+    tickers:
+      - AAPL   # Apple
+      - TSLA   # Tesla
+      - NFLX   # Netflix
+      - SPOT   # Spotify
+      - DIS    # Disney
+    keywords:
+      en: ["iPhone", "Apple", "Tesla", "EV", "streaming", "consumer"]
+      zh: ["蘋果", "特斯拉", "電動車", "串流"]
+    key_metrics:
+      - unit_sales
+      - arpu
+      - subscriber_growth
+      - deliveries
+
+  healthcare-ai:
+    name: Healthcare AI
+    name_zh: 醫療 AI
+    tag: theme-healthcare-ai
+    priority_weight: 0.8
+    tickers:
+      - ISRG   # Intuitive Surgical
+      - VEEV   # Veeva
+      - DXCM   # DexCom
+      - ILMN   # Illumina
+      - TDOC   # Teladoc
+    keywords:
+      en: ["healthcare AI", "medical device", "diagnostics", "digital health"]
+      zh: ["醫療 AI", "醫療器材", "診斷", "數位醫療"]
+    key_metrics:
+      - procedure_growth
+      - regulatory_approvals
+      - ai_feature_adoption
+
+# ============================================================
+# ETF Benchmarks
+# ============================================================
+etf_benchmarks:
+  broad_market:
+    - SPY    # S&P 500
+    - QQQ    # Nasdaq 100
+    - DIA    # Dow Jones
+    - IWM    # Russell 2000
+
+  sector:
+    - SMH    # Semiconductors
+    - XLK    # Technology
+    - XLU    # Utilities
+    - XLE    # Energy
+    - ARKK   # Innovation
+    - SOXX   # Semiconductors (iShares)
+
+  thematic:
+    - BOTZ   # Robotics & AI
+    - CIBR   # Cybersecurity
+    - LIT    # Lithium & Battery
+    - TAN    # Solar
+    - ICLN   # Clean Energy
+
+# ============================================================
+# Scoring Weights for News Catalyst
+# ============================================================
+catalyst_scoring:
+  market_level:
+    weight: 0.4
+    triggers:
+      - fed_rate_decision
+      - employment_report
+      - cpi_pce_inflation
+      - treasury_yields
+      - geopolitical_event
+      - oil_price_shock
+
+  sector_level:
+    weight: 0.35
+    triggers:
+      - ai_capex_signal
+      - semiconductor_supply
+      - cloud_spending
+      - energy_demand
+      - regulatory_change
+
+  company_level:
+    weight: 0.25
+    triggers:
+      - earnings_surprise
+      - guidance_revision
+      - major_contract
+      - product_launch
+      - merger_acquisition
+      - litigation
+      - executive_change

@@ -1,0 +1,459 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "postB.schema.json",
+  "title": "Post B - Earnings Reaction & Next-Quarter Fair Value",
+  "description": "Earnings analysis with valuation and peer comparison (conditional generation)",
+  "type": "object",
+  "required": ["title", "slug", "tags", "excerpt", "meta", "executive_summary", "earnings_scoreboard", "verdict", "market_reaction", "pl_bridge", "guidance", "valuation", "peer_comparison", "sources"],
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Article title in Chinese",
+      "maxLength": 100
+    },
+    "title_en": {
+      "type": "string",
+      "description": "Article title in English",
+      "maxLength": 100
+    },
+    "newsletter_subject": {
+      "type": "string",
+      "description": "Email subject line",
+      "maxLength": 80
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+-earnings$",
+      "description": "URL slug, must end with -earnings"
+    },
+    "tags": {
+      "type": "array",
+      "items": {"type": "string"},
+      "contains": {"const": "earnings"},
+      "description": "Must include earnings tag"
+    },
+    "excerpt": {
+      "type": "string",
+      "description": "Public preview excerpt",
+      "minLength": 100,
+      "maxLength": 500
+    },
+    "meta": {
+      "type": "object",
+      "required": ["post_type", "date", "earnings_companies"],
+      "properties": {
+        "post_type": {"const": "earnings"},
+        "mode": {"enum": ["preview", "recap"], "description": "v4.1: preview (before call) or recap (after call)"},
+        "date": {"type": "string", "format": "date"},
+        "earnings_companies": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Tickers covered in this earnings post"
+        },
+        "trigger_reason": {
+          "type": "string",
+          "description": "Why this post was generated (threshold met)"
+        },
+        "og_title": {"type": "string"},
+        "og_description": {"type": "string"},
+        "quality_gates_passed": {"type": "boolean"}
+      }
+    },
+    "executive_summary": {
+      "type": "object",
+      "required": ["en"],
+      "properties": {
+        "en": {
+          "type": "string",
+          "description": "English executive summary (200-300 words)"
+        }
+      }
+    },
+    "earnings_scoreboard": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ticker", "quarter", "eps_actual", "eps_estimate", "revenue_actual", "revenue_estimate"],
+        "properties": {
+          "ticker": {"type": "string"},
+          "company_name": {"type": "string"},
+          "quarter": {"type": "string", "pattern": "^Q[1-4] \\d{4}$"},
+          "eps_actual": {"type": "number"},
+          "eps_estimate": {"type": "number"},
+          "eps_surprise_pct": {"type": "number"},
+          "revenue_actual": {"type": "number"},
+          "revenue_estimate": {"type": "number"},
+          "revenue_surprise_pct": {"type": "number"},
+          "guidance_direction": {"enum": ["raised", "maintained", "lowered", "none"]},
+          "price_reaction_pct": {"type": "number"},
+          "reaction_timing": {"enum": ["after_hours", "premarket", "intraday"]}
+        }
+      },
+      "minItems": 1,
+      "description": "Earnings results table"
+    },
+    "verdict": {
+      "type": "object",
+      "required": ["summary", "market_interpretation"],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "description": "One-line verdict (e.g., 'Beat but guide down')"
+        },
+        "market_interpretation": {
+          "type": "string",
+          "description": "What the market is pricing in"
+        }
+      }
+    },
+    "market_reaction": {
+      "type": "object",
+      "properties": {
+        "what_market_heard": {
+          "type": "string",
+          "description": "The narrative driving price action"
+        },
+        "surprise_elements": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "concern_elements": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "pl_bridge": {
+      "type": "object",
+      "description": "P&L bridge analysis",
+      "properties": {
+        "revenue_drivers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "segment": {"type": "string"},
+              "growth_pct": {"type": "number"},
+              "vs_expectation": {"type": "string"}
+            }
+          }
+        },
+        "gross_margin": {
+          "type": "object",
+          "properties": {
+            "actual": {"type": "number"},
+            "yoy_change": {"type": "number"},
+            "drivers": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "operating_margin": {
+          "type": "object",
+          "properties": {
+            "actual": {"type": "number"},
+            "yoy_change": {"type": "number"},
+            "drivers": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "eps_bridge": {
+          "type": "string",
+          "description": "Walk from revenue to EPS"
+        }
+      }
+    },
+    "segment_kpis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "segment": {"type": "string"},
+          "kpi_name": {"type": "string"},
+          "value": {"type": ["string", "number"]},
+          "vs_prior_quarter": {"type": "string"},
+          "significance": {"type": "string"}
+        }
+      },
+      "description": "Key performance indicators by segment"
+    },
+    "cash_flow_balance_sheet": {
+      "type": "object",
+      "properties": {
+        "fcf": {"type": "number"},
+        "fcf_margin": {"type": "number"},
+        "capex": {"type": "number"},
+        "buyback": {"type": "number"},
+        "net_cash_debt": {"type": "number"},
+        "inventory_days": {"type": "number"},
+        "ar_days": {"type": "number"},
+        "highlights": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "guidance": {
+      "type": "object",
+      "required": ["next_quarter"],
+      "properties": {
+        "next_quarter": {
+          "type": "object",
+          "properties": {
+            "revenue_low": {"type": "number"},
+            "revenue_high": {"type": "number"},
+            "revenue_consensus": {"type": "number"},
+            "eps_low": {"type": "number"},
+            "eps_high": {"type": "number"},
+            "eps_consensus": {"type": "number"},
+            "gross_margin_guidance": {"type": "string"}
+          }
+        },
+        "full_year": {
+          "type": "object",
+          "properties": {
+            "revenue_guidance": {"type": "string"},
+            "eps_guidance": {"type": "string"},
+            "change_from_prior": {"type": "string"}
+          }
+        },
+        "credibility_assessment": {
+          "type": "string",
+          "enum": ["conservative", "in_line", "aggressive", "unclear"]
+        },
+        "management_tone": {"type": "string"}
+      }
+    },
+    "valuation": {
+      "type": "object",
+      "required": ["methodology", "scenarios"],
+      "properties": {
+        "methodology": {
+          "type": "string",
+          "description": "Valuation approach used (P/E, EV/S, DCF, etc.)"
+        },
+        "current_metrics": {
+          "type": "object",
+          "properties": {
+            "price": {"type": "number"},
+            "pe_ttm": {"type": "number"},
+            "pe_forward": {"type": "number"},
+            "ev_sales": {"type": "number"},
+            "ev_ebitda": {"type": "number"}
+          }
+        },
+        "scenarios": {
+          "type": "object",
+          "required": ["base", "bull", "bear"],
+          "properties": {
+            "base": {
+              "type": "object",
+              "properties": {
+                "target_price": {"type": "number"},
+                "multiple": {"type": "string"},
+                "rationale": {"type": "string"}
+              }
+            },
+            "bull": {
+              "type": "object",
+              "properties": {
+                "target_price": {"type": "number"},
+                "multiple": {"type": "string"},
+                "triggers": {"type": "array", "items": {"type": "string"}}
+              }
+            },
+            "bear": {
+              "type": "object",
+              "properties": {
+                "target_price": {"type": "number"},
+                "multiple": {"type": "string"},
+                "triggers": {"type": "array", "items": {"type": "string"}}
+              }
+            }
+          }
+        },
+        "fair_value_range": {
+          "type": "object",
+          "properties": {
+            "low": {"type": "number"},
+            "mid": {"type": "number"},
+            "high": {"type": "number"}
+          }
+        }
+      }
+    },
+    "expectation_stack": {
+      "type": "array",
+      "description": "v4: Expectation stack with reaction thresholds",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item": {"type": "string"},
+          "consensus": {"type": "string"},
+          "critical_threshold": {"type": "string"},
+          "positive_reaction": {"type": "string"},
+          "negative_reaction": {"type": "string"}
+        }
+      }
+    },
+    "peer_comparison_extended": {
+      "type": "array",
+      "description": "v4: Extended peer comparison with valuation framework",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ticker": {"type": "string"},
+          "price": {"type": "number"},
+          "pe_ttm": {"type": ["number", "null"]},
+          "pe_forward": {"type": ["number", "null"]},
+          "ev_sales": {"type": "number"},
+          "gross_margin": {"type": "number"},
+          "valuation_framework": {"type": "string", "description": "e.g., platform premium, commodity, growth"}
+        }
+      }
+    },
+    "post_call_tracking": {
+      "type": "object",
+      "description": "v4: Post-earnings call tracking timeline",
+      "properties": {
+        "t_plus_1": {"type": "array", "items": {"type": "string"}},
+        "t_plus_3": {"type": "array", "items": {"type": "string"}},
+        "t_plus_10": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "peer_rerate_map": {
+      "type": "object",
+      "description": "v4: Peer re-rate impact map",
+      "properties": {
+        "if_premium_holds": {"type": "array", "items": {"type": "string"}},
+        "if_premium_compresses": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "scenario_matrix_3x3": {
+      "type": "object",
+      "description": "v4.1: 3x3 EPS × Guidance scenario matrix",
+      "properties": {
+        "beat_raised": {
+          "type": "object",
+          "properties": {
+            "scenario": {"const": "beat_raised"},
+            "label": {"type": "string"},
+            "description": {"type": "string"},
+            "action": {"type": "string"}
+          }
+        },
+        "beat_maintained": {
+          "type": "object",
+          "properties": {
+            "scenario": {"const": "beat_maintained"},
+            "label": {"type": "string"},
+            "description": {"type": "string"},
+            "action": {"type": "string"}
+          }
+        },
+        "beat_lowered": {
+          "type": "object",
+          "properties": {
+            "scenario": {"const": "beat_lowered"},
+            "label": {"type": "string"},
+            "description": {"type": "string"},
+            "action": {"type": "string"}
+          }
+        },
+        "inline_raised": {
+          "type": "object",
+          "properties": {
+            "scenario": {"const": "inline_raised"},
+            "label": {"type": "string"},
+            "description": {"type": "string"},
+            "action": {"type": "string"}
+          }
+        },
+        "inline_maintained": {
+          "type": "object",
+          "properties": {
+            "scenario": {"const": "inline_maintained"},
+            "label": {"type": "string"},
+            "description": {"type": "string"},
+            "action": {"type": "string"}
+          }
+        },
+        "inline_lowered": {
+          "type": "object",
+          "properties": {
+            "scenario": {"const": "inline_lowered"},
+            "label": {"type": "string"},
+            "description": {"type": "string"},
+            "action": {"type": "string"}
+          }
+        },
+        "miss_raised": {
+          "type": "object",
+          "properties": {
+            "scenario": {"const": "miss_raised"},
+            "label": {"type": "string"},
+            "description": {"type": "string"},
+            "action": {"type": "string"}
+          }
+        },
+        "miss_maintained": {
+          "type": "object",
+          "properties": {
+            "scenario": {"const": "miss_maintained"},
+            "label": {"type": "string"},
+            "description": {"type": "string"},
+            "action": {"type": "string"}
+          }
+        },
+        "miss_lowered": {
+          "type": "object",
+          "properties": {
+            "scenario": {"const": "miss_lowered"},
+            "label": {"type": "string"},
+            "description": {"type": "string"},
+            "action": {"type": "string"}
+          }
+        }
+      }
+    },
+    "peer_comparison": {
+      "type": "object",
+      "required": ["peers", "takeaways"],
+      "properties": {
+        "peers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["ticker", "name"],
+            "properties": {
+              "ticker": {"type": "string"},
+              "name": {"type": "string"},
+              "revenue_growth": {"type": "number"},
+              "gross_margin": {"type": "number"},
+              "operating_margin": {"type": "number"},
+              "fcf_margin": {"type": "number"},
+              "pe_forward": {"type": "number"},
+              "ev_sales": {"type": "number"},
+              "net_cash_debt_ratio": {"type": "number"}
+            }
+          },
+          "minItems": 3,
+          "maxItems": 8
+        },
+        "takeaways": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Key insights from peer comparison"
+        },
+        "premium_discount_rationale": {"type": "string"}
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "type"],
+        "properties": {
+          "name": {"type": "string"},
+          "type": {"enum": ["earnings_release", "10-Q", "8-K", "transcript", "data"]},
+          "url": {"type": "string", "format": "uri"}
+        }
+      },
+      "minItems": 2
+    }
+  }
+}

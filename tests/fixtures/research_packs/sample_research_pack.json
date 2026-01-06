@@ -1,0 +1,209 @@
+{
+  "meta": {
+    "run_id": "test_20240101_120000",
+    "edition": "postclose",
+    "generated_at": "2024-01-01T12:00:00Z",
+    "version": "1.0.0"
+  },
+  "primary_event": {
+    "id": "evt_nvda_chip_20240101",
+    "title": "NVIDIA Announces New Blackwell AI Architecture",
+    "event_type": "product_launch",
+    "publisher": "Reuters",
+    "url": "https://example.com/nvidia-blackwell",
+    "published_at": "2024-01-01T08:00:00Z",
+    "tickers": ["NVDA"],
+    "score": 95.5
+  },
+  "sources": [
+    {
+      "title": "NVIDIA Unveils Blackwell Architecture at CES",
+      "publisher": "Reuters",
+      "url": "https://example.com/1",
+      "published_at": "2024-01-01T08:00:00Z"
+    },
+    {
+      "title": "NVIDIA's New AI Chip Could Reshape Enterprise Computing",
+      "publisher": "Bloomberg",
+      "url": "https://example.com/2",
+      "published_at": "2024-01-01T08:30:00Z"
+    },
+    {
+      "title": "AMD, Intel Face New Competitive Pressure from NVIDIA",
+      "publisher": "CNBC",
+      "url": "https://example.com/3",
+      "published_at": "2024-01-01T09:00:00Z"
+    },
+    {
+      "title": "Semiconductor Industry Analysts React to NVIDIA News",
+      "publisher": "WSJ",
+      "url": "https://example.com/4",
+      "published_at": "2024-01-01T09:30:00Z"
+    },
+    {
+      "title": "What NVIDIA's Blackwell Means for AI Infrastructure",
+      "publisher": "FT",
+      "url": "https://example.com/5",
+      "published_at": "2024-01-01T10:00:00Z"
+    },
+    {
+      "title": "Tech Giants Line Up for NVIDIA's New Chips",
+      "publisher": "TechCrunch",
+      "url": "https://example.com/6",
+      "published_at": "2024-01-01T10:30:00Z"
+    }
+  ],
+  "key_stocks": [
+    {
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "role": "primary",
+      "market_cap": 1196000000000,
+      "price": 485.50,
+      "change_pct": 2.35,
+      "sector": "Technology",
+      "industry": "Semiconductors"
+    },
+    {
+      "ticker": "AMD",
+      "name": "Advanced Micro Devices",
+      "role": "peer",
+      "market_cap": 235000000000,
+      "price": 145.20,
+      "change_pct": -1.25,
+      "sector": "Technology",
+      "industry": "Semiconductors"
+    },
+    {
+      "ticker": "INTC",
+      "name": "Intel Corporation",
+      "role": "peer",
+      "market_cap": 195000000000,
+      "price": 46.80,
+      "change_pct": -0.85,
+      "sector": "Technology",
+      "industry": "Semiconductors"
+    }
+  ],
+  "peer_table": {
+    "columns": ["ticker", "name", "market_cap", "pe_ratio", "ps_ratio", "gross_margin", "revenue_growth"],
+    "rows": [
+      {
+        "ticker": "NVDA",
+        "name": "NVIDIA",
+        "market_cap": "$1.20T",
+        "pe_ratio": 59.6,
+        "ps_ratio": 22.2,
+        "gross_margin": "73.5%",
+        "revenue_growth": "122%"
+      },
+      {
+        "ticker": "AMD",
+        "name": "AMD",
+        "market_cap": "$235B",
+        "pe_ratio": 148.5,
+        "ps_ratio": 10.5,
+        "gross_margin": "50.2%",
+        "revenue_growth": "4%"
+      },
+      {
+        "ticker": "INTC",
+        "name": "Intel",
+        "market_cap": "$195B",
+        "pe_ratio": 108.5,
+        "ps_ratio": 3.6,
+        "gross_margin": "38.2%",
+        "revenue_growth": "-14%"
+      }
+    ]
+  },
+  "valuations": {
+    "NVDA": {
+      "method": "peer_multiple",
+      "base_metric": "eps_ntm",
+      "base_value": 20.30,
+      "fair_value": {
+        "bear": 400,
+        "base": 500,
+        "bull": 650
+      },
+      "current_price": 485.50,
+      "upside": {
+        "bear": -17.6,
+        "base": 3.0,
+        "bull": 33.9
+      },
+      "rationale": "Based on 25x forward P/E (bear) to 32x (bull) multiple range, reflecting AI demand uncertainty vs. continued hyperscaler spending."
+    },
+    "AMD": {
+      "method": "peer_multiple",
+      "base_metric": "eps_ntm",
+      "base_value": 3.85,
+      "fair_value": {
+        "bear": 115,
+        "base": 155,
+        "bull": 195
+      },
+      "current_price": 145.20,
+      "upside": {
+        "bear": -20.8,
+        "base": 6.7,
+        "bull": 34.3
+      },
+      "rationale": "30x-50x forward P/E range reflecting AI exposure but execution risks in data center."
+    },
+    "INTC": {
+      "method": "peer_multiple",
+      "base_metric": "book_value",
+      "base_value": 25.50,
+      "fair_value": {
+        "bear": 35,
+        "base": 50,
+        "bull": 65
+      },
+      "current_price": 46.80,
+      "upside": {
+        "bear": -25.2,
+        "base": 6.8,
+        "bull": 38.9
+      },
+      "rationale": "1.4x-2.5x P/B reflecting turnaround uncertainty and foundry execution."
+    }
+  },
+  "company_data": {
+    "NVDA": {
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "sector": "Technology",
+      "industry": "Semiconductors",
+      "price": {
+        "last": 485.50,
+        "change_pct_1d": 2.35,
+        "volume": 45000000,
+        "market_cap": 1196000000000
+      },
+      "fundamentals": {
+        "revenue_ttm": 54000000000,
+        "ebitda_ttm": 36500000000,
+        "net_income_ttm": 20100000000,
+        "fcf_ttm": 27700000000,
+        "gross_margin": 0.735,
+        "operating_margin": 0.545,
+        "net_margin": 0.485,
+        "debt_to_equity": 0.41,
+        "current_ratio": 4.17
+      },
+      "estimates": {
+        "revenue_ntm": 107500000000,
+        "eps_ntm": 20.30,
+        "ebitda_ntm": 56500000000
+      },
+      "peers": ["AMD", "INTC", "QCOM", "AVGO", "TXN"]
+    }
+  },
+  "theme": {
+    "id": "ai_chips",
+    "name": "AI Chips & Semiconductors",
+    "description": "Companies designing and manufacturing chips optimized for AI workloads"
+  }
+}

@@ -1,0 +1,473 @@
+<!-- Rocket Screener | Daily Brief | Post A: Flash | v4.1 Template -->
+<!-- 結構：免費區（30秒掃描）→ Paywall → 會員區（5-7分鐘深入） -->
+
+<div style="margin:0 0 12px 0;">
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#111; color:#fff; font-size:12px; letter-spacing:.2px; margin-right:6px;">Daily Brief</span>
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#e3f2fd; color:#1565c0; font-size:12px; margin-right:6px;">Flash</span>
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#f3f4f6; color:#111; font-size:12px; margin-right:6px;">{{primary_theme}}</span>
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#f3f4f6; color:#111; font-size:12px;">{{edition}}</span>
+</div>
+<p style="margin:0 0 10px 0; font-size:12px; color:#6b7280;">
+  Data as of <strong>{{date}}</strong> US market close. Numbers from FMP/Alpha Vantage; event details from primary releases & aggregated news.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- 🆓 FREE PREVIEW ZONE (30 seconds read) -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- Market Snapshot -->
+<div style="border:1px solid #e5e7eb; border-radius:12px; padding:14px; margin:0 0 14px 0; background:#fafafa;">
+  <div style="font-size:12px; color:#6b7280; margin:0 0 10px 0; letter-spacing:.2px; font-weight:700;">MARKET SNAPSHOT</div>
+  <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:space-between;">
+    <div style="flex:1; min-width:80px; text-align:center; padding:8px; background:#fff; border-radius:8px; border:1px solid #e5e7eb;">
+      <div style="font-size:11px; color:#6b7280;">SPY</div>
+      <div style="font-size:16px; font-weight:700; color:{{spy_color}};">{{spy_change}}</div>
+    </div>
+    <div style="flex:1; min-width:80px; text-align:center; padding:8px; background:#fff; border-radius:8px; border:1px solid #e5e7eb;">
+      <div style="font-size:11px; color:#6b7280;">QQQ</div>
+      <div style="font-size:16px; font-weight:700; color:{{qqq_color}};">{{qqq_change}}</div>
+    </div>
+    <div style="flex:1; min-width:80px; text-align:center; padding:8px; background:#fff; border-radius:8px; border:1px solid #e5e7eb;">
+      <div style="font-size:11px; color:#6b7280;">10Y</div>
+      <div style="font-size:16px; font-weight:700;">{{us10y}}</div>
+    </div>
+    <div style="flex:1; min-width:80px; text-align:center; padding:8px; background:#fff; border-radius:8px; border:1px solid #e5e7eb;">
+      <div style="font-size:11px; color:#6b7280;">DXY</div>
+      <div style="font-size:16px; font-weight:700;">{{dxy}}</div>
+    </div>
+    <div style="flex:1; min-width:80px; text-align:center; padding:8px; background:#fff; border-radius:8px; border:1px solid #e5e7eb;">
+      <div style="font-size:11px; color:#6b7280;">VIX</div>
+      <div style="font-size:16px; font-weight:700;">{{vix}}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Top 3 Today (免費) -->
+<div style="border:1px solid #1565c0; background:#f8fbff; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:12px; color:#1565c0; margin:0 0 10px 0; letter-spacing:.2px; font-weight:700;">TODAY'S TOP 3</div>
+  <div style="margin:0 0 10px 0; padding:10px; background:#fff; border-radius:8px; border:1px solid #e3f2fd;">
+    <div style="display:flex; align-items:center; gap:6px; margin:0 0 6px 0;">
+      <span style="display:inline-block; padding:2px 6px; border-radius:4px; background:#1565c0; color:#fff; font-size:10px; font-weight:700;">1</span>
+      <span style="display:inline-block; padding:2px 6px; border-radius:4px; background:{{news_1_direction_bg}}; color:{{news_1_direction_color}}; font-size:10px;">{{news_1_direction}}</span>
+      <span style="font-size:11px; color:#6b7280;">Impact: {{news_1_impact}}</span>
+    </div>
+    <p style="margin:0; font-size:14px; font-weight:600;">{{news_1_headline_zh}}</p>
+    <p style="margin:4px 0 0 0; font-size:12px; color:#6b7280;">→ {{news_1_one_liner}}</p>
+  </div>
+  <div style="margin:0 0 10px 0; padding:10px; background:#fff; border-radius:8px; border:1px solid #e3f2fd;">
+    <div style="display:flex; align-items:center; gap:6px; margin:0 0 6px 0;">
+      <span style="display:inline-block; padding:2px 6px; border-radius:4px; background:#1565c0; color:#fff; font-size:10px; font-weight:700;">2</span>
+      <span style="display:inline-block; padding:2px 6px; border-radius:4px; background:{{news_2_direction_bg}}; color:{{news_2_direction_color}}; font-size:10px;">{{news_2_direction}}</span>
+      <span style="font-size:11px; color:#6b7280;">Impact: {{news_2_impact}}</span>
+    </div>
+    <p style="margin:0; font-size:14px; font-weight:600;">{{news_2_headline_zh}}</p>
+    <p style="margin:4px 0 0 0; font-size:12px; color:#6b7280;">→ {{news_2_one_liner}}</p>
+  </div>
+  <div style="padding:10px; background:#fff; border-radius:8px; border:1px solid #e3f2fd;">
+    <div style="display:flex; align-items:center; gap:6px; margin:0 0 6px 0;">
+      <span style="display:inline-block; padding:2px 6px; border-radius:4px; background:#1565c0; color:#fff; font-size:10px; font-weight:700;">3</span>
+      <span style="display:inline-block; padding:2px 6px; border-radius:4px; background:{{news_3_direction_bg}}; color:{{news_3_direction_color}}; font-size:10px;">{{news_3_direction}}</span>
+      <span style="font-size:11px; color:#6b7280;">Impact: {{news_3_impact}}</span>
+    </div>
+    <p style="margin:0; font-size:14px; font-weight:600;">{{news_3_headline_zh}}</p>
+    <p style="margin:4px 0 0 0; font-size:12px; color:#6b7280;">→ {{news_3_one_liner}}</p>
+  </div>
+</div>
+
+<!-- Lead Story Thesis + 3 Key Numbers -->
+<h2 style="margin:18px 0 10px 0;">今日主線（Lead Story）</h2>
+<blockquote style="border-left:4px solid #111; padding:10px 14px; margin:0 0 14px 0; background:#fafafa;">
+  <p style="margin:0;"><strong>{{thesis}}</strong></p>
+</blockquote>
+
+<div style="border:1px solid #eee; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:12px; color:#666; margin:0 0 8px 0; letter-spacing:.2px;">三個必記數字</div>
+  <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <tbody>
+      <tr>
+        <td style="width:34%; border:1px solid #eee; padding:10px; background:#fafafa; text-align:center;"><strong style="font-size:20px; color:#111;">{{key_num_1}}</strong><div style="color:#666; font-size:12px; margin-top:4px;">{{key_num_1_label}}</div></td>
+        <td style="width:33%; border:1px solid #eee; padding:10px; background:#fafafa; text-align:center;"><strong style="font-size:20px; color:#111;">{{key_num_2}}</strong><div style="color:#666; font-size:12px; margin-top:4px;">{{key_num_2_label}}</div></td>
+        <td style="width:33%; border:1px solid #eee; padding:10px; background:#fafafa; text-align:center;"><strong style="font-size:20px; color:#111;">{{key_num_3}}</strong><div style="color:#666; font-size:12px; margin-top:4px;">{{key_num_3_label}}</div></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 摘要 -->
+<h2 style="margin:18px 0 10px 0;">摘要</h2>
+<ul style="margin-top:0;">
+  {{tldr_items}}
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- 🔒 PAYWALL TRANSITION -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
+<div style="border:1px solid #e5e7eb; border-radius:12px; padding:16px; margin:24px 0; background:linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+  <div style="font-size:14px; font-weight:600; margin:0 0 8px 0;">以下為會員專屬內容</div>
+  <ul style="margin:0; padding-left:20px; font-size:13px; color:#64748b; line-height:1.7;">
+    <li>完整 News Radar（7-8 條新聞深度分析）</li>
+    <li>主題板 Theme Board（12 大主題股票分群）</li>
+    <li>關鍵個股 Playbook + If/Then 劇本</li>
+    <li>二階受惠清單 + 情境策略表</li>
+    <li>明日觀察 + 兩週催化劑時間軸</li>
+  </ul>
+</div>
+
+<!--members-only-->
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- 🔐 MEMBERS-ONLY CONTENT -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- English Executive Summary -->
+<div style="border:1px solid #e3f2fd; background:#f8fbff; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:12px; color:#1565c0; margin:0 0 8px 0; letter-spacing:.2px; font-weight:600;">EXECUTIVE SUMMARY</div>
+  {{summary_en}}
+</div>
+
+<!-- Today Package Links -->
+<div style="border:1px solid #e5e7eb; background:#ffffff; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:12px; color:#6b7280; margin:0 0 8px 0; letter-spacing:.2px; font-weight:700;">TODAY'S PACKAGE | {{date}}</div>
+  <ul style="margin:0; padding-left:18px; font-size:14px; line-height:1.55;">
+    <li style="margin:6px 0;"><strong>Flash</strong>（本篇）：今日主線 + News Radar + Playbook</li>
+    <li style="margin:6px 0;"><a href="{{earnings_url}}" style="text-decoration:none; font-weight:700;">Earnings</a>：法說/財報深度分析</li>
+    <li style="margin:6px 0;"><a href="{{deep_url}}" style="text-decoration:none; font-weight:700;">Deep Dive</a>：商業模式/護城河/決策樹</li>
+  </ul>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- NEWS RADAR (Full 7-8 items) -->
+<h2 style="margin:18px 0 10px 0;">News Radar（今日 7-8 則新聞）</h2>
+
+<!-- News Diversity Stats -->
+<div style="display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px 0;">
+  <span style="padding:4px 10px; border-radius:999px; background:#fef3c7; color:#92400e; font-size:11px;">Macro/Policy: {{news_diversity_macro}}</span>
+  <span style="padding:4px 10px; border-radius:999px; background:#dbeafe; color:#1e40af; font-size:11px;">Mega-cap: {{news_diversity_megacap}}</span>
+  <span style="padding:4px 10px; border-radius:999px; background:#dcfce7; color:#166534; font-size:11px;">Sector: {{news_diversity_sector}}</span>
+  <span style="padding:4px 10px; border-radius:999px; background:#f3e8ff; color:#7c3aed; font-size:11px;">Single Name: {{news_diversity_single}}</span>
+</div>
+
+<!-- Top 1: Deep Analysis -->
+<div style="border:2px solid #1565c0; border-radius:12px; padding:14px; margin:0 0 14px 0; background:#f8fbff;">
+  <div style="display:flex; align-items:center; gap:8px; margin:0 0 10px 0;">
+    <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#1565c0; color:#fff; font-size:11px; font-weight:700;">DEEP</span>
+    <span style="display:inline-block; padding:3px 8px; border-radius:999px; background:#e3f2fd; color:#1565c0; font-size:11px;">{{news_1_theme}}</span>
+    <span style="display:inline-block; padding:3px 8px; border-radius:999px; background:{{news_1_direction_bg}}; color:{{news_1_direction_color}}; font-size:11px;">{{news_1_direction}}</span>
+    <span style="font-size:12px; color:#6b7280;">Impact: <strong>{{news_1_impact}}/100</strong></span>
+  </div>
+  <h3 style="margin:0 0 4px 0; font-size:16px;">{{news_1_headline_zh}}</h3>
+  <p style="margin:0 0 10px 0; font-size:13px; color:#6b7280;">{{news_1_headline_en}}</p>
+  <p style="margin:0 0 8px 0; font-size:12px; color:#9ca3af;">Source: {{news_1_source}}</p>
+
+  <div style="background:#fff; border-radius:8px; padding:12px; margin:10px 0;">
+    <div style="margin:0 0 8px 0;"><strong style="color:#1565c0;">What:</strong> {{news_1_what}}</div>
+    <div style="margin:0 0 8px 0;"><strong style="color:#1565c0;">Why it matters:</strong> {{news_1_why}}</div>
+    <div style="display:flex; gap:16px; flex-wrap:wrap;">
+      <div><strong style="color:#16a34a;">Winners:</strong> {{news_1_winners}}</div>
+      <div><strong style="color:#dc2626;">Losers:</strong> {{news_1_losers}}</div>
+    </div>
+    <div style="margin:8px 0 0 0;"><strong style="color:#6b7280;">Watch:</strong> {{news_1_watch}}</div>
+  </div>
+</div>
+
+<!-- Top 2-4: Short Analysis -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin:0 0 14px 0;">
+  <div style="border:1px solid #e5e7eb; border-radius:10px; padding:12px; background:#fff;">
+    <div style="display:flex; align-items:center; gap:6px; margin:0 0 8px 0;">
+      <span style="display:inline-block; padding:2px 8px; border-radius:4px; background:#f3f4f6; color:#374151; font-size:10px; font-weight:700;">#2</span>
+      <span style="display:inline-block; padding:2px 6px; border-radius:4px; background:#f3f4f6; color:#6b7280; font-size:10px;">{{news_2_theme}}</span>
+      <span style="display:inline-block; padding:2px 6px; border-radius:4px; background:{{news_2_direction_bg}}; color:{{news_2_direction_color}}; font-size:10px;">{{news_2_direction}}</span>
+    </div>
+    <p style="margin:0 0 6px 0; font-size:14px; font-weight:600;">{{news_2_headline_zh}}</p>
+    <p style="margin:0; font-size:13px; color:#6b7280; line-height:1.5;">{{news_2_summary}}</p>
+    <div style="margin:8px 0 0 0; font-size:12px; color:#9ca3af;">Tickers: {{news_2_tickers}}</div>
+  </div>
+  <div style="border:1px solid #e5e7eb; border-radius:10px; padding:12px; background:#fff;">
+    <div style="display:flex; align-items:center; gap:6px; margin:0 0 8px 0;">
+      <span style="display:inline-block; padding:2px 8px; border-radius:4px; background:#f3f4f6; color:#374151; font-size:10px; font-weight:700;">#3</span>
+      <span style="display:inline-block; padding:2px 6px; border-radius:4px; background:#f3f4f6; color:#6b7280; font-size:10px;">{{news_3_theme}}</span>
+      <span style="display:inline-block; padding:2px 6px; border-radius:4px; background:{{news_3_direction_bg}}; color:{{news_3_direction_color}}; font-size:10px;">{{news_3_direction}}</span>
+    </div>
+    <p style="margin:0 0 6px 0; font-size:14px; font-weight:600;">{{news_3_headline_zh}}</p>
+    <p style="margin:0; font-size:13px; color:#6b7280; line-height:1.5;">{{news_3_summary}}</p>
+    <div style="margin:8px 0 0 0; font-size:12px; color:#9ca3af;">Tickers: {{news_3_tickers}}</div>
+  </div>
+  <div style="border:1px solid #e5e7eb; border-radius:10px; padding:12px; background:#fff;">
+    <div style="display:flex; align-items:center; gap:6px; margin:0 0 8px 0;">
+      <span style="display:inline-block; padding:2px 8px; border-radius:4px; background:#f3f4f6; color:#374151; font-size:10px; font-weight:700;">#4</span>
+      <span style="display:inline-block; padding:2px 6px; border-radius:4px; background:#f3f4f6; color:#6b7280; font-size:10px;">{{news_4_theme}}</span>
+      <span style="display:inline-block; padding:2px 6px; border-radius:4px; background:{{news_4_direction_bg}}; color:{{news_4_direction_color}}; font-size:10px;">{{news_4_direction}}</span>
+    </div>
+    <p style="margin:0 0 6px 0; font-size:14px; font-weight:600;">{{news_4_headline_zh}}</p>
+    <p style="margin:0; font-size:13px; color:#6b7280; line-height:1.5;">{{news_4_summary}}</p>
+    <div style="margin:8px 0 0 0; font-size:12px; color:#9ca3af;">Tickers: {{news_4_tickers}}</div>
+  </div>
+</div>
+
+<!-- Top 5-8: Quick Mentions -->
+<div style="border:1px solid #e5e7eb; border-radius:12px; padding:14px; margin:0 0 14px 0; background:#fafafa;">
+  <div style="font-size:12px; color:#6b7280; margin:0 0 10px 0; font-weight:700;">QUICK MENTIONS</div>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
+    <div style="padding:8px 10px; background:#fff; border-radius:6px; border:1px solid #e5e7eb;">
+      <span style="font-weight:700; color:#1565c0;">{{news_5_ticker}}</span>
+      <span style="display:inline-block; margin-left:6px; padding:1px 5px; border-radius:3px; background:{{news_5_direction_bg}}; color:{{news_5_direction_color}}; font-size:10px;">{{news_5_direction}}</span>
+      <p style="margin:4px 0 0 0; font-size:13px; color:#374151;">{{news_5_one_liner}}</p>
+    </div>
+    <div style="padding:8px 10px; background:#fff; border-radius:6px; border:1px solid #e5e7eb;">
+      <span style="font-weight:700; color:#1565c0;">{{news_6_ticker}}</span>
+      <span style="display:inline-block; margin-left:6px; padding:1px 5px; border-radius:3px; background:{{news_6_direction_bg}}; color:{{news_6_direction_color}}; font-size:10px;">{{news_6_direction}}</span>
+      <p style="margin:4px 0 0 0; font-size:13px; color:#374151;">{{news_6_one_liner}}</p>
+    </div>
+    <div style="padding:8px 10px; background:#fff; border-radius:6px; border:1px solid #e5e7eb;">
+      <span style="font-weight:700; color:#1565c0;">{{news_7_ticker}}</span>
+      <span style="display:inline-block; margin-left:6px; padding:1px 5px; border-radius:3px; background:{{news_7_direction_bg}}; color:{{news_7_direction_color}}; font-size:10px;">{{news_7_direction}}</span>
+      <p style="margin:4px 0 0 0; font-size:13px; color:#374151;">{{news_7_one_liner}}</p>
+    </div>
+    <div style="padding:8px 10px; background:#fff; border-radius:6px; border:1px solid #e5e7eb;">
+      <span style="font-weight:700; color:#1565c0;">{{news_8_ticker}}</span>
+      <span style="display:inline-block; margin-left:6px; padding:1px 5px; border-radius:3px; background:{{news_8_direction_bg}}; color:{{news_8_direction_color}}; font-size:10px;">{{news_8_direction}}</span>
+      <p style="margin:4px 0 0 0; font-size:13px; color:#374151;">{{news_8_one_liner}}</p>
+    </div>
+  </div>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- THEME BOARD (v4 NEW) -->
+<h2 style="margin:18px 0 10px 0;">主題板（Theme Board）</h2>
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin:0 0 14px 0;">
+  <div style="border:1px solid #e5e7eb; border-radius:8px; padding:10px; background:#fff;">
+    <div style="font-size:11px; color:#6b7280; font-weight:600; margin:0 0 6px 0;">AI 晶片</div>
+    <div style="font-size:13px; color:#111;">{{theme_ai_chips}}</div>
+  </div>
+  <div style="border:1px solid #e5e7eb; border-radius:8px; padding:10px; background:#fff;">
+    <div style="font-size:11px; color:#6b7280; font-weight:600; margin:0 0 6px 0;">AI 雲端基礎設施</div>
+    <div style="font-size:13px; color:#111;">{{theme_ai_cloud}}</div>
+  </div>
+  <div style="border:1px solid #e5e7eb; border-radius:8px; padding:10px; background:#fff;">
+    <div style="font-size:11px; color:#6b7280; font-weight:600; margin:0 0 6px 0;">AI 網路</div>
+    <div style="font-size:13px; color:#111;">{{theme_ai_networking}}</div>
+  </div>
+  <div style="border:1px solid #e5e7eb; border-radius:8px; padding:10px; background:#fff;">
+    <div style="font-size:11px; color:#6b7280; font-weight:600; margin:0 0 6px 0;">AI 資安</div>
+    <div style="font-size:13px; color:#111;">{{theme_ai_security}}</div>
+  </div>
+  <div style="border:1px solid #e5e7eb; border-radius:8px; padding:10px; background:#fff;">
+    <div style="font-size:11px; color:#6b7280; font-weight:600; margin:0 0 6px 0;">電力 & 電網</div>
+    <div style="font-size:13px; color:#111;">{{theme_power}}</div>
+  </div>
+  <div style="border:1px solid #e5e7eb; border-radius:8px; padding:10px; background:#fff;">
+    <div style="font-size:11px; color:#6b7280; font-weight:600; margin:0 0 6px 0;">核能</div>
+    <div style="font-size:13px; color:#111;">{{theme_nuclear}}</div>
+  </div>
+  <div style="border:1px solid #e5e7eb; border-radius:8px; padding:10px; background:#fff;">
+    <div style="font-size:11px; color:#6b7280; font-weight:600; margin:0 0 6px 0;">無人機 & 國防</div>
+    <div style="font-size:13px; color:#111;">{{theme_drones}}</div>
+  </div>
+  <div style="border:1px solid #e5e7eb; border-radius:8px; padding:10px; background:#fff;">
+    <div style="font-size:11px; color:#6b7280; font-weight:600; margin:0 0 6px 0;">太空</div>
+    <div style="font-size:13px; color:#111;">{{theme_space}}</div>
+  </div>
+  <div style="border:1px solid #e5e7eb; border-radius:8px; padding:10px; background:#fff;">
+    <div style="font-size:11px; color:#6b7280; font-weight:600; margin:0 0 6px 0;">量子</div>
+    <div style="font-size:13px; color:#111;">{{theme_quantum}}</div>
+  </div>
+  <div style="border:1px solid #e5e7eb; border-radius:8px; padding:10px; background:#fff;">
+    <div style="font-size:11px; color:#6b7280; font-weight:600; margin:0 0 6px 0;">加密貨幣</div>
+    <div style="font-size:13px; color:#111;">{{theme_crypto}}</div>
+  </div>
+  <div style="border:1px solid #e5e7eb; border-radius:8px; padding:10px; background:#fff;">
+    <div style="font-size:11px; color:#6b7280; font-weight:600; margin:0 0 6px 0;">消費科技</div>
+    <div style="font-size:13px; color:#111;">{{theme_consumer}}</div>
+  </div>
+  <div style="border:1px solid #e5e7eb; border-radius:8px; padding:10px; background:#fff;">
+    <div style="font-size:11px; color:#6b7280; font-weight:600; margin:0 0 6px 0;">醫療 AI</div>
+    <div style="font-size:13px; color:#111;">{{theme_healthcare}}</div>
+  </div>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Repricing Dashboard -->
+<h2 style="margin:18px 0 10px 0;">重新定價儀表板（Repricing Dashboard）</h2>
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">變數</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">為什麼重要</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">領先訊號</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">影響標的</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{repricing_rows}}
+    </tbody>
+  </table>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Industry Impact Map -->
+<h2 style="margin:18px 0 10px 0;">產業影響地圖</h2>
+
+<div style="border:1px solid #e8f5e9; border-radius:12px; padding:14px; margin:0 0 12px 0; background:#f1f8e9;">
+  <div style="font-weight:700; margin:0 0 6px 0; color:#2e7d32;">一階（0-2 週）</div>
+  <ul style="margin:0; padding-left:18px;">
+    <li><strong>受惠：</strong>{{first_order_winners}}</li>
+    <li><strong>風險：</strong>{{first_order_risks}}</li>
+  </ul>
+</div>
+
+<div style="border:1px solid #fff3e0; border-radius:12px; padding:14px; margin:0 0 12px 0; background:#fff8e1;">
+  <div style="font-weight:700; margin:0 0 6px 0; color:#e65100;">二階（1-2 季）</div>
+  <ul style="margin:0; padding-left:18px;">
+    <li><strong>可能受惠：</strong>{{second_order_winners}}</li>
+    <li><strong>觀察點：</strong>{{second_order_watch}}</li>
+  </ul>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Ticker Playbook -->
+<h2 style="margin:18px 0 10px 0;">關鍵個股 Playbook</h2>
+
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:13px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">Ticker</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">價格</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">漲跌</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">Setup</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">Catalyst</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">Risk</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">Valuation Anchor</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ticker_playbook_rows}}
+    </tbody>
+  </table>
+</div>
+
+<!-- If/Then Scripts -->
+<div style="border:1px solid #e5e7eb; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:12px; color:#6b7280; margin:0 0 10px 0; font-weight:700;">兩週 If/Then 劇本</div>
+  {{ticker_if_then_scripts}}
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Second Order Plays -->
+<h2 style="margin:18px 0 10px 0;">二階受惠清單</h2>
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:13px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">Ticker</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">Why Sensitive</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">What to Watch</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">Trigger</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">Invalidation</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{second_order_rows}}
+    </tbody>
+  </table>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Scenario Playbook -->
+<h2 style="margin:18px 0 10px 0;">情境策略表（Scenario Playbook）</h2>
+<p style="margin-top:0; color:#666; font-size:14px;">
+  把「敘事」拆成可驗證的條件：你不是在賭新品，而是在賭<strong>交付 × 定價 × 導入</strong>能否支撐估值溢價。
+</p>
+
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa; width:15%;">情境</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">必要條件</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa; width:20%;">市場反應</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa; width:18%;">驗證點</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="background:#f0fdf4;">
+        <td style="border:1px solid #eee; padding:10px;"><strong>Bull</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">{{scenario_bull_condition}}</td>
+        <td style="border:1px solid #eee; padding:10px;">{{scenario_bull_reaction}}</td>
+        <td style="border:1px solid #eee; padding:10px;">{{scenario_bull_next}}</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;"><strong>Base</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">{{scenario_base_condition}}</td>
+        <td style="border:1px solid #eee; padding:10px;">{{scenario_base_reaction}}</td>
+        <td style="border:1px solid #eee; padding:10px;">{{scenario_base_next}}</td>
+      </tr>
+      <tr style="background:#fef2f2;">
+        <td style="border:1px solid #eee; padding:10px;"><strong>Bear</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">{{scenario_bear_condition}}</td>
+        <td style="border:1px solid #eee; padding:10px;">{{scenario_bear_reaction}}</td>
+        <td style="border:1px solid #eee; padding:10px;">{{scenario_bear_next}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Tomorrow's Calendar -->
+<h2 style="margin:18px 0 10px 0;">明日觀察（Tomorrow's Calendar）</h2>
+<div style="border:1px solid #eee; border-radius:12px; padding:14px;">
+  <table style="width:100%; border-collapse:collapse; font-size:13px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border-bottom:1px solid #eee; padding:8px;">時間</th>
+        <th style="text-align:left; border-bottom:1px solid #eee; padding:8px;">事件</th>
+        <th style="text-align:left; border-bottom:1px solid #eee; padding:8px;">重要性</th>
+        <th style="text-align:left; border-bottom:1px solid #eee; padding:8px;">影響標的</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{tomorrow_calendar_rows}}
+    </tbody>
+  </table>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Two-Week Watchlist -->
+<h2 style="margin:18px 0 10px 0;">兩週觀察清單</h2>
+<div style="border:1px solid #eee; border-radius:12px; padding:14px;">
+  <ul style="margin:0; padding-left:18px;">
+    {{watch_list_items}}
+  </ul>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Contrarian View -->
+<h2 style="margin:18px 0 10px 0;">反方論點</h2>
+<div style="border-left:4px solid #ef4444; padding:10px 12px; margin:0 0 14px 0; background:#fef2f2;">
+  <p style="margin:0;"><strong>Bear case：</strong>{{bear_case}}</p>
+  <p style="margin:8px 0 0 0; font-size:13px; color:#666;">觸發指標：{{bear_triggers}}</p>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Sources -->
+<h2 style="margin:18px 0 10px 0;">資料來源</h2>
+<ul style="margin-top:0; font-size:14px; color:#666;">
+  {{sources}}
+</ul>
+
+<p style="font-size:0.9em; color:#999; margin-top:20px;">
+  本文僅供參考，不構成投資建議。投資有風險，入市需謹慎。
+</p>

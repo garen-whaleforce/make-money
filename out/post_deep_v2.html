@@ -1,0 +1,390 @@
+<!-- Rocket Screener | Daily Brief | Post C: Deep Dive -->
+
+<div style="margin:0 0 12px 0;">
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#111; color:#fff; font-size:12px; letter-spacing:.2px; margin-right:6px;">Daily Brief</span>
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#dbeafe; color:#1e40af; font-size:12px; margin-right:6px;">Deep Dive</span>
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#f3f4f6; color:#111; font-size:12px; margin-right:6px;">NVDA</span>
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#f3f4f6; color:#111; font-size:12px;">AI Semis</span>
+</div><p style="margin:0 0 10px 0; font-size:12px; color:#6b7280;">
+  Data as of <strong>2026-01-05</strong> US market close. Numbers from FMP/Alpha Vantage; event details from primary releases & aggregated news.
+</p>
+
+<!-- Today Package -->
+<div style="border:1px solid #e5e7eb; background:#ffffff; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:12px; color:#6b7280; margin:0 0 8px 0; letter-spacing:.2px; font-weight:700;">TODAY'S PACKAGE | 2026-01-05（美股日報三件套）</div>
+  <ul style="margin:0; padding-left:18px; font-size:14px; line-height:1.55;">
+    <li style="margin:6px 0;"><a href="/ai-chips-ces-2026-01-05-flash/" style="text-decoration:none; font-weight:700;">Flash</a>：今日主線：事件→產業→標的（兩週觀察清單）</li><li style="margin:6px 0;"><a href="/nvda-earnings-preview-2026-01-05-earnings/" style="text-decoration:none; font-weight:700;">Earnings</a>：法說/財報：估值壓力測試 + 關鍵 KPI 清單</li><li style="margin:6px 0;"><strong>Deep Dive</strong>（本篇）：深度研究：商業模式/護城河/決策樹/風險監控</li>
+  </ul>
+</div>
+
+<!-- Chinese Executive Summary -->
+<div style="border:1px solid #1e40af; background:#eff6ff; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:12px; color:#1e40af; margin:0 0 8px 0; letter-spacing:.2px; font-weight:700;">中文摘要</div>
+  <p style="margin:0 0 0 0; font-size:14px; line-height:1.65; color:#111;">這份 <strong>NVDA Deep Dive</strong> 以「投資備忘錄（Investment Memo）」格式，將 <strong>推理經濟學</strong>、護城河與估值框架串成可落地的決策流程：你不是在賭一個新品，而是在評估 <strong>52.3x</strong> 的估值溢價是否能被 <strong>70.1%</strong> 的毛利率與平台黏著度長期支撐。</p>
+<p style="margin:10px 0 0 0; font-size:14px; line-height:1.65; color:#111;">多頭命題：<strong>CUDA 生態系鎖定</strong>＋<strong>全端整合</strong>＝定價權；空頭命題：AMD MI400、雲端自研與 AI ASIC 的替代路線，可能在供給改善後把毛利率與倍數一起壓縮。</p>
+<p style="margin:10px 0 0 0; font-size:14px; line-height:1.65; color:#111;">文內包含：<strong>五個必記數字</strong>、商業模式與護城河拆解、估值情境（$127 / $189 / $263）、<strong>If/Then 決策樹</strong>、風險監控表、以及管理層提問清單，方便你把研究轉成可追蹤的驗證節奏。</p>
+</div>
+
+
+
+<!-- English Executive Summary -->
+<div style="border:1px solid #dbeafe; background:#eff6ff; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:12px; color:#1e40af; margin:0 0 8px 0; letter-spacing:.2px; font-weight:600;">EXECUTIVE SUMMARY</div>
+  <p style="margin:0; font-size:14px; line-height:1.6; color:#333;">
+    NVIDIA stands at the center of the AI infrastructure buildout, commanding 70.1% gross margins and a $4.6T market cap. The CES 2026 Blackwell Ultra launch—with 2.5x inference performance and 40% better efficiency—signals a shift from training to inference economics.
+  </p>
+  <p style="margin:10px 0 0 0; font-size:14px; line-height:1.6; color:#333;">
+    <strong>Thesis:</strong> CUDA ecosystem lock-in + full-stack integration = sustained pricing power. <strong>Anti-thesis:</strong> AMD MI400 and custom ASICs could compress margins.
+  </p>
+  <p style="margin:10px 0 0 0; font-size:14px; line-height:1.6; color:#333;">
+    <strong>Valuation:</strong> Bear $127 (35x), Base $189 (52x), Bull $263 (73x). Watch 1/8 earnings for delivery/pricing signals.
+  </p>
+</div>
+
+<!-- Company Profile Card -->
+<div style="border:1px solid #eee; border-radius:12px; padding:14px; margin:0 0 14px 0; display:flex; flex-wrap:wrap; gap:12px;">
+  <div style="flex:1; min-width:120px;">
+    <div style="font-size:12px; color:#666;">Ticker</div>
+    <div style="font-size:18px; font-weight:700;">NVDA</div>
+  </div>
+  <div style="flex:1; min-width:120px;">
+    <div style="font-size:12px; color:#666;">Price</div>
+    <div style="font-size:18px; font-weight:700;">$188.85 <span style="color:#16a34a; font-size:14px;">+4.2%</span></div>
+  </div>
+  <div style="flex:1; min-width:120px;">
+    <div style="font-size:12px; color:#666;">Market Cap</div>
+    <div style="font-size:18px; font-weight:700;">$4.6T</div>
+  </div>
+  <div style="flex:1; min-width:120px;">
+    <div style="font-size:12px; color:#666;">P/E TTM</div>
+    <div style="font-size:18px; font-weight:700;">52.3x</div>
+  </div>
+  <div style="flex:1; min-width:120px;">
+    <div style="font-size:12px; color:#666;">Gross Margin</div>
+    <div style="font-size:18px; font-weight:700;">70.1%</div>
+  </div>
+</div>
+
+<!-- How to read -->
+<div style="border:1px solid #e5e7eb; background:#f9fafb; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:12px; color:#111; margin:0 0 8px 0; letter-spacing:.2px; font-weight:800;">怎麼讀這份 Deep Dive（3 分鐘/15 分鐘/完整）</div>
+  <ul style="margin:0; padding-left:18px; font-size:14px; line-height:1.6; color:#111;">
+    <li style="margin:6px 0;"><strong>只想 3 分鐘抓重點：</strong>看「五個必記數字」＋「估值框架」＋「If/Then 決策樹」</li>
+    <li style="margin:6px 0;"><strong>要做中期部位：</strong>加讀「多空對決」＋「風險清單」</li>
+    <li style="margin:6px 0;"><strong>要做完整研究：</strong>再讀「商業模式/護城河」＋「管理層提問清單」</li>
+  </ul>
+</div>
+
+
+
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">投資命題（Investment Thesis）</h2>
+<blockquote style="border-left:4px solid #1e40af; padding:10px 14px; margin:0 0 14px 0; background:#eff6ff;">
+  <p style="margin:0;"><strong>NVDA 是 AI 基礎建設週期的核心受益者。</strong>70.1% 毛利率反映的是 CUDA 生態系鎖定、全端整合能力、與定價權的組合。</p>
+</blockquote>
+
+<h3 style="margin:14px 0 8px 0;">Why Now?</h3>
+<p style="margin-top:0;">
+  CES 2026 發布的 Blackwell Ultra（推理 2.5x、能效 +40%）標誌著從「訓練經濟學」走向「推理經濟學」的轉折。
+</p>
+
+<h3 style="margin:14px 0 8px 0;">關鍵論點</h3>
+<ul style="margin-top:0;">
+  <li><strong>CUDA 生態系</strong>：開發者鎖定、遷移成本高、替代方案不成熟</li>
+  <li><strong>全端整合</strong>：從晶片到軟體的垂直整合，競爭者難複製</li>
+  <li><strong>定價權</strong>：供需失衡下維持高毛利，即使產能擴張</li>
+  <li><strong>推理市場擴張</strong>：從訓練轉向推理，TAM 顯著擴大</li>
+</ul>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">反命題（Anti-Thesis / Bear Case）</h2>
+<div style="border-left:4px solid #ef4444; padding:10px 14px; margin:0 0 14px 0; background:#fef2f2;">
+  <p style="margin:0;"><strong>溢價估值建立在「供不應求 + 無競爭」假設上。</strong>AMD MI400、AVGO AI ASIC、雲端自研晶片正在侵蝕這兩個假設。</p>
+</div>
+
+<ul style="margin-top:0;">
+  <li><strong>競爭加劇</strong>：AMD MI400 獲 Azure 大單，Q2 量產後供給增加</li>
+  <li><strong>ASIC 替代</strong>：雲端可能用 ASIC 做特定工作負載最佳化</li>
+  <li><strong>供給改善 = 定價壓力</strong>：若供給瓶頸緩解，毛利率可能承壓</li>
+  <li><strong>估值敏感</strong>：52.3x P/E 對增速放緩非常敏感</li>
+</ul>
+
+<!-- CTA -->
+<div style="border-radius:14px; padding:16px; margin:18px 0; background:#0b1220; color:#fff;">
+  <div style="font-size:16px; font-weight:800; margin:0 0 8px 0; letter-spacing:.2px;">會員版完整解鎖：估值情境＋If/Then 決策樹＋風險監控表</div>
+  <ul style="margin:0; padding-left:18px; font-size:14px; line-height:1.6; color:#e5e7eb;">
+    <li style="margin:6px 0;"><strong>多空對決表</strong>：什麼訊號支持 Bull？什麼訊號導向 Bear？</li><li style="margin:6px 0;"><strong>估值框架</strong>：$127 / $151 / $189 / $263 四個錨點與倍數敏感度</li><li style="margin:6px 0;"><strong>If/Then 決策樹</strong>：把法說/供應鏈/雲端 Capex 的訊號串成下一步行動</li><li style="margin:6px 0;"><strong>風險清單與監控指標</strong>：避免只靠情緒追高/殺低</li>
+  </ul>
+  <div style="margin-top:12px;">
+    <a href="/#/portal/signup" style="display:inline-block; padding:10px 14px; border-radius:10px; background:#ffffff; color:#0b1220; text-decoration:none; font-weight:800;">
+      解鎖全文（會員）
+    </a>
+  </div>
+  <p style="margin:10px 0 0 0; font-size:12px; color:#e5e7eb; line-height:1.5;">提醒：以下內容為研究用情境推演，非個人化投資建議。</p>
+</div>
+
+
+
+
+<!--members-only-->
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">多空對決（Key Debate）</h2>
+
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:12px; background:#e8f5e9; width:50%;">Bull Case</th>
+        <th style="text-align:left; border:1px solid #eee; padding:12px; background:#ffebee; width:50%;">Bear Case</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border:1px solid #eee; padding:12px; vertical-align:top;">
+          <ul style="margin:0; padding-left:18px;">
+            <li>推理成本曲線下移加速雲端部署</li>
+            <li>CUDA 生態系鎖定難以打破</li>
+            <li>平台黏著度支撐定價權延續</li>
+            <li>二階效應擴散延長週期</li>
+          </ul>
+        </td>
+        <td style="border:1px solid #eee; padding:12px; vertical-align:top;">
+          <ul style="margin:0; padding-left:18px;">
+            <li>競爭導致定價/毛利壓力</li>
+            <li>供給改善後需求前置效應消退</li>
+            <li>ASIC 替代侵蝕 GPU 市佔</li>
+            <li>估值對增速放緩極度敏感</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">五個必記數字</h2>
+<div style="border:1px solid #eee; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <tbody>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><strong>70.1%</strong></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">毛利率（同業最高）</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><strong>$4.6T</strong></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">市值（全球前三）</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><strong>52.3x</strong></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">P/E vs 同業 41.95x 溢價 25%</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #eee;"><strong>2.5x</strong></td>
+        <td style="padding:8px; border-bottom:1px solid #eee;">Blackwell Ultra 推理效能提升</td>
+      </tr>
+      <tr>
+        <td style="padding:8px;"><strong>+40%</strong></td>
+        <td style="padding:8px;">能效改善（效能/瓦）</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">商業模式（Business Model）</h2>
+
+<h3 style="margin:14px 0 8px 0;">營收結構</h3>
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">業務</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">營收占比</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">特徵</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;"><strong>Data Center</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">~83%</td>
+        <td style="border:1px solid #eee; padding:10px;">AI 驅動，最高毛利</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;">Gaming</td>
+        <td style="border:1px solid #eee; padding:10px;">~12%</td>
+        <td style="border:1px solid #eee; padding:10px;">穩定現金流</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;">Professional Viz</td>
+        <td style="border:1px solid #eee; padding:10px;">~3%</td>
+        <td style="border:1px solid #eee; padding:10px;">企業市場</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;">Automotive</td>
+        <td style="border:1px solid #eee; padding:10px;">~2%</td>
+        <td style="border:1px solid #eee; padding:10px;">成長中</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h3 style="margin:14px 0 8px 0;">護城河分析</h3>
+<div style="border:1px solid #eee; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <ul style="margin:0; padding-left:18px;">
+    <li><strong>網路效應</strong>：CUDA 生態系開發者鎖定</li>
+    <li><strong>轉換成本</strong>：遷移成本高、替代方案不成熟</li>
+    <li><strong>無形資產</strong>：全端整合（晶片 + 軟體 + 系統）</li>
+  </ul>
+  <p style="margin:10px 0 0 0; font-size:13px; color:#666;">護城河評估：<strong style="color:#16a34a;">Strong</strong></p>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">估值框架（Valuation）</h2>
+
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">情境</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">P/E</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">目標價</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">理由</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="background:#fef2f2;">
+        <td style="border:1px solid #eee; padding:10px;"><strong>Bear</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">35.2x</td>
+        <td style="border:1px solid #eee; padding:10px;"><strong>$127</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">成熟半導體框架</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;">Peer Median</td>
+        <td style="border:1px solid #eee; padding:10px;">41.95x</td>
+        <td style="border:1px solid #eee; padding:10px;"><strong>$151</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">同業中位數</td>
+      </tr>
+      <tr style="background:#f0fdf4;">
+        <td style="border:1px solid #eee; padding:10px;"><strong>Base</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">52.3x</td>
+        <td style="border:1px solid #eee; padding:10px;"><strong>$189</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">維持現有溢價</td>
+      </tr>
+      <tr style="background:#ecfdf5;">
+        <td style="border:1px solid #eee; padding:10px;"><strong>Bull</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">72.8x</td>
+        <td style="border:1px solid #eee; padding:10px;"><strong>$263</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">部署加速 + 可見度延長</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">If/Then 決策樹</h2>
+
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fff3e0;">IF</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#e3f2fd;">THEN</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#f3e5f5;">NEXT</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;">法說強調導入前置 + 定價權維持</td>
+        <td style="border:1px solid #eee; padding:10px;">溢價更容易被合理化</td>
+        <td style="border:1px solid #eee; padding:10px;">驗證訂單與交付</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;">對交付語氣保守</td>
+        <td style="border:1px solid #eee; padding:10px;">市場先砍倍數</td>
+        <td style="border:1px solid #eee; padding:10px;">觀察瓶頸改善</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;">AMD 給出 Q2 量產 + 多客戶</td>
+        <td style="border:1px solid #eee; padding:10px;">追趕者敘事增強</td>
+        <td style="border:1px solid #eee; padding:10px;">毛利壓力是否可控</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;">雲端明確 Capex 前置</td>
+        <td style="border:1px solid #eee; padding:10px;">二階效應擴散</td>
+        <td style="border:1px solid #eee; padding:10px;">實際訂單跟進</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">風險清單</h2>
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">風險</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">嚴重度</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">監控指標</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;">供給/交付跟不上</td>
+        <td style="border:1px solid #eee; padding:10px;"><span style="color:#dc2626;">高</span></td>
+        <td style="border:1px solid #eee; padding:10px;">交付時程、供應鏈消息</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;">競爭導致定價壓力</td>
+        <td style="border:1px solid #eee; padding:10px;"><span style="color:#dc2626;">高</span></td>
+        <td style="border:1px solid #eee; padding:10px;">AMD/AVGO 訂單、促銷消息</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;">雲端 Capex 未前置</td>
+        <td style="border:1px solid #eee; padding:10px;"><span style="color:#f59e0b;">中</span></td>
+        <td style="border:1px solid #eee; padding:10px;">雲端財報指引</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;">估值對增速敏感</td>
+        <td style="border:1px solid #eee; padding:10px;"><span style="color:#dc2626;">高</span></td>
+        <td style="border:1px solid #eee; padding:10px;">營收成長率變化</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">管理層提問清單</h2>
+<div style="border:1px solid #eee; border-radius:12px; padding:14px;">
+  <ol style="margin:0; padding-left:20px;">
+    <li>雲端客戶導入/部署節奏是否有「前置」跡象？</li>
+    <li>交付節奏與供給可得性：瓶頸緩解 or 持續？</li>
+    <li>推理相關產品定價：有無「定價權」變化訊號？</li>
+    <li>FP4/推理優化：功能亮點 or 可規模化方向？</li>
+    <li>毛利率指引：能否維持 70%+ 區間？</li>
+  </ol>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">資料來源</h2>
+<ul style="margin-top:0; font-size:14px; color:#666;">
+  <li>NVIDIA CES 2026 Keynote</li>
+  <li>FMP API（價格、估值、財務數據）</li>
+  <li>Alpha Vantage（歷史數據）</li>
+</ul>
+
+<p style="font-size:0.9em; color:#999; margin-top:20px;">
+  本文僅供參考，不構成投資建議。投資有風險，入市需謹慎。文中情境分析為條件式推演，非個人化建議。
+</p>

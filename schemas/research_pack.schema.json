@@ -1,0 +1,350 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "research_pack.schema.json",
+  "title": "Research Pack",
+  "description": "每日深度研究筆記的資料包結構",
+  "type": "object",
+  "required": [
+    "meta",
+    "primary_event",
+    "primary_theme",
+    "key_stocks",
+    "sources"
+  ],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["run_id", "created_at", "edition", "version"],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "description": "唯一執行識別碼"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "edition": {
+          "type": "string",
+          "enum": ["premarket", "postclose", "intraday"]
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "primary_event": {
+      "type": "object",
+      "required": ["id", "title", "event_type", "summary"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "event_type": {
+          "type": "string",
+          "enum": ["earnings", "guidance", "regulation", "macro", "product", "partnership", "rumor", "other"]
+        },
+        "summary": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "published_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publishers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "primary_theme": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "name_en": {
+          "type": "string"
+        }
+      }
+    },
+    "key_stocks": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 4,
+      "items": {
+        "$ref": "#/definitions/stock"
+      }
+    },
+    "candidate_events": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/candidate_event"
+      }
+    },
+    "companies": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/company"
+      }
+    },
+    "valuations": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/valuation"
+      }
+    },
+    "peer_table": {
+      "type": "object",
+      "properties": {
+        "headers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "markdown": {
+          "type": "string"
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "$ref": "#/definitions/source"
+      }
+    },
+    "selection_rationale": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string"
+        },
+        "score_ranking": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "event_id": {"type": "string"},
+              "score": {"type": "number"}
+            }
+          }
+        },
+        "data_gaps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "stock": {
+      "type": "object",
+      "required": ["ticker", "role"],
+      "properties": {
+        "ticker": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["primary", "peer", "supply_chain"]
+        },
+        "thesis": {
+          "type": "string"
+        },
+        "catalysts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "risks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "candidate_event": {
+      "type": "object",
+      "required": ["id", "title"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "published_at": {
+          "type": "string"
+        },
+        "publisher": {
+          "type": "string"
+        },
+        "related_tickers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "related_themes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "score": {
+          "type": "number"
+        }
+      }
+    },
+    "company": {
+      "type": "object",
+      "properties": {
+        "ticker": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sector": {
+          "type": "string"
+        },
+        "industry": {
+          "type": "string"
+        },
+        "price": {
+          "$ref": "#/definitions/price_data"
+        },
+        "fundamentals": {
+          "$ref": "#/definitions/fundamentals"
+        },
+        "estimates": {
+          "$ref": "#/definitions/estimates"
+        },
+        "peers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "price_data": {
+      "type": "object",
+      "properties": {
+        "last": {"type": "number"},
+        "change_pct_1d": {"type": "number"},
+        "volume": {"type": "integer"},
+        "market_cap": {"type": "number"},
+        "as_of": {"type": "string", "format": "date-time"}
+      }
+    },
+    "fundamentals": {
+      "type": "object",
+      "properties": {
+        "revenue_ttm": {"type": ["number", "null"]},
+        "ebitda_ttm": {"type": ["number", "null"]},
+        "net_income_ttm": {"type": ["number", "null"]},
+        "fcf_ttm": {"type": ["number", "null"]},
+        "gross_margin": {"type": ["number", "null"]},
+        "operating_margin": {"type": ["number", "null"]},
+        "net_margin": {"type": ["number", "null"]},
+        "debt_to_equity": {"type": ["number", "null"]},
+        "current_ratio": {"type": ["number", "null"]}
+      }
+    },
+    "estimates": {
+      "type": "object",
+      "properties": {
+        "revenue_ntm": {"type": ["number", "null"]},
+        "eps_ntm": {"type": ["number", "null"]},
+        "ebitda_ntm": {"type": ["number", "null"]},
+        "revenue_growth_ntm": {"type": ["number", "null"]}
+      }
+    },
+    "valuation": {
+      "type": "object",
+      "required": ["ticker"],
+      "properties": {
+        "ticker": {"type": "string"},
+        "method": {"type": "string"},
+        "current_price": {"type": ["number", "null"]},
+        "fair_value": {
+          "type": "object",
+          "properties": {
+            "bear": {"type": ["number", "null"]},
+            "base": {"type": ["number", "null"]},
+            "bull": {"type": ["number", "null"]}
+          }
+        },
+        "upside": {
+          "type": "object",
+          "properties": {
+            "bear": {"type": ["number", "null"]},
+            "base": {"type": ["number", "null"]},
+            "bull": {"type": ["number", "null"]}
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "rationale": {"type": "string"},
+        "data_quality": {
+          "type": "string",
+          "enum": ["complete", "partial", "insufficient"]
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["title", "url"],
+      "properties": {
+        "title": {"type": "string"},
+        "url": {"type": "string", "format": "uri"},
+        "publisher": {"type": "string"},
+        "published_at": {"type": "string"},
+        "type": {
+          "type": "string",
+          "enum": ["news", "filing", "data", "analysis"]
+        }
+      }
+    }
+  }
+}

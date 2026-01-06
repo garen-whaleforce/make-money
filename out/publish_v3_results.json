@@ -1,0 +1,20 @@
+{
+  "earnings": {
+    "success": true,
+    "url": "https://rocket-screener.ghost.io/nvda-earnings-preview-2026-01-05-earnings/",
+    "error": null,
+    "newsletter_sent": false
+  },
+  "deep": {
+    "success": true,
+    "url": "https://rocket-screener.ghost.io/nvda-deep-dive-2026-01-05-deep/",
+    "error": null,
+    "newsletter_sent": false
+  },
+  "flash": {
+    "success": true,
+    "url": "https://rocket-screener.ghost.io/ai-chips-ces-2026-01-05-flash/",
+    "error": null,
+    "newsletter_sent": true
+  }
+}

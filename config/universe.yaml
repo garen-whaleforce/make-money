@@ -1,0 +1,265 @@
+# =============================================================================
+# Coverage Universe - 核心追蹤主題與標的
+# =============================================================================
+# 每日深度研究筆記的主題池與 tickers
+
+version: "1.0"
+updated_at: "2025-01-01"
+
+# -----------------------------------------------------------------------------
+# 主題定義
+# -----------------------------------------------------------------------------
+themes:
+  crypto:
+    name: "加密貨幣"
+    name_en: "Cryptocurrency"
+    keywords:
+      - "crypto"
+      - "bitcoin"
+      - "cryptocurrency"
+      - "digital assets"
+      - "blockchain"
+    tickers:
+      - HOOD
+      - COIN
+      - MSTR
+
+  quantum:
+    name: "量子運算"
+    name_en: "Quantum Computing"
+    keywords:
+      - "quantum computing"
+      - "quantum computer"
+      - "qubit"
+    tickers:
+      - IONQ
+      - RGTI
+      - QBTS
+
+  robotics:
+    name: "機器人"
+    name_en: "Robotics"
+    keywords:
+      - "robotics"
+      - "robot"
+      - "automation"
+      - "humanoid"
+    tickers:
+      - TSLA
+      - SYM
+      - ISRG
+      - RKLB
+
+  nuclear:
+    name: "核能"
+    name_en: "Nuclear Energy"
+    keywords:
+      - "nuclear"
+      - "uranium"
+      - "SMR"
+      - "nuclear power"
+    tickers:
+      - OKLO
+      - LEU
+      - GEV
+      - UUUU
+
+  ai_infra:
+    name: "AI 基礎設施"
+    name_en: "AI Infrastructure"
+    keywords:
+      - "AI infrastructure"
+      - "data center"
+      - "AI compute"
+      - "GPU cluster"
+    tickers:
+      - CRWV
+      - NBIS
+      - IREN
+      - CIFR
+
+  ai_chips:
+    name: "AI 晶片"
+    name_en: "AI Chips"
+    keywords:
+      - "AI chip"
+      - "GPU"
+      - "semiconductor"
+      - "AI accelerator"
+    tickers:
+      - NVDA
+      - TSM
+      - ASML
+      - AMD
+
+  power_grid:
+    name: "電網與電力"
+    name_en: "Power Grid & Utilities"
+    keywords:
+      - "power grid"
+      - "electricity"
+      - "utility"
+      - "energy storage"
+    tickers:
+      - CEG
+      - NEE
+      - VST
+      - EOSE
+
+  drones:
+    name: "無人機"
+    name_en: "Drones & UAV"
+    keywords:
+      - "drone"
+      - "UAV"
+      - "unmanned"
+      - "aerial vehicle"
+    tickers:
+      - ONDS
+      - UMAC
+      - DPRO
+      - AVAV
+
+  ai_data:
+    name: "AI 數據平台"
+    name_en: "AI Data Platforms"
+    keywords:
+      - "data platform"
+      - "big data"
+      - "data analytics"
+      - "AI data"
+    tickers:
+      - PLTR
+      - SNOW
+      - MDB
+
+  ai_security:
+    name: "AI 資安"
+    name_en: "AI Cybersecurity"
+    keywords:
+      - "cybersecurity"
+      - "AI security"
+      - "threat detection"
+      - "zero trust"
+    tickers:
+      - CRWD
+      - ZS
+      - PANW
+      - RBRK
+
+  space:
+    name: "太空經濟"
+    name_en: "Space Economy"
+    keywords:
+      - "space"
+      - "satellite"
+      - "rocket"
+      - "launch"
+    tickers:
+      - RKLB
+      - ASTS
+      - PL
+      - RDW
+
+  ai_networking:
+    name: "AI 網通"
+    name_en: "AI Networking"
+    keywords:
+      - "networking"
+      - "AI network"
+      - "optical"
+      - "interconnect"
+    tickers:
+      - AVGO
+      - ALAB
+      - MRVL
+      - CRDO
+
+  ai_cloud:
+    name: "AI 雲端"
+    name_en: "AI Cloud"
+    keywords:
+      - "cloud computing"
+      - "AI cloud"
+      - "hyperscaler"
+      - "cloud infrastructure"
+    tickers:
+      - MSFT
+      - AMZN
+      - GOOGL
+      - DOCN
+      - ORCL
+
+# -----------------------------------------------------------------------------
+# 全域設定
+# -----------------------------------------------------------------------------
+settings:
+  # 每日旗艦深度文章的關鍵個股數量
+  flagship_stock_count:
+    min: 2
+    max: 4
+
+  # 每日快訊卡數量
+  signal_card_count:
+    min: 3
+    max: 6
+
+  # 來源數量下限
+  min_sources: 5
+
+  # 同業比較表最大數量
+  peer_table_max: 8
+
+# -----------------------------------------------------------------------------
+# 所有 Tickers 列表 (自動彙整)
+# -----------------------------------------------------------------------------
+all_tickers:
+  - HOOD
+  - COIN
+  - MSTR
+  - IONQ
+  - RGTI
+  - QBTS
+  - TSLA
+  - SYM
+  - ISRG
+  - OKLO
+  - LEU
+  - GEV
+  - UUUU
+  - CRWV
+  - NBIS
+  - IREN
+  - CIFR
+  - NVDA
+  - TSM
+  - ASML
+  - AMD
+  - CEG
+  - NEE
+  - VST
+  - EOSE
+  - ONDS
+  - UMAC
+  - DPRO
+  - AVAV
+  - PLTR
+  - SNOW
+  - MDB
+  - CRWD
+  - ZS
+  - PANW
+  - RBRK
+  - RKLB
+  - ASTS
+  - PL
+  - RDW
+  - AVGO
+  - ALAB
+  - MRVL
+  - CRDO
+  - MSFT
+  - AMZN
+  - GOOGL
+  - DOCN
+  - ORCL

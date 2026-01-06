@@ -1,0 +1,666 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "postC.schema.json",
+  "title": "Post C - Deep Dive",
+  "description": "In-depth single stock analysis with full research coverage",
+  "type": "object",
+  "required": ["title", "slug", "tags", "excerpt", "meta", "executive_summary", "thesis", "anti_thesis", "key_numbers", "business_model", "financial_drivers", "valuation", "catalysts", "risks", "peer_comparison", "positioning", "sources"],
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Article title in Chinese",
+      "maxLength": 100
+    },
+    "title_en": {
+      "type": "string",
+      "description": "Article title in English",
+      "maxLength": 100
+    },
+    "newsletter_subject": {
+      "type": "string",
+      "description": "Email subject line",
+      "maxLength": 80
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+-deep$",
+      "description": "URL slug, must end with -deep"
+    },
+    "tags": {
+      "type": "array",
+      "items": {"type": "string"},
+      "contains": {"const": "deep-dive"},
+      "description": "Must include deep-dive tag"
+    },
+    "excerpt": {
+      "type": "string",
+      "description": "Public preview excerpt",
+      "minLength": 100,
+      "maxLength": 500
+    },
+    "meta": {
+      "type": "object",
+      "required": ["post_type", "date", "primary_ticker", "selection_reason"],
+      "properties": {
+        "post_type": {"const": "deep"},
+        "date": {"type": "string", "format": "date"},
+        "primary_ticker": {"type": "string"},
+        "selection_reason": {
+          "type": "string",
+          "enum": ["highest_impact", "volume_spike", "news_volume", "social_mention", "manual"],
+          "description": "Why this stock was selected for deep dive"
+        },
+        "theme": {"type": "string"},
+        "og_title": {"type": "string"},
+        "og_description": {"type": "string"},
+        "quality_gates_passed": {"type": "boolean"}
+      }
+    },
+    "executive_summary": {
+      "type": "object",
+      "required": ["en"],
+      "properties": {
+        "en": {
+          "type": "string",
+          "description": "English executive summary (200-300 words)"
+        }
+      }
+    },
+    "ticker_profile": {
+      "type": "object",
+      "required": ["ticker", "name", "sector", "market_cap", "price"],
+      "properties": {
+        "ticker": {"type": "string"},
+        "name": {"type": "string"},
+        "sector": {"type": "string"},
+        "industry": {"type": "string"},
+        "market_cap": {"type": "string"},
+        "price": {"type": "number"},
+        "change_1d": {"type": "number"},
+        "change_ytd": {"type": "number"},
+        "52w_high": {"type": "number"},
+        "52w_low": {"type": "number"},
+        "avg_volume": {"type": "number"}
+      }
+    },
+    "thesis": {
+      "type": "object",
+      "required": ["statement", "key_points"],
+      "properties": {
+        "statement": {
+          "type": "string",
+          "description": "Core investment thesis in one paragraph"
+        },
+        "key_points": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 3,
+          "maxItems": 5
+        },
+        "why_now": {
+          "type": "string",
+          "description": "Why this is the right time to analyze"
+        }
+      }
+    },
+    "anti_thesis": {
+      "type": "object",
+      "required": ["statement", "key_points"],
+      "properties": {
+        "statement": {
+          "type": "string",
+          "description": "Bear case in one paragraph"
+        },
+        "key_points": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 3,
+          "maxItems": 5
+        }
+      }
+    },
+    "key_debate": {
+      "type": "object",
+      "properties": {
+        "bull_case": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "bear_case": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "resolution_signals": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "What would resolve the bull/bear debate"
+        }
+      }
+    },
+    "key_numbers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["value", "label"],
+        "properties": {
+          "value": {"type": "string"},
+          "label": {"type": "string"},
+          "context": {"type": "string"},
+          "source": {"type": "string"}
+        }
+      },
+      "minItems": 3,
+      "maxItems": 5
+    },
+    "business_model": {
+      "type": "object",
+      "required": ["overview", "revenue_streams", "moat"],
+      "properties": {
+        "overview": {
+          "type": "string",
+          "description": "Business model explanation"
+        },
+        "revenue_streams": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "segment": {"type": "string"},
+              "revenue_pct": {"type": "number"},
+              "growth_rate": {"type": "number"},
+              "margin_profile": {"type": "string"}
+            }
+          }
+        },
+        "moat": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["network_effects", "switching_costs", "intangible_assets", "cost_advantage", "efficient_scale"]
+              }
+            },
+            "description": {"type": "string"},
+            "durability": {"enum": ["strong", "moderate", "weak"]}
+          }
+        },
+        "competitive_position": {"type": "string"},
+        "key_customers": {"type": "array", "items": {"type": "string"}},
+        "key_suppliers": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "financial_engine": {
+      "type": "object",
+      "description": "v4: Three-part financial engine (Revenue/Margin/FCF)",
+      "properties": {
+        "revenue": {
+          "type": "object",
+          "properties": {
+            "segments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {"type": "string"},
+                  "revenue_pct": {"type": "number"},
+                  "growth_yoy": {"type": "number"},
+                  "kpis": {"type": "array", "items": {"type": "string"}}
+                }
+              }
+            }
+          }
+        },
+        "margin": {
+          "type": "object",
+          "properties": {
+            "gross_margin_ttm": {"type": "number"},
+            "gross_margin_trend": {"type": "array", "items": {"type": "number"}},
+            "drivers": {"type": "array", "items": {"type": "string"}},
+            "compression_scenarios": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "fcf": {
+          "type": "object",
+          "properties": {
+            "fcf_ttm": {"type": "number"},
+            "fcf_margin": {"type": "number"},
+            "fcf_trend": {"type": "array", "items": {"type": "number"}},
+            "risk_factors": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      }
+    },
+    "competition_matrix": {
+      "type": "object",
+      "description": "v4: Competition comparison matrix",
+      "properties": {
+        "players": {"type": "array", "items": {"type": "string"}},
+        "dimensions": {"type": "array", "items": {"type": "string"}},
+        "scores": {
+          "type": "object",
+          "additionalProperties": {"type": "array", "items": {"type": "number"}}
+        },
+        "switching_trigger": {"type": "string"}
+      }
+    },
+    "valuation_triangulation": {
+      "type": "object",
+      "description": "v4: Four valuation anchors",
+      "properties": {
+        "pe_ttm": {
+          "type": "object",
+          "properties": {
+            "value": {"type": "number"},
+            "anchor": {"type": "string"}
+          }
+        },
+        "pe_forward": {
+          "type": "object",
+          "properties": {
+            "value": {"type": "number"},
+            "anchor": {"type": "string"}
+          }
+        },
+        "ev_sales": {
+          "type": "object",
+          "properties": {
+            "value": {"type": "number"},
+            "anchor": {"type": "string"}
+          }
+        },
+        "p_fcf": {
+          "type": "object",
+          "properties": {
+            "value": {"type": "number"},
+            "anchor": {"type": "string"}
+          }
+        }
+      }
+    },
+    "sensitivity_matrix": {
+      "type": "object",
+      "description": "v4: EPS x P/E sensitivity matrix",
+      "properties": {
+        "eps_range": {"type": "array", "items": {"type": "number"}},
+        "pe_range": {"type": "array", "items": {"type": "number"}},
+        "price_matrix": {
+          "type": "array",
+          "items": {"type": "array", "items": {"type": "number"}}
+        }
+      }
+    },
+    "core_assumptions": {
+      "type": "object",
+      "description": "v4: Core assumptions for Base/Bull/Bear",
+      "properties": {
+        "base": {
+          "type": "object",
+          "properties": {
+            "revenue_cagr": {"type": "number"},
+            "gross_margin": {"type": "number"},
+            "opex_growth": {"type": "number"},
+            "tax_rate": {"type": "number"},
+            "share_dilution": {"type": "number"}
+          }
+        },
+        "bull": {
+          "type": "object",
+          "properties": {
+            "revenue_cagr": {"type": "number"},
+            "trigger": {"type": "string"}
+          }
+        },
+        "bear": {
+          "type": "object",
+          "properties": {
+            "revenue_cagr": {"type": "number"},
+            "trigger": {"type": "string"}
+          }
+        }
+      }
+    },
+    "change_my_mind": {
+      "type": "object",
+      "description": "v4: What would invalidate bull/bear case",
+      "properties": {
+        "invalidate_bull": {"type": "array", "items": {"type": "string"}},
+        "invalidate_bear": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "if_then_decision_tree": {
+      "type": "array",
+      "description": "v4.1: Upgraded decision tree with Signal → Action → Risk Control",
+      "items": {
+        "type": "object",
+        "properties": {
+          "signal": {"type": "string", "description": "What you see (observable event/data)"},
+          "interpretation": {"type": "string", "description": "What market will think"},
+          "action": {"enum": ["Add", "Hold", "Reduce"], "description": "Suggested positioning"},
+          "risk_control": {"type": "string", "description": "Stop loss / invalidation condition"},
+          "next_check": {"type": "string", "description": "Next verification date/event"}
+        }
+      }
+    },
+    "monitoring_dashboard": {
+      "type": "object",
+      "description": "v4: KPI and event monitoring",
+      "properties": {
+        "kpis": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "current": {"type": "number"},
+              "alert_below": {"type": "number"},
+              "alert_above": {"type": "number"}
+            }
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": {"type": "string"},
+              "event": {"type": "string"},
+              "impact": {"enum": ["high", "medium", "low"]}
+            }
+          }
+        },
+        "market_signals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "status": {"type": "string"},
+              "trend": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "catalyst_calendar": {
+      "type": "array",
+      "description": "v4: 90-day catalyst calendar",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {"type": "string"},
+          "event": {"type": "string"},
+          "affected_kpi": {"type": "string"},
+          "bullish_signal": {"type": "string"},
+          "bearish_signal": {"type": "string"}
+        }
+      }
+    },
+    "financial_drivers": {
+      "type": "object",
+      "required": ["revenue", "profitability", "cash_flow"],
+      "properties": {
+        "revenue": {
+          "type": "object",
+          "properties": {
+            "ltm": {"type": "number"},
+            "growth_3y_cagr": {"type": "number"},
+            "growth_drivers": {"type": "array", "items": {"type": "string"}},
+            "forward_growth_estimate": {"type": "number"}
+          }
+        },
+        "profitability": {
+          "type": "object",
+          "properties": {
+            "gross_margin": {"type": "number"},
+            "gross_margin_trend": {"type": "string"},
+            "operating_margin": {"type": "number"},
+            "operating_leverage": {"type": "string"},
+            "net_margin": {"type": "number"}
+          }
+        },
+        "cash_flow": {
+          "type": "object",
+          "properties": {
+            "fcf_ltm": {"type": "number"},
+            "fcf_margin": {"type": "number"},
+            "fcf_conversion": {"type": "number"},
+            "capex_intensity": {"type": "number"},
+            "capital_allocation": {"type": "string"}
+          }
+        },
+        "balance_sheet": {
+          "type": "object",
+          "properties": {
+            "net_cash_debt": {"type": "number"},
+            "debt_to_ebitda": {"type": "number"},
+            "current_ratio": {"type": "number"},
+            "key_highlights": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      }
+    },
+    "valuation": {
+      "type": "object",
+      "required": ["methodology", "current_valuation", "fair_value_range", "sensitivity"],
+      "properties": {
+        "methodology": {
+          "type": "string",
+          "description": "Primary valuation approach"
+        },
+        "current_valuation": {
+          "type": "object",
+          "properties": {
+            "pe_ttm": {"type": ["number", "null"]},
+            "pe_forward": {"type": ["number", "null"]},
+            "ev_sales": {"type": "number"},
+            "ev_ebitda": {"type": ["number", "null"]},
+            "price_to_fcf": {"type": ["number", "null"]},
+            "peg_ratio": {"type": ["number", "null"]}
+          }
+        },
+        "historical_range": {
+          "type": "object",
+          "properties": {
+            "pe_5y_high": {"type": "number"},
+            "pe_5y_low": {"type": "number"},
+            "pe_5y_median": {"type": "number"}
+          }
+        },
+        "fair_value_range": {
+          "type": "object",
+          "required": ["bear", "base", "bull"],
+          "properties": {
+            "bear": {
+              "type": "object",
+              "properties": {
+                "price": {"type": "number"},
+                "multiple": {"type": "string"},
+                "rationale": {"type": "string"}
+              }
+            },
+            "base": {
+              "type": "object",
+              "properties": {
+                "price": {"type": "number"},
+                "multiple": {"type": "string"},
+                "rationale": {"type": "string"}
+              }
+            },
+            "bull": {
+              "type": "object",
+              "properties": {
+                "price": {"type": "number"},
+                "multiple": {"type": "string"},
+                "rationale": {"type": "string"}
+              }
+            }
+          }
+        },
+        "sensitivity": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "multiple": {"type": "string"},
+              "anchor": {"type": "string"},
+              "implied_price": {"type": "number"},
+              "interpretation": {"type": "string"}
+            }
+          },
+          "description": "Valuation sensitivity table"
+        }
+      }
+    },
+    "catalysts": {
+      "type": "object",
+      "required": ["near_term", "medium_term"],
+      "properties": {
+        "near_term": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "event": {"type": "string"},
+              "date": {"type": "string"},
+              "potential_impact": {"enum": ["positive", "negative", "uncertain"]},
+              "magnitude": {"enum": ["high", "medium", "low"]}
+            }
+          },
+          "description": "0-2 weeks"
+        },
+        "medium_term": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "event": {"type": "string"},
+              "timeframe": {"type": "string"},
+              "potential_impact": {"enum": ["positive", "negative", "uncertain"]}
+            }
+          },
+          "description": "1 quarter"
+        },
+        "long_term": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "theme": {"type": "string"},
+              "thesis": {"type": "string"}
+            }
+          },
+          "description": "1 year+"
+        }
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["risk", "severity", "monitorable"],
+        "properties": {
+          "risk": {"type": "string"},
+          "category": {"enum": ["business", "financial", "regulatory", "competitive", "macro"]},
+          "severity": {"enum": ["high", "medium", "low"]},
+          "probability": {"enum": ["high", "medium", "low"]},
+          "monitorable": {"type": "boolean"},
+          "monitoring_signal": {"type": "string"}
+        }
+      },
+      "minItems": 3,
+      "maxItems": 8
+    },
+    "peer_comparison": {
+      "type": "object",
+      "required": ["peers", "comparison_table", "takeaways"],
+      "properties": {
+        "peers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["ticker", "name"],
+            "properties": {
+              "ticker": {"type": "string"},
+              "name": {"type": "string"},
+              "market_cap": {"type": "string"},
+              "revenue_growth": {"type": "number"},
+              "gross_margin": {"type": "number"},
+              "operating_margin": {"type": "number"},
+              "pe_forward": {"type": ["number", "null"]},
+              "ev_sales": {"type": "number"}
+            }
+          },
+          "minItems": 3,
+          "maxItems": 6
+        },
+        "comparison_table": {
+          "type": "string",
+          "description": "Markdown table for HTML rendering"
+        },
+        "takeaways": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 3
+        },
+        "premium_discount_explanation": {"type": "string"}
+      }
+    },
+    "if_then_playbook": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["if_signal", "then_interpretation", "next_verification"],
+        "properties": {
+          "if_signal": {"type": "string"},
+          "then_interpretation": {"type": "string"},
+          "next_verification": {"type": "string"},
+          "direct_impact": {"type": "string"}
+        }
+      },
+      "description": "Catalyst playbook for decision making"
+    },
+    "positioning": {
+      "type": "object",
+      "required": ["conditions"],
+      "properties": {
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "scenario": {"type": "string"},
+              "condition": {"type": "string"},
+              "suggested_stance": {"enum": ["add", "hold", "reduce", "avoid"]},
+              "rationale": {"type": "string"}
+            }
+          }
+        },
+        "disclaimer": {
+          "type": "string",
+          "const": "This is scenario-based analysis, not personalized investment advice."
+        }
+      }
+    },
+    "management_questions": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Questions to listen for in earnings calls"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "type"],
+        "properties": {
+          "name": {"type": "string"},
+          "type": {"enum": ["10-K", "10-Q", "8-K", "transcript", "investor_presentation", "data", "news"]},
+          "url": {"type": "string", "format": "uri"},
+          "date": {"type": "string"}
+        }
+      },
+      "minItems": 3
+    }
+  }
+}

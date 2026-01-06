@@ -1,0 +1,191 @@
+{
+  "run_id": "run_20260106_065539_aae7764a",
+  "timestamp": "2026-01-06T07:00:32.176726",
+  "overall_passed": true,
+  "gates": [
+    {
+      "name": "sources",
+      "passed": true,
+      "message": "OK (20 sources, 9 publishers)",
+      "details": {
+        "source_count": 20,
+        "distinct_publishers": 9,
+        "event_type": "earnings"
+      }
+    },
+    {
+      "name": "structure",
+      "passed": true,
+      "message": "OK",
+      "details": {
+        "key_stocks_count": 2,
+        "tldr_count": 5,
+        "what_to_watch_count": 7,
+        "title_candidates_count": 9
+      }
+    },
+    {
+      "name": "compliance",
+      "passed": true,
+      "message": "OK",
+      "details": {
+        "passed": true,
+        "source_count": 20,
+        "source_check_passed": true,
+        "numbers_traceable": true,
+        "compliance_passed": true,
+        "disclosure_present": true,
+        "warnings": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "number_traceability",
+      "passed": true,
+      "message": "Traced 13/16 numbers",
+      "details": {
+        "passed": true,
+        "total_numbers": 16,
+        "traced_count": 13,
+        "untraced_count": 1,
+        "critical_untraced": 1,
+        "numbers": [
+          {
+            "value": "0x",
+            "location": "iqgFBVV95cUxQSkI4UVg5SndyNWNaTU9LSkxIVjhGOGU3cnpvd0xRS1VBS3hweVVwbDdJWHVrLVdVcEdtd0s0QkVUOUlza3NMZGl",
+            "traced": true,
+            "source_path": "candidate_events[0].is_rumor",
+            "reason": null
+          },
+          {
+            "value": "0x",
+            "location": "rLVdVcEdtd0s0QkVUOUlza3NMZGlZVFJBSFV1cTdpejBkaGZib0xfOFdfX3dyVFRHa3kyQ0hfRE0zS1d5c1lWQm4yRXF5cWhRal9",
+            "traced": true,
+            "source_path": "candidate_events[0].is_rumor",
+            "reason": null
+          },
+          {
+            "value": "9X",
+            "location": "eF9DbVJKaUFPTGMtR0JQV1VhQjd4N3lyUlczdEI5Y0RINzFTRU9XdmtHZ2lfdmlRN3U5T1dWLUVqVXJGSWZ4cDlCRkYyZWFtQkRa",
+            "traced": false,
+            "source_path": null,
+            "reason": "Cannot parse number"
+          },
+          {
+            "value": "19X",
+            "location": "lNExPTU5BTEVYeDNWYURZNEpvaFduUXZEV1I5cjk5UEtiUzVUQ19Xci1IVnBlQWFzTGNSaUpHMzl0QzFtUHkya0tYWnFvY2s3UUl",
+            "traced": false,
+            "source_path": null,
+            "reason": "Cannot parse number"
+          },
+          {
+            "value": "8.81621%",
+            "location": "與 NVDA，AI 那一檔為資料不足。 - QBTS 走勢強但財務基礎薄：股價 30.61、單日 +8.81621%、成交量 42468008；但 Revenue TTM 8827000、FCF TT",
+            "traced": true,
+            "source_path": "companies.QBTS.price.change_pct_1d",
+            "reason": null
+          },
+          {
+            "value": "99.77%",
+            "location": "tiple_ps 的 fair value 僅 0.07/0.07/0.16，對應 upside -99.77%（熊/基準）與 -99.48%（牛），反映「營收基數過小」下倍數法會產生高度不穩定/失真",
+            "traced": true,
+            "source_path": "companies.IONQ.estimates.price_target_high",
+            "reason": null
+          },
+          {
+            "value": "99.48%",
+            "location": "value 僅 0.07/0.07/0.16，對應 upside -99.77%（熊/基準）與 -99.48%（牛），反映「營收基數過小」下倍數法會產生高度不穩定/失真風險。 - 投資判斷應從「可驗證",
+            "traced": true,
+            "source_path": "companies.IONQ.estimates.price_target_high",
+            "reason": null
+          },
+          {
+            "value": "8.81621%",
+            "location": "）與 NVDA，且 QBTS 在 2026-01-06 的價格資訊顯示：股價 30.61、單日上漲 8.81621%、成交量 42468008、market cap 10613068590；NVDA ",
+            "traced": true,
+            "source_path": "companies.QBTS.price.change_pct_1d",
+            "reason": null
+          },
+          {
+            "value": "0.38655%",
+            "location": "68008、market cap 10613068590；NVDA 則為股價 188.12、單日 -0.38655%、成交量 178569651、market cap 4580157423474。惟 ",
+            "traced": true,
+            "source_path": "companies.AVGO.fundamentals.operating_margin",
+            "reason": null
+          },
+          {
+            "value": "8.81621%",
+            "location": "味短期股價更依賴「溢價延續」而非「均值回歸」。  對 QBTS 而言，題材推動可能快速反映在價格（+8.81621%）與成交量，但財務傳導更慢：Revenue TTM 僅 8827000，EBITDA",
+            "traced": true,
+            "source_path": "companies.QBTS.price.change_pct_1d",
+            "reason": null
+          },
+          {
+            "value": "48.731555331195594%",
+            "location": "95484 / 164.92332953831252 - 上下行（bear/base/bull）：-48.731555331195594% / -48.731555331195594% / -12.3",
+            "traced": true,
+            "source_path": "companies.IONQ.price.last",
+            "reason": null
+          },
+          {
+            "value": "48.731555331195594%",
+            "location": "252 - 上下行（bear/base/bull）：-48.731555331195594% / -48.731555331195594% / -12.330783787841526%  ### QB",
+            "traced": true,
+            "source_path": "companies.IONQ.price.last",
+            "reason": null
+          },
+          {
+            "value": "12.330783787841526%",
+            "location": "l）：-48.731555331195594% / -48.731555331195594% / -12.330783787841526%  ### QBTS - 方法：peer_multiple_p",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 12.330783787841526"
+          },
+          {
+            "value": "99.76724337388497%",
+            "location": "1115 / 0.15984889599821173 - 上下行（bear/base/bull）：-99.76724337388497% / -99.76724337388497% / -99.477",
+            "traced": true,
+            "source_path": "companies.IONQ.estimates.price_target_high",
+            "reason": null
+          },
+          {
+            "value": "99.76724337388497%",
+            "location": "1173 - 上下行（bear/base/bull）：-99.76724337388497% / -99.76724337388497% / -99.47778864423975% - 重要提醒：在低",
+            "traced": true,
+            "source_path": "companies.IONQ.estimates.price_target_high",
+            "reason": null
+          },
+          {
+            "value": "99.47778864423975%",
+            "location": "ull）：-99.76724337388497% / -99.76724337388497% / -99.47778864423975% - 重要提醒：在低營收基數下，倍數法輸出可能高度失真；此處更適",
+            "traced": true,
+            "source_path": "companies.IONQ.estimates.price_target_high",
+            "reason": null
+          }
+        ],
+        "errors": [],
+        "warnings": [
+          "Untraced numbers (1): 9X, 19X, 12.330783787841526%"
+        ]
+      }
+    },
+    {
+      "name": "valuation",
+      "passed": true,
+      "message": "Valuation availability: 100%",
+      "details": {
+        "total_stocks": 2,
+        "null_scenarios": 0,
+        "availability": 1.0,
+        "warnings": []
+      }
+    }
+  ],
+  "can_publish": true,
+  "can_send_newsletter": false,
+  "recommended_action": "draft",
+  "errors": [],
+  "warnings": [
+    "Untraced numbers (1): 9X, 19X, 12.330783787841526%"
+  ]
+}

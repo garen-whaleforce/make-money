@@ -1,0 +1,188 @@
+# Ghost Publishing Configuration
+# This file defines safety rules and conventions for Ghost CMS publishing
+
+# =============================================================================
+# Slug Rules (CRITICAL - Prevents collision)
+# =============================================================================
+slugs:
+  # Each post type MUST end with its designated suffix
+  suffixes:
+    flash: "-flash"
+    earnings: "-earnings"
+    deep: "-deep"
+
+  # Slug patterns per post type
+  patterns:
+    flash: "{topic}-{YYYY-MM-DD}-flash"
+    earnings: "{ticker}-earnings-{context}-{YYYY-MM-DD}-earnings"
+    deep: "{ticker}-deep-dive-{YYYY-MM-DD}-deep"
+
+  # Examples
+  examples:
+    flash: "ai-chips-ces-2026-01-05-flash"
+    earnings: "nvda-earnings-preview-2026-01-05-earnings"
+    deep: "nvda-deep-dive-2026-01-05-deep"
+
+# =============================================================================
+# Tag Requirements
+# =============================================================================
+tags:
+  # Required tags per post type
+  required:
+    flash:
+      - "us-stocks"
+      - "daily-brief"
+      - "#format-flash"
+    earnings:
+      - "us-stocks"
+      - "earnings"
+      - "#format-earnings"
+    deep:
+      - "us-stocks"
+      - "deep-dive"
+      - "#format-deep"
+
+  # Auto-added tags
+  auto:
+    - "#autogen"
+    - "#edition-postclose"
+
+  # Theme tag pattern: theme-{theme_id}
+  theme_prefix: "theme-"
+
+  # Ticker tag pattern: t-{TICKER}
+  ticker_prefix: "t-"
+
+# =============================================================================
+# Newsletter Configuration
+# =============================================================================
+newsletters:
+  # Production newsletter
+  production:
+    slug: "daily-brief"
+    allowed_segments:
+      - "status:-free"  # Paid members only
+
+  # Test newsletter
+  test:
+    slug: "daily-brief-test"
+    allowed_segments:
+      - "label:internal"
+
+  # Which posts get email
+  email_strategy:
+    flash: true      # Post A always gets email
+    earnings: false  # Post B: website only
+    deep: false      # Post C: website only
+
+# =============================================================================
+# Segment Safety
+# =============================================================================
+segments:
+  # High-risk segments that require --confirm-high-risk
+  high_risk:
+    - "all"           # All subscribers
+    - "status:free"   # All free members
+    - "status:-free"  # All paid members
+
+  # Safe segments for test mode
+  test_allowed:
+    - "label:internal"
+
+# =============================================================================
+# Mode Configuration
+# =============================================================================
+modes:
+  test:
+    newsletter: "daily-brief-test"
+    segment: "label:internal"
+    default_action: "draft"
+    email_blocked: true  # Block email send in test mode to prod lists
+
+  prod:
+    newsletter: "daily-brief"
+    segment: "status:-free"
+    default_action: "publish"
+    email_blocked: false
+    requires_confirmation: true
+
+# =============================================================================
+# Paywall Configuration
+# =============================================================================
+paywall:
+  # HTML comment marker
+  divider: "<!--members-only-->"
+
+  # Minimum public preview length (characters)
+  min_preview_length: 1000
+
+  # Sections that MUST be public
+  required_public:
+    - "executive_summary"
+    - "thesis"
+    - "key_numbers"
+    - "tldr"
+
+  # Sections that MUST be members-only
+  required_members:
+    - "if_then_playbook"
+    - "positioning"
+    - "management_questions"
+
+# =============================================================================
+# Quality Gates for Publishing
+# =============================================================================
+quality_gates:
+  # Must pass before any publish
+  required_for_publish:
+    - "numbers_allowlist"
+    - "attribution_blocking"
+    - "slug_format"
+
+  # Must pass before newsletter send
+  required_for_email:
+    - "numbers_allowlist"
+    - "attribution_blocking"
+    - "slug_format"
+    - "bilingual_consistency"
+    - "paywall_present"
+
+  # Block publish entirely if these fail
+  blocking:
+    - "numbers_allowlist"
+    - "attribution_blocking"
+
+# =============================================================================
+# Publish Sequence
+# =============================================================================
+publish_sequence:
+  # Order of publishing (affects cross-link availability)
+  order:
+    - "earnings"  # First: Post B (no email)
+    - "deep"      # Second: Post C (no email)
+    - "flash"     # Last: Post A (with email, links to B & C)
+
+  # Cross-link update
+  # After B & C are published, update A's TODAY'S PACKAGE links
+  cross_link:
+    enabled: true
+    pattern: "/{{slug}}/"
+
+# =============================================================================
+# Error Handling
+# =============================================================================
+errors:
+  # On slug collision
+  slug_collision:
+    action: "fail"  # Never auto-append -2
+    message: "Slug already exists. Check if post was already published today."
+
+  # On quality gate failure
+  quality_failure:
+    publish_action: "downgrade_to_draft"
+    email_action: "block"
+
+  # On API failure
+  api_failure:
+    retry_count: 3
+    retry_delay_seconds: 5

@@ -1,0 +1,21 @@
+{
+  "mode": "publish-send",
+  "post_data": {
+    "title": "AI 晶片三巨頭齊漲：CES 2026 後市場重算什麼？",
+    "slug": "ai-chips-ces-2026-01-05-flash"
+  },
+  "draft": {
+    "id": "695c3fa86a90a40001baf560",
+    "slug": "ai-chips-ces-2026-01-05-flash",
+    "status": "draft"
+  },
+  "quality_passed": true,
+  "timestamp": "2026-01-05T22:48:09.628002",
+  "published": {
+    "id": "695c3fa86a90a40001baf560",
+    "url": "https://rocket-screener.ghost.io/ai-chips-ces-2026-01-05-flash/",
+    "status": "published",
+    "newsletter": "daily-brief-test",
+    "segment": "label:internal"
+  }
+}

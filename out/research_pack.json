@@ -1,0 +1,2199 @@
+{
+  "meta": {
+    "run_id": "run_20260106_065539_aae7764a",
+    "created_at": "2026-01-06T01:57:19-0500",
+    "edition": "postclose",
+    "version": "0.1.0"
+  },
+  "primary_event": {
+    "id": "831ae004a072aeac",
+    "title": "1 AI & 1 Quantum Stock Beat NVIDIA in 2025, Promise More Gains Ahead - Zacks Investment Research",
+    "event_type": "earnings",
+    "summary": "1 AI & 1 Quantum Stock Beat NVIDIA in 2025, Promise More Gains Ahead&nbsp;&nbsp;Zacks Investment Research",
+    "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQSkI4UVg5SndyNWNaTU9LSkxIVjhGOGU3cnpvd0xRS1VBS3hweVVwbDdJWHVrLVdVcEdtd0s0QkVUOUlza3NMZGlZVFJBSFV1cTdpejBkaGZib0xfOFdfX3dyVFRHa3kyQ0hfRE0zS1d5c1lWQm4yRXF5cWhRal9LWFk5TDRtUEx3NS1LM0QyNkpIYTlyUFZRQkltVVZ6UkhtVTJyUUxqMnBhQQ?oc=5",
+    "published_at": "2026-01-05T19:30:14",
+    "publishers": [
+      "Zacks Investment Research"
+    ],
+    "score": 45.5
+  },
+  "primary_theme": {
+    "id": "ai_chips",
+    "name": "AI 晶片",
+    "name_en": "AI Chips"
+  },
+  "key_stocks": [
+    {
+      "ticker": "QBTS",
+      "name": "D-Wave Quantum Inc.",
+      "role": "primary",
+      "thesis": null,
+      "catalysts": [],
+      "risks": []
+    },
+    {
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "role": "peer",
+      "thesis": null,
+      "catalysts": [],
+      "risks": []
+    }
+  ],
+  "candidate_events": [
+    {
+      "event": {
+        "id": "831ae004a072aeac",
+        "title": "1 AI & 1 Quantum Stock Beat NVIDIA in 2025, Promise More Gains Ahead - Zacks Investment Research",
+        "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQSkI4UVg5SndyNWNaTU9LSkxIVjhGOGU3cnpvd0xRS1VBS3hweVVwbDdJWHVrLVdVcEdtd0s0QkVUOUlza3NMZGlZVFJBSFV1cTdpejBkaGZib0xfOFdfX3dyVFRHa3kyQ0hfRE0zS1d5c1lWQm4yRXF5cWhRal9LWFk5TDRtUEx3NS1LM0QyNkpIYTlyUFZRQkltVVZ6UkhtVTJyUUxqMnBhQQ?oc=5",
+        "published_at": "2026-01-05T19:30:14",
+        "publisher": "Zacks Investment Research",
+        "related_tickers": [
+          "QBTS",
+          "NVDA"
+        ],
+        "related_themes": [
+          "quantum",
+          "ai_chips"
+        ],
+        "query": "QBTS stock",
+        "snippet": "1 AI & 1 Quantum Stock Beat NVIDIA in 2025, Promise More Gains Ahead&nbsp;&nbsp;Zacks Investment Research"
+      },
+      "event_type": "earnings",
+      "relevance_score": 30,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 45.5,
+      "is_rumor": false,
+      "matched_tickers": [
+        "QBTS",
+        "NVDA"
+      ],
+      "matched_themes": [
+        "ai_chips",
+        "quantum"
+      ]
+    },
+    {
+      "event": {
+        "id": "f5a0c765218daf1b",
+        "title": "Snowflake: Massively Underestimated Revenue Potential (SNOW) - Seeking Alpha",
+        "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxOMHh4UDZSQmV0cUxRWWFvWmwxTGFhMERJYy1ZNFY0Q3UzdFZUVjNod05LYkY1enBlQnB4Q1NqQjhpQ1o1Z1hfZVk4bENmVWtFTkdWWHpuMTVDUVNhOTZERUpOTTJjSVZuaDdiS1l0SWJFUXh5clRWblhsRVNhTjFlTmxWSG5BaldVemVpYWE2R1ZacE9NWUxUZQ?oc=5",
+        "published_at": "2025-12-22T08:00:00",
+        "publisher": "Seeking Alpha",
+        "related_tickers": [
+          "SNOW"
+        ],
+        "related_themes": [
+          "ai_data"
+        ],
+        "query": "SNOW stock",
+        "snippet": "Snowflake: Massively Underestimated Revenue Potential (SNOW)&nbsp;&nbsp;Seeking Alpha"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 30,
+      "total_score": 45.5,
+      "is_rumor": false,
+      "matched_tickers": [
+        "SNOW"
+      ],
+      "matched_themes": [
+        "ai_data"
+      ]
+    },
+    {
+      "event": {
+        "id": "7d353597ca0c3efb",
+        "title": "IREN's GPU Expansion Accelerates: Is Revenue Visibility Improving? - Yahoo Finance",
+        "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNQzdXVkdQQ2F4dU9rdk9GSDZPMEhwR2JWWnVTdTVEUV9yMG9aZHJEOW00SjgzNVp5TDFEZU0tNmVlcUFNTTAwcXBTTXZYaUE2YWg2a2N6UzlCcHhRUy02QTBLNm9ZMFBENElPdlZHN21vTTFvTFNRVzU5SnBoSFlrV2pzWXV5UEYteHBRU3V3?oc=5",
+        "published_at": "2026-01-05T17:04:00",
+        "publisher": "Yahoo Finance",
+        "related_tickers": [
+          "IREN"
+        ],
+        "related_themes": [
+          "ai_infra"
+        ],
+        "query": "IREN stock",
+        "snippet": "IREN's GPU Expansion Accelerates: Is Revenue Visibility Improving?&nbsp;&nbsp;Yahoo Finance"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 25,
+      "total_score": 42.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "IREN"
+      ],
+      "matched_themes": [
+        "ai_infra"
+      ]
+    },
+    {
+      "event": {
+        "id": "9440c34dd106892d",
+        "title": "Oracle vs. Palantir: Wall Street Is Neutral on One of These AI Stocks but Expects the Other to Surge - The Motley Fool",
+        "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPM0tjSUowVmVyQm5mYkNyZk1sUWUtZUkzZDltdmwzSGxnX21xWWt0a29YVkdoeHlSNnFyOWxUUkpsM3VRT0J4amFJYl9Ca29JWWctSHAzNmFnRXZTQUJNNFdaYkpMYlk5dTJHUjh1ZmFranQ0QU1jNmYxWHFXbXhDN0ExVjB4eHB0MS15ZFNTdDVUNjlQa05tdg?oc=5",
+        "published_at": "2026-01-05T00:40:00",
+        "publisher": "The Motley Fool",
+        "related_tickers": [
+          "ORCL"
+        ],
+        "related_themes": [
+          "ai_cloud"
+        ],
+        "query": "ORCL stock",
+        "snippet": "Oracle vs. Palantir: Wall Street Is Neutral on One of These AI Stocks but Expects the Other to Surge&nbsp;&nbsp;The Motley Fool"
+      },
+      "event_type": "guidance",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 25,
+      "total_score": 42.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "ORCL"
+      ],
+      "matched_themes": [
+        "ai_cloud"
+      ]
+    },
+    {
+      "event": {
+        "id": "0895791c9248437a",
+        "title": "SYM Down 18.9% Since Q4 Earnings: Buy, Sell or Hold the Stock? - Yahoo Finance",
+        "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE0zMUVMaDkxZk9CWWxBTkJjYnRUaW5SdlJFZWhCSGdReEoxd0hsbzdXRnpubFlrM0IweDlzV0IwcG5tcElzcGFSR2hJa0M3dF9MWDlDR2x3TE91OWFOTXEzbEVEU25YSVBQckxYOTk4YWwyTnc?oc=5",
+        "published_at": "2025-12-17T08:00:00",
+        "publisher": "Yahoo Finance",
+        "related_tickers": [
+          "SYM"
+        ],
+        "related_themes": [
+          "robotics"
+        ],
+        "query": "SYM stock",
+        "snippet": "SYM Down 18.9% Since Q4 Earnings: Buy, Sell or Hold the Stock?&nbsp;&nbsp;Yahoo Finance"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 25,
+      "total_score": 42.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "SYM"
+      ],
+      "matched_themes": [
+        "robotics"
+      ]
+    },
+    {
+      "event": {
+        "id": "daaac5247c5eb58b",
+        "title": "MongoDB’s Strong Q3, Higher 2026 Outlook, and Buybacks Might Change The Case For Investing In MongoDB (MDB) - Yahoo Finance",
+        "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNZl9Lc0MxNDE2VG9fUVVhaDk2V1poUno2eTdXQVY0d3dPZGFDc3NNLUhndm9nQzlEb2wxYk45VjlmYndfbDNYNFdibUxYNDAxNEZUNHF3ejFsbkJWUVY0MjVZbGQ4LV9iRmNyREVqbVowQnNtZTdwWlZqRzBtUXladQ?oc=5",
+        "published_at": "2025-12-13T08:00:00",
+        "publisher": "Yahoo Finance",
+        "related_tickers": [
+          "MDB"
+        ],
+        "related_themes": [
+          "ai_data"
+        ],
+        "query": "MDB stock",
+        "snippet": "MongoDB’s Strong Q3, Higher 2026 Outlook, and Buybacks Might Change The Case For Investing In MongoDB (MDB)&nbsp;&nbsp;Yahoo Finance"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 25,
+      "total_score": 42.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "MDB"
+      ],
+      "matched_themes": [
+        "ai_data"
+      ]
+    },
+    {
+      "event": {
+        "id": "d1522f33cc330d17",
+        "title": "Marvell Technology And Astera Labs: Quiet Winners From Surging Memory Prices - Seeking Alpha",
+        "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxQZmREdjVBX1NkSFhXM0ZsVUU1VUt4Qk1fQlY3dlh3Vkd4cWxQcG42clRRSEVHU3dOd29BMTh0eGxaV1pleWRqbDNuNjM1STNqUGJSWXNxdVF2OW5xM0d2ZHh1UkRHZkE0cWMySW1lNXd2akNXN2drS2FPR1kwUDMyeHUyRUFqODJUTzY1N3hPdEFxaU1zbDVkaU9DSzBHLVBPcTVROFc2bGJ4Nm9qVTZ0ZzhGNnR5RTg?oc=5",
+        "published_at": "2026-01-06T04:24:38",
+        "publisher": "Seeking Alpha",
+        "related_tickers": [
+          "ALAB",
+          "MRVL"
+        ],
+        "related_themes": [
+          "ai_networking"
+        ],
+        "query": "ALAB stock",
+        "snippet": "Marvell Technology And Astera Labs: Quiet Winners From Surging Memory Prices&nbsp;&nbsp;Seeking Alpha"
+      },
+      "event_type": "other",
+      "relevance_score": 25,
+      "credibility_score": 20,
+      "impact_score": 10,
+      "total_score": 38.5,
+      "is_rumor": false,
+      "matched_tickers": [
+        "ALAB",
+        "MRVL"
+      ],
+      "matched_themes": [
+        "ai_networking"
+      ]
+    },
+    {
+      "event": {
+        "id": "d755e8656bf8aadc",
+        "title": "AMD reveals new AI PC chips, details next-gen data center chips at CES 2026 - Yahoo Finance",
+        "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxQNGRWR2o4R1piYUZSRmdyQlA1QlR2VVFLSlRTTnN3VkF6OXI5eG4wd2lPSGpJMG13MzVXU21ZaWVHblVfQUllRnVkS3padFEzN2loUlhEUERXOVgxaFE3cEdzMDNNZHJtR0ItRlFWTzBmNEoyWk5fWnU4QjVWUk14SFNKVGUzeVFGV3R0Z3B2QUlSbTJaYjNtMjJ3TUtxeDBpR2ppZ2ZhQnlrdkltZTdoSU9YUGtIRUU2bVNPcg?oc=5",
+        "published_at": "2026-01-06T04:12:42",
+        "publisher": "Yahoo Finance",
+        "related_tickers": [],
+        "related_themes": [
+          "ai_infra",
+          "ai_chips"
+        ],
+        "query": "data center",
+        "snippet": "AMD reveals new AI PC chips, details next-gen data center chips at CES 2026&nbsp;&nbsp;Yahoo Finance"
+      },
+      "event_type": "product",
+      "relevance_score": 20,
+      "credibility_score": 20,
+      "impact_score": 15,
+      "total_score": 38.5,
+      "is_rumor": false,
+      "matched_tickers": [
+        "AMD"
+      ],
+      "matched_themes": [
+        "ai_infra",
+        "ai_chips"
+      ]
+    },
+    {
+      "event": {
+        "id": "400a0aa6e89cf032",
+        "title": "Rocket Lab (NASDAQ:RKLB) Stock Price Up 2.8% - Still a Buy? - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNaEdPVTJVV3RhYkdXMFhMSFpGN0FpMGkzX1A5REZvVkYzaWRfZHNmLTV6R1hBWnA1XzlQaWN6MFVJZ2pJeGgyMXBGcTZ4azRqaGhUeWVCRVQzWWNLNTZKb0MtNk15aXVZUHgxYjlPckhxVkxSaGJpdU5xSTlNd29meno5ZWg4T24zZmwtWTFFRUdUaERXOUtHZXFwdkNJN0dVUWtUTHFQUGM?oc=5",
+        "published_at": "2026-01-06T01:05:17",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "RKLB"
+        ],
+        "related_themes": [
+          "robotics",
+          "space"
+        ],
+        "query": "RKLB stock",
+        "snippet": "Rocket Lab (NASDAQ:RKLB) Stock Price Up 2.8% - Still a Buy?&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 20,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 38.5,
+      "is_rumor": false,
+      "matched_tickers": [
+        "RKLB"
+      ],
+      "matched_themes": [
+        "space",
+        "robotics"
+      ]
+    },
+    {
+      "event": {
+        "id": "ff4f7b475fb92130",
+        "title": "Nvidia, Broadcom, AMD among BofA's top chip stocks to 'ride the wave' (NVDA:NASDAQ) - Seeking Alpha",
+        "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxPb0tTTk9zdFhWbGZoZWR4ZXp0RWluSEFHQ3p6WTViRWdGMFZYRkZGUlRCZ0FLRXVjZ3dtTmJyeV9OeF9DbVJKaUFPTGMtR0JQV1VhQjd4N3lyUlczdEI5Y0RINzFTRU9XdmtHZ2lfdmlRN3U5T1dWLUVqVXJGSWZ4cDlCRkYyZWFtQkRaSEFEc2lFekY5TkFjd24yTFQ0U3pSQWxmVA?oc=5",
+        "published_at": "2026-01-05T19:04:52",
+        "publisher": "Seeking Alpha",
+        "related_tickers": [
+          "NVDA"
+        ],
+        "related_themes": [
+          "ai_chips"
+        ],
+        "query": "NVDA stock",
+        "snippet": "Nvidia, Broadcom, AMD among BofA's top chip stocks to 'ride the wave' (NVDA:NASDAQ)&nbsp;&nbsp;Seeking Alpha"
+      },
+      "event_type": "other",
+      "relevance_score": 25,
+      "credibility_score": 20,
+      "impact_score": 10,
+      "total_score": 38.5,
+      "is_rumor": false,
+      "matched_tickers": [
+        "AMD",
+        "NVDA"
+      ],
+      "matched_themes": [
+        "ai_chips"
+      ]
+    },
+    {
+      "event": {
+        "id": "c7597341f33a2791",
+        "title": "ASML’s stock hits another record high after analyst upgrade - MarketWatch",
+        "url": "https://news.google.com/rss/articles/CBMiqANBVV95cUxQWXk1LTRwU2haWVB1LTlKVkR6TXJEMm52eGpBWFFrNTNXSVFIRlJQeXQzLWZGVWxtTm1oNnVHbDZoSjJMYjBnX1ljVlBZb0ZGSXBzR3Nib3lvU2Q4aGhpZVJSYW5xaEpWQV9ab3hUNnhXYTNJZUdqTnJ6Y3Rwb2RDdTF6RTRaUEdFaVJieTRVWlhMS3dHSGFmT2ZNTlQzc1lxVUhEaXMxZDgxVkJBTFdWLTlsWS1fdXdqRnBSUTB0TVRsRmloLWRiZlM1WVFTeEtvZmY2TnJQOWNFVldEVUlLajZmQzNEZjd1bFc3VS1kY051Ynk2eEFQenRqLUJBWWdLdng4SFlRWlpOLS15dWliTEM3cmlHUVdNWDREWkZUUlFPXzV0X3otN0tnNDN5VEZNNW5WNkhyMUlUYXMyeHBHa1hqeDhfaHZ5dmo1amNkblZLcXlQdlVzcTJlNi1Pc3Vfb2I4cC1nOHU1WTJjRjNPelY4SWpVdTZiOTQxS0J6V2RnRjNhSEpoWkVFb1RQbFpnR3NxaGVfNkVudmdRdmZmU2c2VG1CTlpT?oc=5",
+        "published_at": "2026-01-05T15:20:00",
+        "publisher": "MarketWatch",
+        "related_tickers": [
+          "ASML"
+        ],
+        "related_themes": [
+          "ai_chips"
+        ],
+        "query": "ASML stock",
+        "snippet": "ASML’s stock hits another record high after analyst upgrade&nbsp;&nbsp;MarketWatch"
+      },
+      "event_type": "product",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 20,
+      "total_score": 38.5,
+      "is_rumor": false,
+      "matched_tickers": [
+        "ASML"
+      ],
+      "matched_themes": [
+        "ai_chips"
+      ]
+    },
+    {
+      "event": {
+        "id": "eb41cb216ac3de49",
+        "title": "AMZN, GOOGL: Jefferies Top Analyst Boosts Price Targets on Amazon and Alphabet Stocks - TipRanks",
+        "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxPNm8yVERnRXhnS0pSVE1pdE5lT1Z0Wm9yckpIWUZpUlVuakp3bzdTMmtKcVZFdnUwUzJ2aE1NOVpMMXlWVURXZzRWQ21EODJNNnhNVy1aa2FydmpPVkFxcUwzenVqSW9OR0llMUd6MW5NcTJjSTE2U3pmSEtWeTRXZFRXdlhaY1gwMlBOOXlfSFAtZ1VnVTdrcEN3emljM1FReHlFd25hTE12UHMxb0EzNkdxUQ?oc=5",
+        "published_at": "2026-01-05T11:30:57",
+        "publisher": "TipRanks",
+        "related_tickers": [
+          "GOOGL"
+        ],
+        "related_themes": [
+          "ai_cloud"
+        ],
+        "query": "GOOGL stock",
+        "snippet": "AMZN, GOOGL: Jefferies Top Analyst Boosts Price Targets on Amazon and Alphabet Stocks&nbsp;&nbsp;TipRanks"
+      },
+      "event_type": "guidance",
+      "relevance_score": 25,
+      "credibility_score": 10,
+      "impact_score": 20,
+      "total_score": 38.5,
+      "is_rumor": false,
+      "matched_tickers": [
+        "AMZN",
+        "GOOGL"
+      ],
+      "matched_themes": [
+        "ai_cloud"
+      ]
+    },
+    {
+      "event": {
+        "id": "b00038f1a8dd0d64",
+        "title": "Top Wall Street analysts suggest these 3 stocks for their growth prospects - CNBC",
+        "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQY0JtdkhGSFpCdFZGMnBHaG5seWJWN2xWVmowSkItWHRCdFFBOVRkWU9nNTBNTUd1Rkhoa2d5bGVEMWJsdnpqeDAwU0o4NkFadTNQdmR0QTlmSVlNcEdTMUZ5RlEtcG9WY19LUllsUkVFQ2dTWHZyS3Zlei1BRWEtQUNhZ29qRVphOUJsOC1RZEtYcUlsUDRiUGluT1V0SWZiTld2V0tCOXVJTnVta0hyNtIBtgFBVV95cUxQVWNlVHRSelEyekhFaTN2SHI2aTdpM0ItUDlGRDItX242ZmhYeGtvZTNJWkNRLTFBcktyTlRVZHZlVEk0NFR0d1gxcHl3cl84MFVQcC1xWk8yTXk3ZG9KbmM2cWZRTzVXMFF6dzBLT0IwY0hoc09LZG9UMVJGWXdSWVduNGRuVkdITTVRR3RWVHNKbHM1LUxwWmxDYWhsdWJsS2p0ejZIWXJELVYwMjlSY3R2TjI4dw?oc=5",
+        "published_at": "2026-01-04T12:20:47",
+        "publisher": "CNBC",
+        "related_tickers": [
+          "MSFT",
+          "AMZN"
+        ],
+        "related_themes": [
+          "ai_cloud"
+        ],
+        "query": "MSFT stock",
+        "snippet": "Top Wall Street analysts suggest these 3 stocks for their growth prospects&nbsp;&nbsp;CNBC"
+      },
+      "event_type": "other",
+      "relevance_score": 25,
+      "credibility_score": 20,
+      "impact_score": 10,
+      "total_score": 38.5,
+      "is_rumor": false,
+      "matched_tickers": [
+        "MSFT",
+        "AMZN"
+      ],
+      "matched_themes": [
+        "ai_cloud"
+      ]
+    },
+    {
+      "event": {
+        "id": "805d2aa5a5ab56d9",
+        "title": "Here’s the forecast for Nvidia stock in 2026 - Yahoo Finance UK",
+        "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQcXlSSU1hMkl2bFlkNWZoVGN5YU5waWwyYnFpcExRX0Noa2ptcDhnQWdJTlFYRGkzcjZlaFFpTG5KZ0MzN2NmSnNBaU1ORmNBMFNnNXpRUFBwc0Vfd1VxUlQ1UnB2UG5VNk5xZTdvTGczUUZDemNBYTJGUU5DYWdRSw?oc=5",
+        "published_at": "2026-01-04T06:12:00",
+        "publisher": "Yahoo Finance UK",
+        "related_tickers": [
+          "NVDA"
+        ],
+        "related_themes": [
+          "ai_chips"
+        ],
+        "query": "NVDA stock",
+        "snippet": "Here’s the forecast for Nvidia stock in 2026&nbsp;&nbsp;Yahoo Finance UK4 Reasons to Buy Nvidia Stock Like There's No Tomorrow&nbsp;&nbsp;The Motley FoolWhy Nvidia Could Have a Terrible Year in 2026, And Why It Might Not Be So Bad&nbsp;&nbsp;24/7 Wall St."
+      },
+      "event_type": "guidance",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 20,
+      "total_score": 38.5,
+      "is_rumor": false,
+      "matched_tickers": [
+        "NVDA"
+      ],
+      "matched_themes": [
+        "ai_chips"
+      ]
+    },
+    {
+      "event": {
+        "id": "9476bc31038f4c49",
+        "title": "GOOGL Stock Rocked in 2025, But Is Google’s 2026 Forecast as Bright? - Yahoo Finance",
+        "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxOdW5iX3RQams3U0lodDdqX2ZOTVRYNzhZVWlGQmdMeU0zRnc3TXFmaHpKTXpnQ3Y4NnRDaERQRkx1ZnVBaGVNOUo1UjU1Sk1jV3Y5cjVfNHY5b1dtdFJidzNSa0VOdjd0cl81eFFSanJUbmxna0JaZXJJM2U2Y2xrV1Bn?oc=5",
+        "published_at": "2026-01-03T17:00:02",
+        "publisher": "Yahoo Finance",
+        "related_tickers": [
+          "GOOGL"
+        ],
+        "related_themes": [
+          "ai_cloud"
+        ],
+        "query": "GOOGL stock",
+        "snippet": "GOOGL Stock Rocked in 2025, But Is Google’s 2026 Forecast as Bright?&nbsp;&nbsp;Yahoo Finance"
+      },
+      "event_type": "guidance",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 20,
+      "total_score": 38.5,
+      "is_rumor": false,
+      "matched_tickers": [
+        "GOOGL"
+      ],
+      "matched_themes": [
+        "ai_cloud"
+      ]
+    },
+    {
+      "event": {
+        "id": "82bacc2ded43ebac",
+        "title": "2026 Outlook: Why 3.1 Is A Game-Changer For Nebius Stock (NASDAQ:NBIS) - Seeking Alpha",
+        "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPR0k4YmRsbS1ZX3RWdjl0amk5NkpIakRSV0tKSjF1V2dwQndtdm00ck9ENDBzRG9DT3o4VEF2aDlwS1VRUGhPQmpOT0ZTWGx1WDlxOGl4aXk4dUZFN3dnVTJBRE10b3Y2OUVRM1phUTlBQWxrNHpZWXVoRUZkbEU1eVd3NjFrU1dtUHV0dlh5c3NtMU9O?oc=5",
+        "published_at": "2026-01-03T08:55:33",
+        "publisher": "Seeking Alpha",
+        "related_tickers": [
+          "NBIS"
+        ],
+        "related_themes": [
+          "ai_infra"
+        ],
+        "query": "NBIS stock",
+        "snippet": "2026 Outlook: Why 3.1 Is A Game-Changer For Nebius Stock (NASDAQ:NBIS)&nbsp;&nbsp;Seeking Alpha"
+      },
+      "event_type": "guidance",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 20,
+      "total_score": 38.5,
+      "is_rumor": false,
+      "matched_tickers": [
+        "NBIS"
+      ],
+      "matched_themes": [
+        "ai_infra"
+      ]
+    },
+    {
+      "event": {
+        "id": "bae8d4fd8aac61f5",
+        "title": "Truist and RBC Capital Raise Price Targets on Intuitive Surgical (ISRG) - Yahoo Finance",
+        "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxQaExEdWRnSmJvdGtBVUxsOTBlak1EaHh4dDN2aHRWVFZDanExTFd5SDJFSnpXaUg1czFNd1JRRUlHcWljd3NKSFpLelptZTh3ekIxWFoySVRYT2FjWXRJOWJlLXdfWEFHU0kyV0Q0T25HOVI3N3VoNnlGa2o2bnk3Rmp3?oc=5",
+        "published_at": "2025-12-21T08:00:00",
+        "publisher": "Yahoo Finance",
+        "related_tickers": [
+          "ISRG"
+        ],
+        "related_themes": [
+          "robotics"
+        ],
+        "query": "ISRG stock",
+        "snippet": "Truist and RBC Capital Raise Price Targets on Intuitive Surgical (ISRG)&nbsp;&nbsp;Yahoo Finance"
+      },
+      "event_type": "guidance",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 20,
+      "total_score": 38.5,
+      "is_rumor": false,
+      "matched_tickers": [
+        "ISRG"
+      ],
+      "matched_themes": [
+        "robotics"
+      ]
+    },
+    {
+      "event": {
+        "id": "5b6df951649e0d4e",
+        "title": "IREN Ltd. (IREN) Jumps 13% on Bitcoin Fever - Yahoo Finance",
+        "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTE53UXZNNlZ3SmM4Z3V4cURXV0dZeTJvVlkzdDlxVkJtbmxvNWsyOUhzeU1lZk8zSS1aTEpQSFp1cnNRYlp3QlQyTFdkWkJNS0g0c1dxREN5V0QwYnRBR3VkM3dNcEs3Y2prOHFRUV9mdkFHbV9YUFBB?oc=5",
+        "published_at": "2026-01-06T05:17:15",
+        "publisher": "Yahoo Finance",
+        "related_tickers": [],
+        "related_themes": [
+          "crypto"
+        ],
+        "query": "bitcoin",
+        "snippet": "IREN Ltd. (IREN) Jumps 13% on Bitcoin Fever&nbsp;&nbsp;Yahoo Finance"
+      },
+      "event_type": "other",
+      "relevance_score": 20,
+      "credibility_score": 20,
+      "impact_score": 10,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "IREN"
+      ],
+      "matched_themes": [
+        "ai_infra",
+        "crypto"
+      ]
+    },
+    {
+      "event": {
+        "id": "011184c28a78b0c7",
+        "title": "Symbotic (NASDAQ:SYM) Shares Up 5.8% - What's Next? - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNanlHNUozRlpIZW9NVEg4V1JBNUIyQjN3NDRTbkZKQzlYQWRwQXFJYjB3V1FSNWxuODQ5ZGdGTmRwVUhkWlE4NHM4RzFDYmdwSG9NTDNBNkdVckZwNXI3OGJpemxqeXVqR1BhMnVFOU1nOVZzNWtsblpMckhjaVVuTGxmVFNNaUpOZzBacWdHeWtmZWVzWU1lYTlXalk?oc=5",
+        "published_at": "2026-01-06T01:07:14",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "SYM"
+        ],
+        "related_themes": [
+          "robotics"
+        ],
+        "query": "SYM stock",
+        "snippet": "Symbotic (NASDAQ:SYM) Shares Up 5.8% - What's Next?&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "SYM"
+      ],
+      "matched_themes": [
+        "robotics"
+      ]
+    },
+    {
+      "event": {
+        "id": "2f2a58898f1a797a",
+        "title": "Rigetti Computing (NASDAQ:RGTI) Shares Up 6% - Time to Buy? - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQSjhBLUNhYzRZMi1rSzY2WlZUUUJRNDA0cGtIUkxOTEM0dGpUQ3hjVkNibXVlM0hKcS1taG03Y0ROc1ZjX3ZWSjZ6cXpuV2s1YXNaaXItNjQwYkJFY1NOU0lKREp6UUlXZHBKVGpOaWMwMkZuQVlhdmY2cVRiRTRfNW1hTlhYclFFSDF0NjdHVlpXU1czcFV3bFYyZkhhYmlkQV80WHRnUE4zUQ?oc=5",
+        "published_at": "2026-01-06T01:07:10",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "RGTI"
+        ],
+        "related_themes": [
+          "quantum"
+        ],
+        "query": "RGTI stock",
+        "snippet": "Rigetti Computing (NASDAQ:RGTI) Shares Up 6% - Time to Buy?&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "RGTI"
+      ],
+      "matched_themes": [
+        "quantum"
+      ]
+    },
+    {
+      "event": {
+        "id": "ba236a93fe9dcf0c",
+        "title": "Snowflake (NYSE:SNOW) Shares Up 3.7% - Should You Buy? - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPbXdfWENObmFBSmJjaGdPQWdRalZDQktoRFltTHVUdlB0b3QtSkdCVUZCN0JZTlJsYkhmaUFZa01WVl9raHBsczAxZEpBeFdicVo1VzVadHZhWE91MVBkN2RsNy1rcUlERTNNdWdJQ2E5eWk4dVlDSXh4aExwOERlcmRNaHVWQTNnMkV4aXFLVnA2Y1pMekZkWFd4SmZqRUd0UFE?oc=5",
+        "published_at": "2026-01-06T01:07:10",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "SNOW"
+        ],
+        "related_themes": [
+          "ai_data"
+        ],
+        "query": "SNOW stock",
+        "snippet": "Snowflake (NYSE:SNOW) Shares Up 3.7% - Should You Buy?&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "SNOW"
+      ],
+      "matched_themes": [
+        "ai_data"
+      ]
+    },
+    {
+      "event": {
+        "id": "707efd2b72dd27d9",
+        "title": "AST SpaceMobile (NASDAQ:ASTS) Shares Up 8.9% - Here's Why - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPeUctVzBpeUlfdms5cTJrdWE4cXg3dS1pV28tLTllTFd3T096MExrNG54aHJzNXFZNGFtUFZIR0xWVlk5NGMwekVIUDlNR1dJRTZJZTZyNEhoekJCcU1SeEV2VTdWQUxmQmc0bFU2eEZsYU1fczFmTjdFQkxyVkxodXRybFBYdlY3TzhsNEtmSy1haDhESHUzOG92OEJCeHR2U0Y4dWpR?oc=5",
+        "published_at": "2026-01-06T01:05:13",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "ASTS"
+        ],
+        "related_themes": [
+          "space"
+        ],
+        "query": "ASTS stock",
+        "snippet": "AST SpaceMobile (NASDAQ:ASTS) Shares Up 8.9% - Here's Why&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "ASTS"
+      ],
+      "matched_themes": [
+        "space"
+      ]
+    },
+    {
+      "event": {
+        "id": "4c6e652d2d462146",
+        "title": "D-Wave Quantum (NYSE:QBTS) Trading Up 8.4% - Time to Buy? - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPVXBNSnhhMUVta1VFcnhFU1NyZkx4NHd1UVVVeDFwUnBvLWF1WHcxRVZhTDNXN3NZajJGdmhHWkpIMjJnelNoa3FhMEdZRnZHRTQwNEVxeVpKWS1ObjhTal9VZ3lZa0NnQTZiYlQxdDgzdDFuUUpwa0ktZkhtVmp1aFBXSHBSbzVabFJSWnBraF9PT3ZEZ2lSTVJlelpuRXhWUlBuODJR?oc=5",
+        "published_at": "2026-01-06T01:05:12",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "QBTS"
+        ],
+        "related_themes": [
+          "quantum"
+        ],
+        "query": "QBTS stock",
+        "snippet": "D-Wave Quantum (NYSE:QBTS) Trading Up 8.4% - Time to Buy?&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "QBTS"
+      ],
+      "matched_themes": [
+        "quantum"
+      ]
+    },
+    {
+      "event": {
+        "id": "342c78643b368380",
+        "title": "What’s Up With SentinelOne? An Ultra-Deep Value Opportunity - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxPVDhMbDNDdUZ2ZGlGSE9IajZ0YmE3bklhaldUblVuUnZzckhDOEJETzVBTXcxZWNwMG1uNmxTQW1NMFptVWRpY3VuYUllWlNzWExpbEZJZFJ3VGdfMV90cnAwc0pKcmx4WExIVlpVa1QzUjdrWmEzM2ljbmljTTkxTE1uR3J0cFNWZW1uOFAyZ0tfblg1MGQzal9YUQ?oc=5",
+        "published_at": "2026-01-05T23:38:45",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "CRWD"
+        ],
+        "related_themes": [
+          "ai_security"
+        ],
+        "query": "CRWD stock",
+        "snippet": "What’s Up With SentinelOne? An Ultra-Deep Value Opportunity&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "CRWD"
+      ],
+      "matched_themes": [
+        "ai_security"
+      ]
+    },
+    {
+      "event": {
+        "id": "b76f01a93e6d9d90",
+        "title": "Credo Technology Group (NASDAQ:CRDO) Shares Down 2.1% - Should You Sell? - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxNLUN2N2VaeUp6azJFaF9PQzkyWnA0QV9QVm9aUEZnX3hnYmZ2b045S1ZTbVl2bnVoSDRTeU9ZUU5IQlB6RTFuR2pHdXF5NWVydXFzOFpicDdrQmhDN05EUGF3aGNKYTBjTHJqTUpTUDljb0FmYmpJdDBBQ1FiN0drLWhZdEMxV0dubDIwUUJYckVRQUhsd3R6TXY0VmM2c2pUX19PRDdGZFdRM0NVNUI4MVVCMVd5SVZ4MWc?oc=5",
+        "published_at": "2026-01-05T23:26:40",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "CRDO"
+        ],
+        "related_themes": [
+          "ai_networking"
+        ],
+        "query": "CRDO stock",
+        "snippet": "Credo Technology Group (NASDAQ:CRDO) Shares Down 2.1% - Should You Sell?&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "CRDO"
+      ],
+      "matched_themes": [
+        "ai_networking"
+      ]
+    },
+    {
+      "event": {
+        "id": "ab49f1b8b109fe96",
+        "title": "Planet Labs PBC (NYSE:PL) Hits New 12-Month High - Should You Buy? - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQSVd0Q18xeGhfNWUxTDBaOFJIeEl2UnNHMGtKSU9MWGRmQXl5Z3hUWEpqYkRQRXpqeGdOV3JIZkRjc1A4aW9uUGVXU1RBOUlEUHN1eXFyR2t4Tld6dVotdzZTN0dBMkNnQmMxUnlsTnRfLXE3b0JQWVRLSGRoZUhiWE5YamxpOTdndzBuNUE1Sk1hZlVkczJNNTYySGJSNGpWbUc3dzQyV01zMXhxa0MtRGpmY3E?oc=5",
+        "published_at": "2026-01-05T21:24:08",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "PL"
+        ],
+        "related_themes": [
+          "space"
+        ],
+        "query": "PL stock",
+        "snippet": "Planet Labs PBC (NYSE:PL) Hits New 12-Month High - Should You Buy?&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "PL"
+      ],
+      "matched_themes": [
+        "space"
+      ]
+    },
+    {
+      "event": {
+        "id": "41593882f107454e",
+        "title": "Astera Labs (NASDAQ:ALAB) Stock Price Down 7.5% - Here's Why - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxPZ2FTTTlNa1h5YThWb1prSFJpVVI1Wk5KWVlBX2V2RlNkcDZ0ZWk2R3phRFJZYXNKMEpqbVRzaEJFUk9Oc0dlX2RqWWM4ZWZMem01czlldnFTOUltV2lCQy1fR3VwSF8xc2RqQ3pSVnVYNG5OMVdmQXNnTXhrcUNVVU1XZlh0cjhVMEpmRXRHWDdnR0Z6SnNVUjhJeTYtS2FWbDN1V3pUOXNnUQ?oc=5",
+        "published_at": "2026-01-05T21:24:08",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "ALAB"
+        ],
+        "related_themes": [
+          "ai_networking"
+        ],
+        "query": "ALAB stock",
+        "snippet": "Astera Labs (NASDAQ:ALAB) Stock Price Down 7.5% - Here's Why&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "ALAB"
+      ],
+      "matched_themes": [
+        "ai_networking"
+      ]
+    },
+    {
+      "event": {
+        "id": "dd74c97a4de9c506",
+        "title": "My Dividend Stock Portfolio: New November Dividend Record - 100 Holdings With 12 Buys - Seeking Alpha",
+        "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxNR04zQWxsMzRlUFdaem9oNlpaTzVTWmFSNXhydzYtbjlCd2t6X3o1QUtRMVU2Q2hHSnAwTlpQUUJ2aFJfRFE2MlN3dTh5YkJPcHJPSURnRjBicUw4T0pzOEZ0cUlyQXFUQ3lOYXVRNGYzZHhkMW4tcWFUSWVWaWNZbkJQcGZJODZKTnE4ZDBPSE80dVZiOXh5QkFLWW1ETzN3ZF9kNVNfQW1sM2JNSDZtTjVkQ1V0TjRPOWFDcGIxaUM?oc=5",
+        "published_at": "2026-01-05T20:47:28",
+        "publisher": "Seeking Alpha",
+        "related_tickers": [
+          "NEE"
+        ],
+        "related_themes": [
+          "power_grid"
+        ],
+        "query": "NEE stock",
+        "snippet": "My Dividend Stock Portfolio: New November Dividend Record - 100 Holdings With 12 Buys&nbsp;&nbsp;Seeking Alpha"
+      },
+      "event_type": "other",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 15,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "NEE"
+      ],
+      "matched_themes": [
+        "power_grid"
+      ]
+    },
+    {
+      "event": {
+        "id": "b9ab1112e8408347",
+        "title": "Unusual Machines (NYSEAMERICAN:UMAC) Trading Up 12.5% - Still a Buy? - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQTDhPVFdnX1NvSmFVRWM5YnRwZjZsRW1jMW5rRElxVDh6TEhHdUtwZE5mSHEzamlsNTFDV044UXhKSmtiZ3VVaEowM1JCVHZXMGwtaEdBdUZ3UVg1OTZXY2YyTF9vVU5yOWNtYlRtZ01QdzRlc3pzbnhQVFF1UGF3VUw1R0Rra1VTdmxxdDFkOU1BcVFkbTh1TWhqUlZfTmU4TW1QTlJSTHBtbzVSNzNKOHIyQlI?oc=5",
+        "published_at": "2026-01-05T19:41:34",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "UMAC"
+        ],
+        "related_themes": [
+          "drones"
+        ],
+        "query": "UMAC stock",
+        "snippet": "Unusual Machines (NYSEAMERICAN:UMAC) Trading Up 12.5% - Still a Buy?&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "UMAC"
+      ],
+      "matched_themes": [
+        "drones"
+      ]
+    },
+    {
+      "event": {
+        "id": "92f9402b99c97a88",
+        "title": "AeroVironment (NASDAQ:AVAV) Shares Up 11.5% - Here's Why - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOQVBKdWEzVDk2bGNCVVd6QnVSOU9NVm1PQzlnbU9lZmJra3VPVWF4bWZpNGFrbVE0WVJMLVhicUhpNTFKMVZHNEM4MGNBRUNFRGo5Skd4ekdXM1QzazRPaG5GREJHamxWd0JqX1ZKVVd5M0FCVDVRNk9Gc3lPY0hoLW5Lc1pmWXVSRXlJSk1ULWZ5Z09QMWJmTFpBR0s2clBOcEJsbQ?oc=5",
+        "published_at": "2026-01-05T19:41:29",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "AVAV"
+        ],
+        "related_themes": [
+          "drones"
+        ],
+        "query": "AVAV stock",
+        "snippet": "AeroVironment (NASDAQ:AVAV) Shares Up 11.5% - Here's Why&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "AVAV"
+      ],
+      "matched_themes": [
+        "drones"
+      ]
+    },
+    {
+      "event": {
+        "id": "47cf12c948d24984",
+        "title": "Is Oklo’s (OKLO) Prolonged NRC Timeline Reshaping Its AI-Focused Nuclear Power Investment Story? - Yahoo Finance",
+        "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQUTRCSGFrMTlTblB1cUwwdUwxaHF0M3lLQV9BSGx5c21UYVVoOU5ibVdXZDNPaElVNDhtOS1aX2xfUnVWOU1YcnVCZ2dYamRxcXkxZ1BFa3hxRTdybTZ1dEFRQVczR0dtaU1RU0JWVHh2VlBjeHM0OC1ENi1nTVhfNC1WTTc?oc=5",
+        "published_at": "2026-01-05T19:10:05",
+        "publisher": "Yahoo Finance",
+        "related_tickers": [
+          "OKLO"
+        ],
+        "related_themes": [
+          "nuclear"
+        ],
+        "query": "OKLO stock",
+        "snippet": "Is Oklo’s (OKLO) Prolonged NRC Timeline Reshaping Its AI-Focused Nuclear Power Investment Story?&nbsp;&nbsp;Yahoo Finance"
+      },
+      "event_type": "partnership",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 15,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "OKLO"
+      ],
+      "matched_themes": [
+        "nuclear"
+      ]
+    },
+    {
+      "event": {
+        "id": "4b5d8095d72dea3a",
+        "title": "“Not Designed to be Boats”: Tesla Stock (NASDAQ:TSLA) Blasts Up as Model Y Beats California Floodwaters - TipRanks",
+        "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxNc2RDUTlESUhseVhZMTB6Z3h3bTJHZFJnelYtVm1WNW9nZl9jTVRha1JJU2JpNWlaNWFWMTU5ZFp0OTg5d2ZaZjlCbzFsMXdUVXZNR3R6c18tRUtNT1ZJWXdVU2FrMm5UTUtkdkZsMjNjNU9GY2pPUk9ycERjSFpKaC1aaXFUcERuRjZ1MXNmaGdnc0hUNldpcGJzVEhQLVR2WUdZV3lBTk5NSUk1YjhmUU1ya0RFTEpzb3d3aUZlaF9DZUNycmc?oc=5",
+        "published_at": "2026-01-05T18:06:47",
+        "publisher": "TipRanks",
+        "related_tickers": [
+          "TSLA"
+        ],
+        "related_themes": [
+          "robotics"
+        ],
+        "query": "TSLA stock",
+        "snippet": "“Not Designed to be Boats”: Tesla Stock (NASDAQ:TSLA) Blasts Up as Model Y Beats California Floodwaters&nbsp;&nbsp;TipRanks"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "TSLA"
+      ],
+      "matched_themes": [
+        "robotics"
+      ]
+    },
+    {
+      "event": {
+        "id": "213719778fa4da13",
+        "title": "Rubrik (NYSE:RBRK) Given New $99.00 Price Target at Piper Sandler - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQbkV4VE85UnJMZC0xU29YU1hoMDYwM1p4Wk9IdnJqcmJxUGhSSHNtN2Y1WWI2djAyeGJ3YW1xeV9tbHdaQ1ZHeDAyVmh0QXUxZ1FzSHdldXppNGpma29yS0I3cGs2Zmc4SUlZa2h6WUJNazJvVlRNWVptVzByN3NZaUhfTHVEVlA0MHJYRjJYcHRKcU5Zd3pJSE1NSG1wYmNDWEhXSklFSHh1UXAwRHBZWng1NWg?oc=5",
+        "published_at": "2026-01-05T17:51:07",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "RBRK"
+        ],
+        "related_themes": [
+          "ai_security"
+        ],
+        "query": "RBRK stock",
+        "snippet": "Rubrik (NYSE:RBRK) Given New $99.00 Price Target at Piper Sandler&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "RBRK"
+      ],
+      "matched_themes": [
+        "ai_security"
+      ]
+    },
+    {
+      "event": {
+        "id": "b627b3d10ebad3eb",
+        "title": "Why Is Coinbase (COIN) Stock Soaring Today - Yahoo Finance",
+        "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNX2NuQV9XMEZwejVOLXRJNXlyYWt5Z2JJU1dtQ2NpOEZSVE9fVGVXenktcGFHc3hyd2huVkdiSEphbUZUYzRLeHdaY2xPcExrb1ZmcjEzTkpxeWdaWVB2a2d6d1YtOV9IcDFYdENhNkRRLVB0YnR4bUM0UHhFQm93a3lNQQ?oc=5",
+        "published_at": "2026-01-05T17:40:43",
+        "publisher": "Yahoo Finance",
+        "related_tickers": [
+          "COIN"
+        ],
+        "related_themes": [
+          "crypto"
+        ],
+        "query": "COIN stock",
+        "snippet": "Why Is Coinbase (COIN) Stock Soaring Today&nbsp;&nbsp;Yahoo Finance"
+      },
+      "event_type": "other",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 15,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "COIN"
+      ],
+      "matched_themes": [
+        "crypto"
+      ]
+    },
+    {
+      "event": {
+        "id": "7529e0d0d64860c1",
+        "title": "Amazon Stock Gains As It Launches Alexa Website To Compete With ChatGPT, Gemini - Investor's Business Daily",
+        "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE5TSjBHYld6WnBxcXM2VUlRa3dRYXVmekl6Z09VZjFtTVItV2FxbklMRHZpS3ZxNkJhTlRHUU92U1N5REFycmY2SFFJYWs3Z2kxTmRPOTRoMGdNRTB4TmUxVmlaUU1BbmMwWlllejhueGVYbl9fSzZGTQ?oc=5",
+        "published_at": "2026-01-05T17:37:00",
+        "publisher": "Investor's Business Daily",
+        "related_tickers": [
+          "AMZN"
+        ],
+        "related_themes": [
+          "ai_cloud"
+        ],
+        "query": "AMZN stock",
+        "snippet": "Amazon Stock Gains As It Launches Alexa Website To Compete With ChatGPT, Gemini&nbsp;&nbsp;Investor's Business Daily"
+      },
+      "event_type": "product",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 15,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "AMZN"
+      ],
+      "matched_themes": [
+        "ai_cloud"
+      ]
+    },
+    {
+      "event": {
+        "id": "d670b91366adb3bb",
+        "title": "EOSE stock rises as Eos Energy extends storage trade; options buzz keeps traders on edge - ts2.tech",
+        "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPX3c5Zm5qdlBWTlpQQmVQVFhLUldoRnBxQzBqZDd2aFc5dWNoOFBSYktPVWNHR3FHdVBZY2VPbHQ4NGxXeFdtYzV0bU95OUlqbEtYY1Q5bkxDR2R4WUE0NzhqcTRVYXZzdm1PUmZzU3RoZm84WmFfSHhSbXBoWkx4emt5eHcteVctTHp1YWdLVlhDYl8wOEpFWEtTREtIMXlVZE01TUZyRWhaUHZu?oc=5",
+        "published_at": "2026-01-05T17:10:09",
+        "publisher": "ts2.tech",
+        "related_tickers": [
+          "EOSE"
+        ],
+        "related_themes": [
+          "power_grid"
+        ],
+        "query": "EOSE stock",
+        "snippet": "EOSE stock rises as Eos Energy extends storage trade; options buzz keeps traders on edge&nbsp;&nbsp;ts2.tech"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "EOSE"
+      ],
+      "matched_themes": [
+        "power_grid"
+      ]
+    },
+    {
+      "event": {
+        "id": "97f3c2523e7771d7",
+        "title": "Maduro Down, Drone Stocks Up After Venezuela Mission - Benzinga",
+        "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNWFNtQzJVUUlLbVU4dFItZVFNeS1rOG9EclhBODRxZklYeGl4bFlELTZHSUp3UGNSR3JqdkVqZFRENWE3MFlxZldEbzhvTXBxUzV0UTR4YTlfUHpDNVNDWmRwakJTR01GMnRyTlpucERnclk0cm5aN0ZucmgyVUFTeVpnOGVzdVlyTUZja3lyMjZPcmlLZ2xIelRkb3E5SEZWTWgtaG96X1k3LXNQUHZOT0ZR?oc=5",
+        "published_at": "2026-01-05T17:05:40",
+        "publisher": "Benzinga",
+        "related_tickers": [
+          "DPRO"
+        ],
+        "related_themes": [
+          "drones"
+        ],
+        "query": "DPRO stock",
+        "snippet": "Maduro Down, Drone Stocks Up After Venezuela Mission&nbsp;&nbsp;Benzinga"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "DPRO"
+      ],
+      "matched_themes": [
+        "drones"
+      ]
+    },
+    {
+      "event": {
+        "id": "4b705da16fab1e53",
+        "title": "Nvidia Stock Rises Amid Apple Partner News, CES 2026 On Tap; Is Nvidia A Buy Now? - Investor's Business Daily",
+        "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE0za1hOdVl0Y2xsYUEtcVVPWDROSmtISkw0WkN3QzhReFNsMFB4bGoydEJKZE9fUmJuQ3hHTjBsN0tQOHBFQmpOb1gwdXJtMlJhSkUyTHQzbjhHS3JkS1owYnNrclJ4WnNfQkxJaA?oc=5",
+        "published_at": "2026-01-05T15:32:00",
+        "publisher": "Investor's Business Daily",
+        "related_tickers": [
+          "NVDA"
+        ],
+        "related_themes": [
+          "ai_chips"
+        ],
+        "query": "NVDA stock",
+        "snippet": "Nvidia Stock Rises Amid Apple Partner News, CES 2026 On Tap; Is Nvidia A Buy Now?&nbsp;&nbsp;Investor's Business Daily"
+      },
+      "event_type": "partnership",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 15,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "NVDA"
+      ],
+      "matched_themes": [
+        "ai_chips"
+      ]
+    },
+    {
+      "event": {
+        "id": "b007f37d7102c505",
+        "title": "Symbotic (SYM) Is Up 8.4% After 52% Revenue Jump And Bigger AI Automation Bet - What's Changed - simplywall.st",
+        "url": "https://news.google.com/rss/articles/CBMiywFBVV95cUxPWXV4Slg1ajFMX1o0V3RsZ1NQbWc4c1BTRFRHLUstcC1uaW42WjZoUUlyczhROERWZWZBY2FIcnhpQVk1ckYtY0NLUzlSMzZjM1psUUNJMEplellyZXJIR181eEw3UDMwVDJKbVg2MTM5YjhqZWZEbUE4WmN1UW9YSmZNeXJxdldDc2VHd0hnMnRiNXBrVXhOX190Mlo0akcxRGp5WEFtNGdCTVZobDVkUGV3N19fRTlzNTJWYUxtWEUxOEFDSnk1dVp4QdIB0AFBVV95cUxON2tJSmZHZ09kUFZyZGNvOWsxTXV2NFhVYmV0c2ZFcWwxZnlFdUtCTGFNWnlBcmdYcU9kX2w1cTFERDRBbUxSMERXWGRSOWFRVXNqaTVXc2k4UVRwZ0JVaGxSc2RqY0FEV3pXRDcwVk1XR09Xa3BubEVyT3c5b0RvOVk4Y2JxUVNUZnlNaVBCNlJwT015Rndodzdqb2JGRTlmLXF6QTBIbVl4eTZMMWZESS03SDRVWlcwWGVmQmRjbHJySDRvcFItV2dqQkpLZlZE?oc=5",
+        "published_at": "2026-01-05T15:25:22",
+        "publisher": "simplywall.st",
+        "related_tickers": [
+          "SYM"
+        ],
+        "related_themes": [
+          "robotics"
+        ],
+        "query": "SYM stock",
+        "snippet": "Symbotic (SYM) Is Up 8.4% After 52% Revenue Jump And Bigger AI Automation Bet - What's Changed&nbsp;&nbsp;simplywall.st"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "SYM"
+      ],
+      "matched_themes": [
+        "robotics"
+      ]
+    },
+    {
+      "event": {
+        "id": "20f7527da61b0ec9",
+        "title": "NVDA vs. AVGO: Which AI Chip Stock Should You Buy for 2026? - TipRanks",
+        "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQMGdCZy1idFdCTmYyb1VrRk8wa19oeVNxWVZTeGRIMTh3eTFIMlZBbkNtcFpkZHBSVlVKeWRETlJPanlENE1nM3dLSklCTXlaSGQtdE94Q2xUVi0xSThYSXZKMzJZU0JQQmVOUmE0azU5aXkwbUg2Wk1LLU9OTERTMWQzbk5ldlEtQ1RsQWp4RQ?oc=5",
+        "published_at": "2026-01-05T14:40:48",
+        "publisher": "TipRanks",
+        "related_tickers": [
+          "NVDA",
+          "AVGO"
+        ],
+        "related_themes": [
+          "ai_chips",
+          "ai_networking"
+        ],
+        "query": "NVDA stock",
+        "snippet": "NVDA vs. AVGO: Which AI Chip Stock Should You Buy for 2026?&nbsp;&nbsp;TipRanks"
+      },
+      "event_type": "other",
+      "relevance_score": 30,
+      "credibility_score": 10,
+      "impact_score": 10,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "NVDA",
+        "AVGO"
+      ],
+      "matched_themes": [
+        "ai_chips",
+        "ai_networking"
+      ]
+    },
+    {
+      "event": {
+        "id": "84921f9a298c769f",
+        "title": "Argus Forecasts Strong Price Appreciation for Alphabet (NASDAQ:GOOGL) Stock - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxPeV9sakJYTW5CYWZBT0lRcndvUjBiNVR4VmVvejFONWNBU1hSRXJ2ZDkxNTBVT2FfU3lEOWVrZEFua014S0dVb0JoMmswWlQxenNrQUlzczVKY0lfMHdfb0piTGJEZmQ1ZkZGQnVlNlF3anRqb0dOYWZiaDVlZHFNVDdoMlNBYk9iMTJUUGFrekNZanl5Y0pIb0t3ZmZNZndua1A4T21ra3pnNVlOVGtrUDk1VTBVU19UQnowNXFCQlRNS0Zj?oc=5",
+        "published_at": "2026-01-05T14:33:58",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "GOOGL"
+        ],
+        "related_themes": [
+          "ai_cloud"
+        ],
+        "query": "GOOGL stock",
+        "snippet": "Argus Forecasts Strong Price Appreciation for Alphabet (NASDAQ:GOOGL) Stock&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "GOOGL"
+      ],
+      "matched_themes": [
+        "ai_cloud"
+      ]
+    },
+    {
+      "event": {
+        "id": "2eb69c065b652d8a",
+        "title": "GE Vernova Inc. $GEV Stock Holdings Lifted by Kercheville Advisors LLC - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxOblpkb3hSeS1nWHh0eXQ1Tk5xOFRzcDhIREtPQUFLeGFJdGtRV2lHUjczYXF6bXZOaUlHdkZidkZodGtmZUlhQW5wVXdYaHZwMXM5T053TnRWWS14R19yeC1iNkkta0hsOVV3Z0dhSzVEX0pBR0ZLalhBNHdnSnNlYUIzaUtfZ3UzMDl4Q0J1VTlnX0RDdFdHYmdWN2hGY05zQzg4V28weFdvc3BwVE5IVFpEZUhUOVdXRS1FbDFQT0Y5a1RxZlo5Sg?oc=5",
+        "published_at": "2026-01-05T13:37:35",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "GEV"
+        ],
+        "related_themes": [
+          "nuclear"
+        ],
+        "query": "GEV stock",
+        "snippet": "GE Vernova Inc. $GEV Stock Holdings Lifted by Kercheville Advisors LLC&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "GEV"
+      ],
+      "matched_themes": [
+        "nuclear"
+      ]
+    },
+    {
+      "event": {
+        "id": "3c8b568eb422edd7",
+        "title": "How Investors Are Reacting To Planet Labs (PL) Revenue Jump, Free Cash Flow Turn, And Insider Sale - simplywall.st",
+        "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxNbHBKNnlLb2UyZlcwV3hxOHQzRVh6MTF6U0xldkhuVXhxMko4dHAzVXpaR2lWSldnaUV2VUt5bGFVQ1RSODhGR2cxazFZclk4M0VmZlFodkZmUDhBRlBSa0gtVEtTaGhwWm9HVF9wMW5EaVJ0dkNaVUhYNmxPOUV3Sk0xbnRtYTlCNEx5cU14d0FyN1hfRHppNjVVb2cxVGtnQWE2WGZlcjd3YTMzN0E2bVR5TmVCeGNzTXRLQ3p5VkNVUjBSYTVqUFJ1QmxpS2NuQ0QtT1BXSDjSAd4BQVVfeXFMTjFLYXRlS3JFcHJMNFA2bVhvNWhUdk00TFJkVUJSY2dqeGRQSkI1cFZjSlA3V3BtM28tNDl6RjlxU1llRGU4Y2hjZnZwdXhhWkRFazRyQjIweHEybDRGc0wxZGZKbWZNYXhaMkFFN2hlb0JnZEFMN3k0WG1SV2xqRlNlZWo5eHdpbHc3c2NFWFpaVHMtVUlHMTN1VUVlMmJWZEI3YzRCbDgyeEZSTnJsU2Q0WGx1MUUwZ1dGZ3J4TmtGLUp3cmpqOFNSSDJ5TC1TampsNXhtWHYta0VOaUNB?oc=5",
+        "published_at": "2026-01-05T13:22:47",
+        "publisher": "simplywall.st",
+        "related_tickers": [
+          "PL"
+        ],
+        "related_themes": [
+          "space"
+        ],
+        "query": "PL stock",
+        "snippet": "How Investors Are Reacting To Planet Labs (PL) Revenue Jump, Free Cash Flow Turn, And Insider Sale&nbsp;&nbsp;simplywall.st"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "PL"
+      ],
+      "matched_themes": [
+        "space"
+      ]
+    },
+    {
+      "event": {
+        "id": "7259c6f006a7fb6f",
+        "title": "Dow Jones Futures Fall While Techs, Oil Stocks Rise; Venezuela, Nvidia, AMD, Taiwan Semi In Focus - Investor's Business Daily",
+        "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxPQl9LdDBwMjBEVFJVRnNNNzFhWnpGV0hBUzhPbXhsdXhZUEJDWXIxbUFnNGwtQ3RXZVNtSXNWcWpFNGZONFYwcTctMHRqZXhSdW9DZXJhNVZWZ0R5NXhmLTBfcmpvWVJOa1NWaERVeTViTnhhTV9UTE5nMGI3S1JSWVN0Sndub09sVkVJcXhkYVUxWE00LWdFR2VuZTU2RUVnQlZTVC1XNVltNnU4ZnhGQ2xrQi1BZVhmbW1TMWhEclV0TV9Hb1l3Mw?oc=5",
+        "published_at": "2026-01-05T13:15:00",
+        "publisher": "Investor's Business Daily",
+        "related_tickers": [
+          "AMD"
+        ],
+        "related_themes": [
+          "ai_chips"
+        ],
+        "query": "AMD stock",
+        "snippet": "Dow Jones Futures Fall While Techs, Oil Stocks Rise; Venezuela, Nvidia, AMD, Taiwan Semi In Focus&nbsp;&nbsp;Investor's Business Daily"
+      },
+      "event_type": "partnership",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 15,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "AMD"
+      ],
+      "matched_themes": [
+        "ai_chips"
+      ]
+    },
+    {
+      "event": {
+        "id": "8d31aec475fca366",
+        "title": "IonQ Expands Strategic Partnerships to Drive Real-World Quantum Use - Yahoo Finance",
+        "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNdk5UMTRxRnBsZVp6dElIN0ltanMydGh6OENKU1VYMHRrUlVqQU9GSTlLb09LRW9qYkNicHFlNExPTU5BTEVYeDNWYURZNEpvaFduUXZEV1I5cjk5UEtiUzVUQ19Xci1IVnBlQWFzTGNSaUpHMzl0QzFtUHkya0tYWnFvY2s3UUl3ZXp5ZWZMRlU?oc=5",
+        "published_at": "2026-01-05T12:26:00",
+        "publisher": "Yahoo Finance",
+        "related_tickers": [
+          "IONQ"
+        ],
+        "related_themes": [
+          "quantum"
+        ],
+        "query": "IONQ stock",
+        "snippet": "IonQ Expands Strategic Partnerships to Drive Real-World Quantum Use&nbsp;&nbsp;Yahoo Finance"
+      },
+      "event_type": "partnership",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 15,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "IONQ"
+      ],
+      "matched_themes": [
+        "quantum"
+      ]
+    },
+    {
+      "event": {
+        "id": "a793008ce6be21ce",
+        "title": "CoreWeave in focus as it amends credit agreement (CRWV:NASDAQ) - Seeking Alpha",
+        "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxOTS1idFRCV2FvOEdSN013dFFpSHNvWFg5YmktNENoUUxUbm13NGhqOWlpeDJIbk8wcml0bnNpZDRBT0Y1ME1XQlFNUDRFbC1Kai1OSlM5UlF5OXZZNmRLQUU0VTRzeWJHOWNvM0pMS1FfcEZkRGlseVc1NHR2QjZTRTlxV1RzQnVSOWh4WnZEaw?oc=5",
+        "published_at": "2026-01-05T12:23:05",
+        "publisher": "Seeking Alpha",
+        "related_tickers": [
+          "CRWV"
+        ],
+        "related_themes": [
+          "ai_infra"
+        ],
+        "query": "CRWV stock",
+        "snippet": "CoreWeave in focus as it amends credit agreement (CRWV:NASDAQ)&nbsp;&nbsp;Seeking Alpha"
+      },
+      "event_type": "partnership",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 15,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "CRWV"
+      ],
+      "matched_themes": [
+        "ai_infra"
+      ]
+    },
+    {
+      "event": {
+        "id": "05b1ae6a49df6f5d",
+        "title": "Stanley Laman Group Ltd. Has $6.02 Million Stock Position in Intuitive Surgical, Inc. $ISRG - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxNc05IcE5CNGN5Y3lrMjZfX1l0UHBKaDNaYlZHdFQtcVRTbDdqOWw2Z3NIZGhBY2Z6UTN3MGpWSjltbXBVaWloams5b1NEQkV1RUpxdWNhcWpYOGpnM0xDLTN2bG5TZzJvTmxncmIzUURSVUw5ajBNdC1iRXFoQVlsX0lBT3lhR3dpWFNFV3lWbDVDdDhaRW9lMmtrc1RXbHJGYUM2emt1TGJGNjNxVy1SRFZfX2RzTnhreWtocTFXSHVtYVBrY1VmYnhCU19tUlVRWFc1dmtLX05yYkE5T1JF?oc=5",
+        "published_at": "2026-01-05T12:07:26",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "ISRG"
+        ],
+        "related_themes": [
+          "robotics"
+        ],
+        "query": "ISRG stock",
+        "snippet": "Stanley Laman Group Ltd. Has $6.02 Million Stock Position in Intuitive Surgical, Inc. $ISRG&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "ISRG"
+      ],
+      "matched_themes": [
+        "robotics"
+      ]
+    },
+    {
+      "event": {
+        "id": "56afa826460dea31",
+        "title": "Stanley Laman Group Ltd. Decreases Stake in Energy Fuels Inc $UUUU - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNUmRMdmJnNzdaMDBFMU5mcnNCWnoxeXNNVTF1Q0NLUmc1OUlJNDdNV3ZzMWk4dFBGRXpYYkRVZXFVVmZMdTFPTmJSamNFY3VOMlRvc0JMOE5HeGpqQkR6V3lLQXZpWFFuSWd0aVlFWnpwQjJQejg2MEtLMEZFcDR2OUdubDZtQVBRNmNFVXVRNG1WZ2dibVN6SUxuMkc5MkQ5eDU3eUlXVDQtVGxrdVhVc2FxMmxETUF6NUFVQUxENDRRUVE?oc=5",
+        "published_at": "2026-01-05T12:07:26",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "UUUU"
+        ],
+        "related_themes": [
+          "nuclear"
+        ],
+        "query": "UUUU stock",
+        "snippet": "Stanley Laman Group Ltd. Decreases Stake in Energy Fuels Inc $UUUU&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "UUUU"
+      ],
+      "matched_themes": [
+        "nuclear"
+      ]
+    },
+    {
+      "event": {
+        "id": "7bb0e6330dfd3295",
+        "title": "A Look At IREN (NasdaqGS:IREN) Valuation After Microsoft AI Deal And New Share Registration - Yahoo Finance",
+        "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxQWHRONXMzX3ZxNXg2OVVuMDJFUTk0SnRXVE1pV1ZFbEFxd3RFakY2TDl0NFJVTC1HNjNPelhUQ3lDMEdNaUZvYUVzdHUtWnEyUXNzY1ZQLUp3NmhFMGpwdUxEUlhtSWxHS0ppcjJGTWkwS1NkSkw3c2VGbnpxenlXRnlKZHNfdw?oc=5",
+        "published_at": "2026-01-05T09:12:14",
+        "publisher": "Yahoo Finance",
+        "related_tickers": [
+          "IREN"
+        ],
+        "related_themes": [
+          "ai_infra"
+        ],
+        "query": "IREN stock",
+        "snippet": "A Look At IREN (NasdaqGS:IREN) Valuation After Microsoft AI Deal And New Share Registration&nbsp;&nbsp;Yahoo Finance"
+      },
+      "event_type": "partnership",
+      "relevance_score": 15,
+      "credibility_score": 20,
+      "impact_score": 15,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "IREN"
+      ],
+      "matched_themes": [
+        "ai_infra"
+      ]
+    },
+    {
+      "event": {
+        "id": "355e8dcf2785e763",
+        "title": "Commonwealth Equity Services LLC Has $182.48 Million Stock Holdings in NextEra Energy, Inc. $NEE - MarketBeat",
+        "url": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxQUWFXTkpWaEF1RnJjUDBYWVQtSTYxOXF0RXZBNi1uRXQ1V3VmLVc0bjNlLXNnbjlIMmFWYkRycTNHcGVhLUZWbk5yNTlKQ0JtcVFYYVNyaTd6MTkzSnU4RGFmdHJjZ0s1a2F1SGpQTUNnX25HMU52RUI0dWkzdUtLQlFITHZnZDNYdFAtZXpWc2E5TXZNYjFyVDMtZW8zblRJenlQQlZySmpvbExWQjg3ZWp4YlZrbFpBWmh3WFpOUlgzUzN4VWVMMkJIQ2JySXVaWTdRODFlaEozU0p3bzMzZ2RHN05zSHc?oc=5",
+        "published_at": "2026-01-05T09:06:43",
+        "publisher": "MarketBeat",
+        "related_tickers": [
+          "NEE"
+        ],
+        "related_themes": [
+          "power_grid"
+        ],
+        "query": "NEE stock",
+        "snippet": "Commonwealth Equity Services LLC Has $182.48 Million Stock Holdings in NextEra Energy, Inc. $NEE&nbsp;&nbsp;MarketBeat"
+      },
+      "event_type": "earnings",
+      "relevance_score": 15,
+      "credibility_score": 10,
+      "impact_score": 25,
+      "total_score": 35.0,
+      "is_rumor": false,
+      "matched_tickers": [
+        "NEE"
+      ],
+      "matched_themes": [
+        "power_grid"
+      ]
+    }
+  ],
+  "companies": {
+    "QBTS": {
+      "ticker": "QBTS",
+      "name": "D-Wave Quantum Inc.",
+      "sector": "Technology",
+      "industry": "Computer Hardware",
+      "price": {
+        "last": 30.61,
+        "change_pct_1d": 8.81621,
+        "volume": 42468008,
+        "market_cap": 10613068590,
+        "as_of": "2026-01-06T06:56:59.834644+00:00"
+      },
+      "fundamentals": {
+        "revenue_ttm": 8827000,
+        "ebitda_ttm": -138050000,
+        "net_income_ttm": -143879000,
+        "fcf_ttm": -44749000,
+        "gross_margin": 0.8281560636182903,
+        "operating_margin": -3.5520626242544733,
+        "net_margin": -16.51809973492379,
+        "debt_to_equity": null,
+        "current_ratio": 54.676315110881895
+      },
+      "estimates": {
+        "revenue_ntm": null,
+        "eps_ntm": null,
+        "ebitda_ntm": null,
+        "revenue_growth_ntm": null,
+        "price_target_high": 46,
+        "price_target_low": 26,
+        "price_target_consensus": 38.88,
+        "price_target_median": 40,
+        "analyst_count_last_quarter": 8
+      },
+      "peers": [
+        "DAY",
+        "GTM",
+        "IONQ",
+        "JKHY",
+        "MTSI",
+        "PCOR",
+        "QXO",
+        "RGTI",
+        "SAIL",
+        "SWKS"
+      ],
+      "error": null
+    },
+    "DAY": {
+      "ticker": "DAY",
+      "name": "Dayforce Inc",
+      "sector": "Technology",
+      "industry": "Software - Application",
+      "price": {
+        "last": 69.34,
+        "change_pct_1d": 0.10828,
+        "volume": 3221184,
+        "market_cap": 11050624549,
+        "as_of": "2026-01-06T06:57:01.987615+00:00"
+      },
+      "fundamentals": {
+        "revenue_ttm": 1760000000,
+        "ebitda_ttm": 288000000,
+        "net_income_ttm": 18100000,
+        "fcf_ttm": 171500000,
+        "gross_margin": 0.5290233982992658,
+        "operating_margin": 0.06987799080969735,
+        "net_margin": -0.07912111128717055,
+        "debt_to_equity": null,
+        "current_ratio": 1.0432855526216522
+      },
+      "estimates": {
+        "revenue_ntm": null,
+        "eps_ntm": null,
+        "ebitda_ntm": null,
+        "revenue_growth_ntm": null,
+        "price_target_high": 70,
+        "price_target_low": 70,
+        "price_target_consensus": 70,
+        "price_target_median": 70,
+        "analyst_count_last_quarter": 0
+      },
+      "peers": [
+        "ESTC",
+        "GTM",
+        "IDCC",
+        "MANH",
+        "MNDY",
+        "OTEX",
+        "PAYC",
+        "PCOR",
+        "PEGA",
+        "QXO"
+      ],
+      "error": null
+    },
+    "GTM": {
+      "ticker": "GTM",
+      "name": "ZoomInfo Technologies Inc.",
+      "sector": "Technology",
+      "industry": "Software - Application",
+      "price": {
+        "last": 10.24,
+        "change_pct_1d": 6.55567,
+        "volume": 5391157,
+        "market_cap": 3398254438,
+        "as_of": "2026-01-06T06:57:04.938750+00:00"
+      },
+      "fundamentals": {
+        "revenue_ttm": 1214300000,
+        "ebitda_ttm": 156300000,
+        "net_income_ttm": 29100000,
+        "fcf_ttm": 301100000,
+        "gross_margin": 0.845260185558693,
+        "operating_margin": 0.16329164985881403,
+        "net_margin": 0.08398547801532877,
+        "debt_to_equity": null,
+        "current_ratio": 0.6684626436781609
+      },
+      "estimates": {
+        "revenue_ntm": null,
+        "eps_ntm": null,
+        "ebitda_ntm": null,
+        "revenue_growth_ntm": null,
+        "price_target_high": 14,
+        "price_target_low": 9,
+        "price_target_consensus": 11.59,
+        "price_target_median": 11.5,
+        "analyst_count_last_quarter": 4
+      },
+      "peers": [
+        "APPF",
+        "DAY",
+        "DUOL",
+        "IDCC",
+        "MANH",
+        "OTEX",
+        "PAYC",
+        "PCOR",
+        "PEGA",
+        "QXO"
+      ],
+      "error": null
+    },
+    "IONQ": {
+      "ticker": "IONQ",
+      "name": "IonQ, Inc.",
+      "sector": "Technology",
+      "industry": "Computer Hardware",
+      "price": {
+        "last": 48.71,
+        "change_pct_1d": 4.14796,
+        "volume": 20197015,
+        "market_cap": 17256958878,
+        "as_of": "2026-01-06T06:57:06.905141+00:00"
+      },
+      "fundamentals": {
+        "revenue_ttm": 43073000,
+        "ebitda_ttm": -312934000,
+        "net_income_ttm": -331647000,
+        "fcf_ttm": -129252000,
+        "gross_margin": 0.22815521819730447,
+        "operating_margin": -5.849328623678541,
+        "net_margin": -18.363182023147452,
+        "debt_to_equity": null,
+        "current_ratio": 8.72560310166571
+      },
+      "estimates": {
+        "revenue_ntm": null,
+        "eps_ntm": null,
+        "ebitda_ntm": null,
+        "revenue_growth_ntm": null,
+        "price_target_high": 100,
+        "price_target_low": 55,
+        "price_target_consensus": 72.57,
+        "price_target_median": 70,
+        "analyst_count_last_quarter": 6
+      },
+      "peers": [
+        "CPAY",
+        "FTV",
+        "GEN",
+        "IT",
+        "LOGI",
+        "QBTS",
+        "RGTI",
+        "U"
+      ],
+      "error": null
+    },
+    "NVDA": {
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "sector": "Technology",
+      "industry": "Semiconductors",
+      "price": {
+        "last": 188.12,
+        "change_pct_1d": -0.38655,
+        "volume": 178569651,
+        "market_cap": 4580157423474,
+        "as_of": "2026-01-06T06:57:09.264905+00:00"
+      },
+      "fundamentals": {
+        "revenue_ttm": 130497000000,
+        "ebitda_ttm": 86137000000,
+        "net_income_ttm": 72880000000,
+        "fcf_ttm": 60853000000,
+        "gross_margin": 0.7005001549625418,
+        "operating_margin": 0.5884408630879225,
+        "net_margin": 0.5300680766476793,
+        "debt_to_equity": null,
+        "current_ratio": 4.467574304889741
+      },
+      "estimates": {
+        "revenue_ntm": null,
+        "eps_ntm": null,
+        "ebitda_ntm": null,
+        "revenue_growth_ntm": null,
+        "price_target_high": 352,
+        "price_target_low": 140,
+        "price_target_consensus": 262.79,
+        "price_target_median": 257.5,
+        "analyst_count_last_quarter": 29
+      },
+      "peers": [
+        "AAPL",
+        "ADI",
+        "AVGO",
+        "ENTG",
+        "GOOGL",
+        "IMOS",
+        "MSFT",
+        "TER",
+        "TSM"
+      ],
+      "error": null
+    },
+    "AAPL": {
+      "ticker": "AAPL",
+      "name": "Apple Inc.",
+      "sector": "Technology",
+      "industry": "Consumer Electronics",
+      "price": {
+        "last": 267.26,
+        "change_pct_1d": -1.38371,
+        "volume": 41463468,
+        "market_cap": 3949128102780,
+        "as_of": "2026-01-06T06:57:12.214686+00:00"
+      },
+      "fundamentals": {
+        "revenue_ttm": 416161000000,
+        "ebitda_ttm": 144427000000,
+        "net_income_ttm": 112010000000,
+        "fcf_ttm": 98767000000,
+        "gross_margin": 0.4690516410716045,
+        "operating_margin": 0.31970799762591884,
+        "net_margin": 0.2691506412181824,
+        "debt_to_equity": null,
+        "current_ratio": 0.8932929222186667
+      },
+      "estimates": {
+        "revenue_ntm": null,
+        "eps_ntm": null,
+        "ebitda_ntm": null,
+        "revenue_growth_ntm": null,
+        "price_target_high": 350,
+        "price_target_low": 220,
+        "price_target_consensus": 298.8,
+        "price_target_median": 312.5,
+        "analyst_count_last_quarter": 22
+      },
+      "peers": [
+        "GOOGL",
+        "META",
+        "MSFT",
+        "NVDA",
+        "NXT",
+        "RIME",
+        "SONY",
+        "TBCH",
+        "TSM"
+      ],
+      "error": null
+    },
+    "ADI": {
+      "ticker": "ADI",
+      "name": "Analog Devices, Inc.",
+      "sector": "Technology",
+      "industry": "Semiconductors",
+      "price": {
+        "last": 277.29,
+        "change_pct_1d": 1.29685,
+        "volume": 2937852,
+        "market_cap": 137086346255,
+        "as_of": "2026-01-06T06:57:15.303394+00:00"
+      },
+      "fundamentals": {
+        "revenue_ttm": 11019707000,
+        "ebitda_ttm": 5028673000,
+        "net_income_ttm": 2267342000,
+        "fcf_ttm": 4278650000,
+        "gross_margin": 0.614669518890112,
+        "operating_margin": 0.27246423158074895,
+        "net_margin": 0.2057534742076173,
+        "debt_to_equity": null,
+        "current_ratio": 2.1899250755052453
+      },
+      "estimates": {
+        "revenue_ntm": null,
+        "eps_ntm": null,
+        "ebitda_ntm": null,
+        "revenue_growth_ntm": null,
+        "price_target_high": 350,
+        "price_target_low": 265,
+        "price_target_consensus": 292.77,
+        "price_target_median": 290,
+        "analyst_count_last_quarter": 15
+      },
+      "peers": [
+        "CDNS",
+        "DELL",
+        "KLAC",
+        "MPWR",
+        "MRVL",
+        "MSTR",
+        "NXPI",
+        "SNPS",
+        "STM",
+        "TXN"
+      ],
+      "error": null
+    },
+    "AVGO": {
+      "ticker": "AVGO",
+      "name": "Broadcom Inc.",
+      "sector": "Technology",
+      "industry": "Semiconductors",
+      "price": {
+        "last": 343.42,
+        "change_pct_1d": -1.20822,
+        "volume": 30887208,
+        "market_cap": 1618238190380,
+        "as_of": "2026-01-06T06:57:17.331140+00:00"
+      },
+      "fundamentals": {
+        "revenue_ttm": 63887000000,
+        "ebitda_ttm": 34714000000,
+        "net_income_ttm": 23126000000,
+        "fcf_ttm": 26914000000,
+        "gross_margin": 0.6776652527118193,
+        "operating_margin": 0.3988917933225852,
+        "net_margin": 0.3619828760154648,
+        "debt_to_equity": null,
+        "current_ratio": 1.7053581073782003
+      },
+      "estimates": {
+        "revenue_ntm": null,
+        "eps_ntm": null,
+        "ebitda_ntm": null,
+        "revenue_growth_ntm": null,
+        "price_target_high": 510,
+        "price_target_low": 420,
+        "price_target_consensus": 458.71,
+        "price_target_median": 450,
+        "analyst_count_last_quarter": 26
+      },
+      "peers": [
+        "ADI",
+        "AMD",
+        "ASML",
+        "FORM",
+        "META",
+        "MU",
+        "POWI",
+        "QRVO",
+        "SMTC",
+        "TSM"
+      ],
+      "error": null
+    }
+  },
+  "valuations": {
+    "QBTS": {
+      "ticker": "QBTS",
+      "method": "peer_multiple_ps",
+      "current_price": 30.61,
+      "fair_value": {
+        "bear": 0.07124680325381115,
+        "base": 0.07124680325381115,
+        "bull": 0.15984889599821173
+      },
+      "upside": {
+        "bear": -99.76724337388497,
+        "base": -99.76724337388497,
+        "bull": -99.47778864423975
+      },
+      "assumptions": [
+        "使用 PS 倍數",
+        "同業樣本：DAY, GTM",
+        "熊市倍數：2.8x (P25)",
+        "基準倍數：2.8x (P50)",
+        "牛市倍數：6.3x (P75)",
+        "目標公司 PS 基準：$0.0B"
+      ],
+      "rationale": "基於同業倍數法，QBTS 的合理價值區間為： / 熊市 $0.07 / 基準 $0.07. 牛市 $0.16",
+      "data_quality": "complete"
+    },
+    "NVDA": {
+      "ticker": "NVDA",
+      "method": "peer_multiple_ev_ebitda",
+      "current_price": 188.12,
+      "fair_value": {
+        "bear": 96.44619811095484,
+        "base": 96.44619811095484,
+        "bull": 164.92332953831252
+      },
+      "upside": {
+        "bear": -48.731555331195594,
+        "base": -48.731555331195594,
+        "bull": -12.330783787841526
+      },
+      "assumptions": [
+        "使用 EV_EBITDA 倍數",
+        "同業樣本：AAPL, ADI, AVGO",
+        "熊市倍數：27.3x (P25)",
+        "基準倍數：27.3x (P50)",
+        "牛市倍數：46.6x (P75)",
+        "目標公司 EV_EBITDA 基準：$86.1B"
+      ],
+      "rationale": "基於同業倍數法，NVDA 的合理價值區間為： / 熊市 $96.45 / 基準 $96.45. 牛市 $164.92",
+      "data_quality": "complete"
+    }
+  },
+  "peer_table": {
+    "headers": [
+      "Ticker",
+      "Company",
+      "Market Cap",
+      "Revenue TTM",
+      "Rev Growth",
+      "Gross Margin",
+      "Op Margin",
+      "Forward P/E"
+    ],
+    "rows": [
+      {
+        "ticker": "QBTS",
+        "name": "D-Wave Quantum Inc.",
+        "market_cap": 10613068590,
+        "revenue_ttm": 8827000,
+        "revenue_growth": null,
+        "gross_margin": 0.8281560636182903,
+        "operating_margin": -3.5520626242544733,
+        "net_margin": -16.51809973492379,
+        "forward_pe": null,
+        "forward_ps": null
+      },
+      {
+        "ticker": "DAY",
+        "name": "Dayforce Inc",
+        "market_cap": 11050624549,
+        "revenue_ttm": 1760000000,
+        "revenue_growth": null,
+        "gross_margin": 0.5290233982992658,
+        "operating_margin": 0.06987799080969735,
+        "net_margin": -0.07912111128717055,
+        "forward_pe": null,
+        "forward_ps": null
+      },
+      {
+        "ticker": "GTM",
+        "name": "ZoomInfo Technologies Inc.",
+        "market_cap": 3398254438,
+        "revenue_ttm": 1214300000,
+        "revenue_growth": null,
+        "gross_margin": 0.845260185558693,
+        "operating_margin": 0.16329164985881403,
+        "net_margin": 0.08398547801532877,
+        "forward_pe": null,
+        "forward_ps": null
+      },
+      {
+        "ticker": "IONQ",
+        "name": "IonQ, Inc.",
+        "market_cap": 17256958878,
+        "revenue_ttm": 43073000,
+        "revenue_growth": null,
+        "gross_margin": 0.22815521819730447,
+        "operating_margin": -5.849328623678541,
+        "net_margin": -18.363182023147452,
+        "forward_pe": null,
+        "forward_ps": null
+      }
+    ],
+    "markdown": "| Ticker | Company | Market Cap | Revenue TTM | Rev Growth | Gross Margin | Op Margin | Fwd P/E |\n|---|---|---|---|---|---|---|---|\n| QBTS | D-Wave Quantum Inc. | $10.6B | $8.8M | - | 82.8% | -355.2% | - |\n| DAY | Dayforce Inc | $11.1B | $1.8B | - | 52.9% | 7.0% | - |\n| GTM | ZoomInfo Technologie | $3.4B | $1.2B | - | 84.5% | 16.3% | - |\n| IONQ | IonQ, Inc. | $17.3B | $43.1M | - | 22.8% | -584.9% | - |",
+    "takeaways": [
+      "QBTS 市值 $10.6B，在同業中排名第 3/4",
+      "QBTS 毛利率 82.8%，高於同業平均 60.8%"
+    ]
+  },
+  "sources": [
+    {
+      "title": "1 AI & 1 Quantum Stock Beat NVIDIA in 2025, Promise More Gains Ahead - Zacks Investment Research",
+      "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQSkI4UVg5SndyNWNaTU9LSkxIVjhGOGU3cnpvd0xRS1VBS3hweVVwbDdJWHVrLVdVcEdtd0s0QkVUOUlza3NMZGlZVFJBSFV1cTdpejBkaGZib0xfOFdfX3dyVFRHa3kyQ0hfRE0zS1d5c1lWQm4yRXF5cWhRal9LWFk5TDRtUEx3NS1LM0QyNkpIYTlyUFZRQkltVVZ6UkhtVTJyUUxqMnBhQQ?oc=5",
+      "publisher": "Zacks Investment Research",
+      "published_at": "2026-01-05T19:30:14",
+      "type": "news"
+    },
+    {
+      "title": "Snowflake: Massively Underestimated Revenue Potential (SNOW) - Seeking Alpha",
+      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxOMHh4UDZSQmV0cUxRWWFvWmwxTGFhMERJYy1ZNFY0Q3UzdFZUVjNod05LYkY1enBlQnB4Q1NqQjhpQ1o1Z1hfZVk4bENmVWtFTkdWWHpuMTVDUVNhOTZERUpOTTJjSVZuaDdiS1l0SWJFUXh5clRWblhsRVNhTjFlTmxWSG5BaldVemVpYWE2R1ZacE9NWUxUZQ?oc=5",
+      "publisher": "Seeking Alpha",
+      "published_at": "2025-12-22T08:00:00",
+      "type": "news"
+    },
+    {
+      "title": "IREN's GPU Expansion Accelerates: Is Revenue Visibility Improving? - Yahoo Finance",
+      "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNQzdXVkdQQ2F4dU9rdk9GSDZPMEhwR2JWWnVTdTVEUV9yMG9aZHJEOW00SjgzNVp5TDFEZU0tNmVlcUFNTTAwcXBTTXZYaUE2YWg2a2N6UzlCcHhRUy02QTBLNm9ZMFBENElPdlZHN21vTTFvTFNRVzU5SnBoSFlrV2pzWXV5UEYteHBRU3V3?oc=5",
+      "publisher": "Yahoo Finance",
+      "published_at": "2026-01-05T17:04:00",
+      "type": "news"
+    },
+    {
+      "title": "Oracle vs. Palantir: Wall Street Is Neutral on One of These AI Stocks but Expects the Other to Surge - The Motley Fool",
+      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPM0tjSUowVmVyQm5mYkNyZk1sUWUtZUkzZDltdmwzSGxnX21xWWt0a29YVkdoeHlSNnFyOWxUUkpsM3VRT0J4amFJYl9Ca29JWWctSHAzNmFnRXZTQUJNNFdaYkpMYlk5dTJHUjh1ZmFranQ0QU1jNmYxWHFXbXhDN0ExVjB4eHB0MS15ZFNTdDVUNjlQa05tdg?oc=5",
+      "publisher": "The Motley Fool",
+      "published_at": "2026-01-05T00:40:00",
+      "type": "news"
+    },
+    {
+      "title": "SYM Down 18.9% Since Q4 Earnings: Buy, Sell or Hold the Stock? - Yahoo Finance",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE0zMUVMaDkxZk9CWWxBTkJjYnRUaW5SdlJFZWhCSGdReEoxd0hsbzdXRnpubFlrM0IweDlzV0IwcG5tcElzcGFSR2hJa0M3dF9MWDlDR2x3TE91OWFOTXEzbEVEU25YSVBQckxYOTk4YWwyTnc?oc=5",
+      "publisher": "Yahoo Finance",
+      "published_at": "2025-12-17T08:00:00",
+      "type": "news"
+    },
+    {
+      "title": "MongoDB’s Strong Q3, Higher 2026 Outlook, and Buybacks Might Change The Case For Investing In MongoDB (MDB) - Yahoo Finance",
+      "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNZl9Lc0MxNDE2VG9fUVVhaDk2V1poUno2eTdXQVY0d3dPZGFDc3NNLUhndm9nQzlEb2wxYk45VjlmYndfbDNYNFdibUxYNDAxNEZUNHF3ejFsbkJWUVY0MjVZbGQ4LV9iRmNyREVqbVowQnNtZTdwWlZqRzBtUXladQ?oc=5",
+      "publisher": "Yahoo Finance",
+      "published_at": "2025-12-13T08:00:00",
+      "type": "news"
+    },
+    {
+      "title": "Marvell Technology And Astera Labs: Quiet Winners From Surging Memory Prices - Seeking Alpha",
+      "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxQZmREdjVBX1NkSFhXM0ZsVUU1VUt4Qk1fQlY3dlh3Vkd4cWxQcG42clRRSEVHU3dOd29BMTh0eGxaV1pleWRqbDNuNjM1STNqUGJSWXNxdVF2OW5xM0d2ZHh1UkRHZkE0cWMySW1lNXd2akNXN2drS2FPR1kwUDMyeHUyRUFqODJUTzY1N3hPdEFxaU1zbDVkaU9DSzBHLVBPcTVROFc2bGJ4Nm9qVTZ0ZzhGNnR5RTg?oc=5",
+      "publisher": "Seeking Alpha",
+      "published_at": "2026-01-06T04:24:38",
+      "type": "news"
+    },
+    {
+      "title": "AMD reveals new AI PC chips, details next-gen data center chips at CES 2026 - Yahoo Finance",
+      "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxQNGRWR2o4R1piYUZSRmdyQlA1QlR2VVFLSlRTTnN3VkF6OXI5eG4wd2lPSGpJMG13MzVXU21ZaWVHblVfQUllRnVkS3padFEzN2loUlhEUERXOVgxaFE3cEdzMDNNZHJtR0ItRlFWTzBmNEoyWk5fWnU4QjVWUk14SFNKVGUzeVFGV3R0Z3B2QUlSbTJaYjNtMjJ3TUtxeDBpR2ppZ2ZhQnlrdkltZTdoSU9YUGtIRUU2bVNPcg?oc=5",
+      "publisher": "Yahoo Finance",
+      "published_at": "2026-01-06T04:12:42",
+      "type": "news"
+    },
+    {
+      "title": "Rocket Lab (NASDAQ:RKLB) Stock Price Up 2.8% - Still a Buy? - MarketBeat",
+      "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNaEdPVTJVV3RhYkdXMFhMSFpGN0FpMGkzX1A5REZvVkYzaWRfZHNmLTV6R1hBWnA1XzlQaWN6MFVJZ2pJeGgyMXBGcTZ4azRqaGhUeWVCRVQzWWNLNTZKb0MtNk15aXVZUHgxYjlPckhxVkxSaGJpdU5xSTlNd29meno5ZWg4T24zZmwtWTFFRUdUaERXOUtHZXFwdkNJN0dVUWtUTHFQUGM?oc=5",
+      "publisher": "MarketBeat",
+      "published_at": "2026-01-06T01:05:17",
+      "type": "news"
+    },
+    {
+      "title": "Nvidia, Broadcom, AMD among BofA's top chip stocks to 'ride the wave' (NVDA:NASDAQ) - Seeking Alpha",
+      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxPb0tTTk9zdFhWbGZoZWR4ZXp0RWluSEFHQ3p6WTViRWdGMFZYRkZGUlRCZ0FLRXVjZ3dtTmJyeV9OeF9DbVJKaUFPTGMtR0JQV1VhQjd4N3lyUlczdEI5Y0RINzFTRU9XdmtHZ2lfdmlRN3U5T1dWLUVqVXJGSWZ4cDlCRkYyZWFtQkRaSEFEc2lFekY5TkFjd24yTFQ0U3pSQWxmVA?oc=5",
+      "publisher": "Seeking Alpha",
+      "published_at": "2026-01-05T19:04:52",
+      "type": "news"
+    },
+    {
+      "title": "ASML’s stock hits another record high after analyst upgrade - MarketWatch",
+      "url": "https://news.google.com/rss/articles/CBMiqANBVV95cUxQWXk1LTRwU2haWVB1LTlKVkR6TXJEMm52eGpBWFFrNTNXSVFIRlJQeXQzLWZGVWxtTm1oNnVHbDZoSjJMYjBnX1ljVlBZb0ZGSXBzR3Nib3lvU2Q4aGhpZVJSYW5xaEpWQV9ab3hUNnhXYTNJZUdqTnJ6Y3Rwb2RDdTF6RTRaUEdFaVJieTRVWlhMS3dHSGFmT2ZNTlQzc1lxVUhEaXMxZDgxVkJBTFdWLTlsWS1fdXdqRnBSUTB0TVRsRmloLWRiZlM1WVFTeEtvZmY2TnJQOWNFVldEVUlLajZmQzNEZjd1bFc3VS1kY051Ynk2eEFQenRqLUJBWWdLdng4SFlRWlpOLS15dWliTEM3cmlHUVdNWDREWkZUUlFPXzV0X3otN0tnNDN5VEZNNW5WNkhyMUlUYXMyeHBHa1hqeDhfaHZ5dmo1amNkblZLcXlQdlVzcTJlNi1Pc3Vfb2I4cC1nOHU1WTJjRjNPelY4SWpVdTZiOTQxS0J6V2RnRjNhSEpoWkVFb1RQbFpnR3NxaGVfNkVudmdRdmZmU2c2VG1CTlpT?oc=5",
+      "publisher": "MarketWatch",
+      "published_at": "2026-01-05T15:20:00",
+      "type": "news"
+    },
+    {
+      "title": "AMZN, GOOGL: Jefferies Top Analyst Boosts Price Targets on Amazon and Alphabet Stocks - TipRanks",
+      "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxPNm8yVERnRXhnS0pSVE1pdE5lT1Z0Wm9yckpIWUZpUlVuakp3bzdTMmtKcVZFdnUwUzJ2aE1NOVpMMXlWVURXZzRWQ21EODJNNnhNVy1aa2FydmpPVkFxcUwzenVqSW9OR0llMUd6MW5NcTJjSTE2U3pmSEtWeTRXZFRXdlhaY1gwMlBOOXlfSFAtZ1VnVTdrcEN3emljM1FReHlFd25hTE12UHMxb0EzNkdxUQ?oc=5",
+      "publisher": "TipRanks",
+      "published_at": "2026-01-05T11:30:57",
+      "type": "news"
+    },
+    {
+      "title": "Top Wall Street analysts suggest these 3 stocks for their growth prospects - CNBC",
+      "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQY0JtdkhGSFpCdFZGMnBHaG5seWJWN2xWVmowSkItWHRCdFFBOVRkWU9nNTBNTUd1Rkhoa2d5bGVEMWJsdnpqeDAwU0o4NkFadTNQdmR0QTlmSVlNcEdTMUZ5RlEtcG9WY19LUllsUkVFQ2dTWHZyS3Zlei1BRWEtQUNhZ29qRVphOUJsOC1RZEtYcUlsUDRiUGluT1V0SWZiTld2V0tCOXVJTnVta0hyNtIBtgFBVV95cUxQVWNlVHRSelEyekhFaTN2SHI2aTdpM0ItUDlGRDItX242ZmhYeGtvZTNJWkNRLTFBcktyTlRVZHZlVEk0NFR0d1gxcHl3cl84MFVQcC1xWk8yTXk3ZG9KbmM2cWZRTzVXMFF6dzBLT0IwY0hoc09LZG9UMVJGWXdSWVduNGRuVkdITTVRR3RWVHNKbHM1LUxwWmxDYWhsdWJsS2p0ejZIWXJELVYwMjlSY3R2TjI4dw?oc=5",
+      "publisher": "CNBC",
+      "published_at": "2026-01-04T12:20:47",
+      "type": "news"
+    },
+    {
+      "title": "Here’s the forecast for Nvidia stock in 2026 - Yahoo Finance UK",
+      "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQcXlSSU1hMkl2bFlkNWZoVGN5YU5waWwyYnFpcExRX0Noa2ptcDhnQWdJTlFYRGkzcjZlaFFpTG5KZ0MzN2NmSnNBaU1ORmNBMFNnNXpRUFBwc0Vfd1VxUlQ1UnB2UG5VNk5xZTdvTGczUUZDemNBYTJGUU5DYWdRSw?oc=5",
+      "publisher": "Yahoo Finance UK",
+      "published_at": "2026-01-04T06:12:00",
+      "type": "news"
+    },
+    {
+      "title": "GOOGL Stock Rocked in 2025, But Is Google’s 2026 Forecast as Bright? - Yahoo Finance",
+      "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxOdW5iX3RQams3U0lodDdqX2ZOTVRYNzhZVWlGQmdMeU0zRnc3TXFmaHpKTXpnQ3Y4NnRDaERQRkx1ZnVBaGVNOUo1UjU1Sk1jV3Y5cjVfNHY5b1dtdFJidzNSa0VOdjd0cl81eFFSanJUbmxna0JaZXJJM2U2Y2xrV1Bn?oc=5",
+      "publisher": "Yahoo Finance",
+      "published_at": "2026-01-03T17:00:02",
+      "type": "news"
+    },
+    {
+      "title": "2026 Outlook: Why 3.1 Is A Game-Changer For Nebius Stock (NASDAQ:NBIS) - Seeking Alpha",
+      "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPR0k4YmRsbS1ZX3RWdjl0amk5NkpIakRSV0tKSjF1V2dwQndtdm00ck9ENDBzRG9DT3o4VEF2aDlwS1VRUGhPQmpOT0ZTWGx1WDlxOGl4aXk4dUZFN3dnVTJBRE10b3Y2OUVRM1phUTlBQWxrNHpZWXVoRUZkbEU1eVd3NjFrU1dtUHV0dlh5c3NtMU9O?oc=5",
+      "publisher": "Seeking Alpha",
+      "published_at": "2026-01-03T08:55:33",
+      "type": "news"
+    },
+    {
+      "title": "Truist and RBC Capital Raise Price Targets on Intuitive Surgical (ISRG) - Yahoo Finance",
+      "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxQaExEdWRnSmJvdGtBVUxsOTBlak1EaHh4dDN2aHRWVFZDanExTFd5SDJFSnpXaUg1czFNd1JRRUlHcWljd3NKSFpLelptZTh3ekIxWFoySVRYT2FjWXRJOWJlLXdfWEFHU0kyV0Q0T25HOVI3N3VoNnlGa2o2bnk3Rmp3?oc=5",
+      "publisher": "Yahoo Finance",
+      "published_at": "2025-12-21T08:00:00",
+      "type": "news"
+    },
+    {
+      "title": "IREN Ltd. (IREN) Jumps 13% on Bitcoin Fever - Yahoo Finance",
+      "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTE53UXZNNlZ3SmM4Z3V4cURXV0dZeTJvVlkzdDlxVkJtbmxvNWsyOUhzeU1lZk8zSS1aTEpQSFp1cnNRYlp3QlQyTFdkWkJNS0g0c1dxREN5V0QwYnRBR3VkM3dNcEs3Y2prOHFRUV9mdkFHbV9YUFBB?oc=5",
+      "publisher": "Yahoo Finance",
+      "published_at": "2026-01-06T05:17:15",
+      "type": "news"
+    },
+    {
+      "title": "Symbotic (NASDAQ:SYM) Shares Up 5.8% - What's Next? - MarketBeat",
+      "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNanlHNUozRlpIZW9NVEg4V1JBNUIyQjN3NDRTbkZKQzlYQWRwQXFJYjB3V1FSNWxuODQ5ZGdGTmRwVUhkWlE4NHM4RzFDYmdwSG9NTDNBNkdVckZwNXI3OGJpemxqeXVqR1BhMnVFOU1nOVZzNWtsblpMckhjaVVuTGxmVFNNaUpOZzBacWdHeWtmZWVzWU1lYTlXalk?oc=5",
+      "publisher": "MarketBeat",
+      "published_at": "2026-01-06T01:07:14",
+      "type": "news"
+    },
+    {
+      "title": "Rigetti Computing (NASDAQ:RGTI) Shares Up 6% - Time to Buy? - MarketBeat",
+      "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQSjhBLUNhYzRZMi1rSzY2WlZUUUJRNDA0cGtIUkxOTEM0dGpUQ3hjVkNibXVlM0hKcS1taG03Y0ROc1ZjX3ZWSjZ6cXpuV2s1YXNaaXItNjQwYkJFY1NOU0lKREp6UUlXZHBKVGpOaWMwMkZuQVlhdmY2cVRiRTRfNW1hTlhYclFFSDF0NjdHVlpXU1czcFV3bFYyZkhhYmlkQV80WHRnUE4zUQ?oc=5",
+      "publisher": "MarketBeat",
+      "published_at": "2026-01-06T01:07:10",
+      "type": "news"
+    }
+  ],
+  "selection_rationale": {
+    "reason": "Highest scoring event with type 'earnings'",
+    "score_ranking": [
+      {
+        "event_id": "831ae004a072aeac",
+        "score": 45.5
+      },
+      {
+        "event_id": "f5a0c765218daf1b",
+        "score": 45.5
+      },
+      {
+        "event_id": "7d353597ca0c3efb",
+        "score": 42.0
+      },
+      {
+        "event_id": "9440c34dd106892d",
+        "score": 42.0
+      },
+      {
+        "event_id": "0895791c9248437a",
+        "score": 42.0
+      },
+      {
+        "event_id": "daaac5247c5eb58b",
+        "score": 42.0
+      },
+      {
+        "event_id": "d1522f33cc330d17",
+        "score": 38.5
+      },
+      {
+        "event_id": "d755e8656bf8aadc",
+        "score": 38.5
+      },
+      {
+        "event_id": "400a0aa6e89cf032",
+        "score": 38.5
+      },
+      {
+        "event_id": "ff4f7b475fb92130",
+        "score": 38.5
+      }
+    ],
+    "data_gaps": []
+  }
+}

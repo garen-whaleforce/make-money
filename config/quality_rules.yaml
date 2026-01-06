@@ -1,0 +1,260 @@
+# =============================================================================
+# Quality Rules Configuration - 品質檢查規則設定
+# =============================================================================
+# Fail-Closed 原則：任何一關失敗就不自動發布
+
+version: "1.0"
+
+# -----------------------------------------------------------------------------
+# 資訊來源 Gate
+# -----------------------------------------------------------------------------
+sources:
+  # 最少來源數量
+  min_count: 5
+
+  # 最少不同出版者數量
+  min_distinct_publishers: 3
+
+  # 不允許 rumor 類事件當旗艦
+  allow_rumor_as_primary: false
+
+  # rumor 降權係數
+  rumor_penalty: 0.3
+
+  # 可信出版者清單 (可獲得額外加分)
+  trusted_publishers:
+    - Reuters
+    - Bloomberg
+    - CNBC
+    - Wall Street Journal
+    - WSJ
+    - Financial Times
+    - Barron's
+    - Investor's Business Daily
+    - MarketWatch
+    - The Motley Fool
+    - Seeking Alpha
+    - Yahoo Finance
+    - TechCrunch
+    - The Verge
+    - Wired
+    - SEC.gov
+    - company press release
+
+# -----------------------------------------------------------------------------
+# 數字追溯 Gate (最重要)
+# -----------------------------------------------------------------------------
+number_traceability:
+  # 是否啟用
+  enabled: true
+
+  # 允許的數字類型 (不需追溯)
+  allowed_untraced_patterns:
+    - "\\d{4}"  # 年份 (2024, 2025)
+    - "Q[1-4]"  # 季度
+    - "\\d+%.*growth"  # 成長率可能是推算
+    - "\\d+-\\d+"  # 區間 (已在研究包中)
+
+  # 嚴格模式：超過 N 個無法追溯的數字則 FAIL
+  max_untraced_numbers: 3
+
+  # 數字類型權重 (越高越嚴格)
+  critical_patterns:
+    - pattern: "\\$[\\d,]+\\.?\\d*"  # 金額
+      weight: 3
+    - pattern: "[\\d.]+x"  # 倍數
+      weight: 3
+    - pattern: "[\\d.]+%"  # 百分比
+      weight: 2
+
+# -----------------------------------------------------------------------------
+# 合規語氣 Gate
+# -----------------------------------------------------------------------------
+compliance:
+  # 禁用詞列表 (出現任一則 FAIL)
+  # 注意：避免單一詞彙（如「絕對」），改用完整短語以避免誤報
+  forbidden_words:
+    # 中文 - 投資保證類語言
+    - "保證獲利"
+    - "穩賺不賠"
+    - "零風險"
+    - "必漲"
+    - "必跌"
+    - "絕對會漲"
+    - "絕對會跌"
+    - "絕對賺"
+    - "絕對不會虧"
+    - "肯定獲利"
+    - "肯定會漲"
+    - "肯定會跌"
+    - "一定會漲"
+    - "一定會跌"
+    - "內線"
+    - "明牌"
+    - "抄底"
+    - "翻倍"
+    - "暴漲"
+    - "暴跌"
+    - "錯過就沒了"
+    - "最後機會"
+    # 英文
+    - "guaranteed profit"
+    - "guaranteed return"
+    - "risk-free"
+    - "sure thing"
+    - "can't lose"
+    - "will definitely"
+    - "100% safe"
+    - "insider"
+    - "hot tip"
+    - "double your money"
+    - "get rich quick"
+    - "limited time only"
+
+  # 警告詞列表 (出現會警告但不 FAIL)
+  warning_words:
+    - "建議買入"
+    - "建議賣出"
+    - "強烈推薦"
+    - "must buy"
+    - "strong buy"
+    - "sell now"
+
+  # 必須包含的免責聲明關鍵字 (至少包含一個)
+  required_disclosures:
+    - "非投資建議"
+    - "not investment advice"
+    - "投資有風險"
+    - "investment risk"
+    - "僅供參考"
+    - "for reference only"
+
+# -----------------------------------------------------------------------------
+# 結構 Gate
+# -----------------------------------------------------------------------------
+structure:
+  # 關鍵個股數量
+  key_stocks:
+    min: 2
+    max: 8  # 放寬上限以適應更多個股的分析
+
+  # 觀察清單數量
+  what_to_watch:
+    min: 3
+    max: 8
+
+  # TL;DR 數量
+  tldr:
+    min: 3
+    max: 6
+
+  # 標題候選數量
+  title_candidates:
+    min: 5
+    max: 12
+
+  # 同業比較表
+  peer_table:
+    required: true
+    min_columns: 4
+    min_rows: 3
+
+  # 估值區間
+  valuation:
+    # 必須有三種情境
+    scenarios_required:
+      - bear
+      - base
+      - bull
+    # 允許 price 為 null，但必須有理由
+    allow_null_with_rationale: true
+
+# -----------------------------------------------------------------------------
+# 發佈 Gate (防止寄錯)
+# -----------------------------------------------------------------------------
+publishing:
+  # 允許的 newsletter slugs
+  allowed_newsletter_slugs:
+    - default-newsletter
+    - daily-deep-brief
+    - weekly-digest
+
+  # 允許的 email segments
+  allowed_email_segments:
+    - all
+    - paid
+    - free
+    - test  # 測試用
+
+  # 必須指定 segment 才能發 newsletter
+  require_segment_for_newsletter: true
+
+  # 預設模式
+  default_mode: draft
+
+# -----------------------------------------------------------------------------
+# 輪動控制 (避免內容疲乏)
+# -----------------------------------------------------------------------------
+rotation:
+  # 同一 ticker 在 N 天內最多當旗艦幾次
+  ticker_cooldown_days: 7
+  ticker_max_primary_count: 2
+
+  # 同一 theme 在 N 天內至少出現幾次
+  theme_min_coverage_days: 5
+  theme_min_coverage_count: 1
+
+# -----------------------------------------------------------------------------
+# 資料完整度要求 (依主題)
+# -----------------------------------------------------------------------------
+data_requirements:
+  default:
+    required_fields:
+      - price.last
+      - price.market_cap
+    optional_fields:
+      - fundamentals.gross_margin
+      - fundamentals.operating_margin
+      - estimates.revenue_ntm
+
+  ai_chips:
+    required_fields:
+      - price.last
+      - price.market_cap
+      - fundamentals.gross_margin
+    preferred_valuation: forward_pe
+
+  ai_cloud:
+    required_fields:
+      - price.last
+      - price.market_cap
+      - fundamentals.revenue_ttm
+    preferred_valuation: ev_sales
+
+  power_grid:
+    required_fields:
+      - price.last
+      - price.market_cap
+      - fundamentals.ebitda_ttm
+    preferred_valuation: ev_ebitda
+
+# -----------------------------------------------------------------------------
+# 告警設定
+# -----------------------------------------------------------------------------
+alerting:
+  # Gate 失敗時的動作
+  on_gate_failure:
+    - log_error
+    - downgrade_to_draft
+    # - send_slack_alert
+    # - send_email_alert
+
+  # 警告時的動作
+  on_warning:
+    - log_warning
+
+  # Slack webhook (選填)
+  slack_webhook_url: ""
+
+  # 告警 email (選填)
+  alert_email: ""

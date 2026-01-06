@@ -1,0 +1,21 @@
+{
+  "mode": "publish-send",
+  "post_data": {
+    "title": "NVDA 財報前瞻：估值壓力測試與同業定價框架",
+    "slug": "nvda-earnings-preview-2026-01-05-earnings"
+  },
+  "draft": {
+    "id": "695c3fb36a90a40001baf572",
+    "slug": "nvda-earnings-preview-2026-01-05-earnings",
+    "status": "draft"
+  },
+  "quality_passed": true,
+  "timestamp": "2026-01-05T22:48:19.768913",
+  "published": {
+    "id": "695c3fb36a90a40001baf572",
+    "url": "https://rocket-screener.ghost.io/nvda-earnings-preview-2026-01-05-earnings/",
+    "status": "published",
+    "newsletter": "daily-brief-test",
+    "segment": "label:internal"
+  }
+}

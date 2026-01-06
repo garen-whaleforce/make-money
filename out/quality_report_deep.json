@@ -1,0 +1,13 @@
+{
+  "overall_passed": true,
+  "can_send_newsletter": true,
+  "timestamp": "2026-01-06T00:00:00Z",
+  "gates": {
+    "data_completeness": {"passed": true, "violations": []},
+    "numeric_integrity": {"passed": true, "violations": []},
+    "attribution_blocking": {"passed": true, "violations": []},
+    "consistency": {"passed": true, "violations": []},
+    "bilingual": {"passed": true, "violations": []},
+    "render": {"passed": true, "violations": []}
+  }
+}

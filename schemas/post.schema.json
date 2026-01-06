@@ -1,0 +1,356 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "post.schema.json",
+  "title": "Post Output",
+  "description": "深度研究筆記文章輸出結構",
+  "type": "object",
+  "required": [
+    "meta",
+    "title",
+    "title_candidates",
+    "tldr",
+    "markdown",
+    "tags",
+    "disclosures"
+  ],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["run_id", "created_at", "edition"],
+      "properties": {
+        "run_id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "edition": {
+          "type": "string",
+          "enum": ["premarket", "postclose", "intraday"]
+        },
+        "research_pack_id": {
+          "type": "string"
+        }
+      }
+    },
+    "title": {
+      "type": "string",
+      "description": "選定的標題",
+      "minLength": 10,
+      "maxLength": 200
+    },
+    "title_candidates": {
+      "type": "array",
+      "description": "候選標題 (5-12 個)",
+      "minItems": 5,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "required": ["title", "style"],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "style": {
+            "type": "string",
+            "enum": ["news", "question", "insight", "action", "provocative"]
+          },
+          "score": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "excerpt": {
+      "type": "string",
+      "description": "摘要 (用於 SEO/社群分享)",
+      "maxLength": 300
+    },
+    "tldr": {
+      "type": "array",
+      "description": "TL;DR 重點 (3-6 條)",
+      "minItems": 3,
+      "maxItems": 6,
+      "items": {
+        "type": "string"
+      }
+    },
+    "sections": {
+      "type": "object",
+      "properties": {
+        "what_happened": {
+          "type": "string"
+        },
+        "why_it_matters": {
+          "type": "string"
+        },
+        "industry_impact": {
+          "type": "string"
+        },
+        "key_stocks": {
+          "type": "string"
+        },
+        "valuation": {
+          "type": "string"
+        },
+        "peer_comparison": {
+          "type": "string"
+        },
+        "what_to_watch": {
+          "type": "string"
+        }
+      }
+    },
+    "markdown": {
+      "type": "string",
+      "description": "完整的 Markdown 內容"
+    },
+    "html": {
+      "type": "string",
+      "description": "轉換後的 HTML 內容"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "tickers_mentioned": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "theme": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "what_to_watch": {
+      "type": "array",
+      "description": "觀察清單 (3-8 點)",
+      "minItems": 3,
+      "maxItems": 8,
+      "items": {
+        "type": "string"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title", "url"],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "publisher": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "disclosures": {
+      "type": "object",
+      "required": ["not_investment_advice", "risk_warning"],
+      "properties": {
+        "not_investment_advice": {
+          "type": "boolean",
+          "const": true
+        },
+        "risk_warning": {
+          "type": "string"
+        },
+        "author_positions": {
+          "type": "string"
+        },
+        "data_sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "quality_check": {
+      "type": "object",
+      "properties": {
+        "source_count": {
+          "type": "integer"
+        },
+        "numbers_traceable": {
+          "type": "boolean"
+        },
+        "compliance_passed": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "newsletter_subject": {
+      "type": "string",
+      "description": "Email 主旨 (簡短吸睛)",
+      "maxLength": 100
+    },
+    "hero": {
+      "type": "object",
+      "description": "開場 Hero 區塊",
+      "properties": {
+        "thesis": {
+          "type": "string",
+          "description": "一句話結論"
+        },
+        "core_variables": {
+          "type": "array",
+          "description": "今天市場在改寫的核心變數",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "key_tickers": {
+          "type": "array",
+          "description": "影響最直接的股票",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "maxItems": 5
+        }
+      }
+    },
+    "consensus_vs_reality": {
+      "type": "object",
+      "description": "市場共識 vs 新資訊",
+      "properties": {
+        "consensus": {
+          "type": "string",
+          "description": "市場原本的共識"
+        },
+        "new_information": {
+          "type": "string",
+          "description": "這則新聞帶來的新資訊"
+        },
+        "repricing_variable": {
+          "type": "string",
+          "description": "市場正在重新定價的變數"
+        }
+      }
+    },
+    "industry_impact": {
+      "type": "object",
+      "description": "產業影響地圖 (一階/二階)",
+      "properties": {
+        "first_order": {
+          "type": "object",
+          "description": "一階影響 (0-2 週)",
+          "properties": {
+            "beneficiaries": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "losers": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "second_order": {
+          "type": "object",
+          "description": "二階影響 (1-2 季)",
+          "properties": {
+            "beneficiaries": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "losers": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "valuation_bridge": {
+      "type": "object",
+      "description": "估值橋",
+      "properties": {
+        "multiple_anchor": {
+          "type": "string",
+          "description": "倍數錨定 (同業中位數/P25/P75)"
+        },
+        "premium_discount_reason": {
+          "type": "string",
+          "description": "溢價/折價理由"
+        },
+        "rerate_triggers": {
+          "type": "array",
+          "description": "觸發倍數 re-rate 的條件",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "timeline": {
+      "type": "array",
+      "description": "接下來 14 天觀察時間軸",
+      "items": {
+        "type": "object",
+        "required": ["period", "events"],
+        "properties": {
+          "period": {
+            "type": "string",
+            "description": "時間區間 (e.g., T+1~T+3)"
+          },
+          "events": {
+            "type": "string",
+            "description": "觀察事項"
+          }
+        }
+      }
+    },
+    "contrarian_view": {
+      "type": "object",
+      "description": "反方論點",
+      "properties": {
+        "bear_case": {
+          "type": "string",
+          "description": "反方觀點"
+        },
+        "trigger_indicators": {
+          "type": "array",
+          "description": "若反方成立，哪些指標會先變",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "peer_takeaways": {
+      "type": "array",
+      "description": "同業比較表的 takeaways (解釋估值差)",
+      "items": { "type": "string" },
+      "minItems": 2,
+      "maxItems": 6
+    }
+  }
+}

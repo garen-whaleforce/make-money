@@ -1,0 +1,323 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "postA.schema.json",
+  "title": "Post A - Market News Impact Brief",
+  "description": "Daily market news impact analysis with industry/stock mapping",
+  "type": "object",
+  "required": ["title", "slug", "tags", "excerpt", "meta", "executive_summary", "thesis", "key_numbers", "tldr", "news_items", "repricing_dashboard", "industry_impact", "key_stocks", "timeline", "contrarian_view", "sources"],
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Article title in Chinese",
+      "maxLength": 100
+    },
+    "title_en": {
+      "type": "string",
+      "description": "Article title in English",
+      "maxLength": 100
+    },
+    "newsletter_subject": {
+      "type": "string",
+      "description": "Email subject line",
+      "maxLength": 80
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+-flash$",
+      "description": "URL slug, must end with -flash"
+    },
+    "tags": {
+      "type": "array",
+      "items": {"type": "string"},
+      "contains": {"const": "daily-brief"},
+      "description": "Must include daily-brief tag"
+    },
+    "excerpt": {
+      "type": "string",
+      "description": "Public preview excerpt (250-400 chars)",
+      "minLength": 100,
+      "maxLength": 500
+    },
+    "meta": {
+      "type": "object",
+      "required": ["post_type", "edition", "date"],
+      "properties": {
+        "post_type": {"const": "flash"},
+        "edition": {"enum": ["premarket", "postclose"]},
+        "date": {"type": "string", "format": "date"},
+        "og_title": {"type": "string"},
+        "og_description": {"type": "string"},
+        "quality_gates_passed": {"type": "boolean"},
+        "quality_gates": {"type": "object"}
+      }
+    },
+    "executive_summary": {
+      "type": "object",
+      "required": ["en"],
+      "properties": {
+        "en": {
+          "type": "string",
+          "description": "English executive summary (200-300 words)",
+          "minLength": 500,
+          "maxLength": 2000
+        }
+      }
+    },
+    "thesis": {
+      "type": "string",
+      "description": "One-sentence thesis in Chinese",
+      "maxLength": 200
+    },
+    "key_numbers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["value", "label"],
+        "properties": {
+          "value": {"type": "string"},
+          "label": {"type": "string"},
+          "source": {"type": "string"}
+        }
+      },
+      "minItems": 3,
+      "maxItems": 3,
+      "description": "Exactly 3 key numbers to remember"
+    },
+    "tldr": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 4,
+      "maxItems": 8,
+      "description": "TL;DR bullet points"
+    },
+    "market_snapshot": {
+      "type": "object",
+      "description": "v4: Market snapshot with 5 key indicators",
+      "properties": {
+        "spy_change": {"type": "string"},
+        "qqq_change": {"type": "string"},
+        "us10y": {"type": "string"},
+        "dxy": {"type": "string"},
+        "vix": {"type": "string"}
+      }
+    },
+    "news_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["headline", "source", "impact_score", "affected_sectors", "affected_tickers"],
+        "properties": {
+          "rank": {"type": "integer", "minimum": 1, "maximum": 10, "description": "v4.1: News item ranking 1-8+"},
+          "type": {"enum": ["deep", "short", "mention"], "description": "v4: deep (Top 1), short (2-4), mention (5-8)"},
+          "headline": {"type": "string"},
+          "headline_zh": {"type": "string"},
+          "source": {"type": "string"},
+          "source_type": {"enum": ["news", "sec_filing", "market_mover", "macro_calendar"], "description": "v4.1: Source type for Layer 2 fillers"},
+          "url": {"type": "string", "format": "uri"},
+          "timestamp": {"type": "string", "format": "date-time"},
+          "impact_score": {"type": "number", "minimum": 0, "maximum": 100},
+          "catalyst_type": {"enum": ["market", "sector", "company"]},
+          "affected_sectors": {"type": "array", "items": {"type": "string"}},
+          "affected_tickers": {"type": "array", "items": {"type": "string"}},
+          "direction": {"enum": ["positive", "negative", "mixed"]},
+          "what_happened": {"type": "string", "description": "v4: What happened (for deep type)"},
+          "why_matters": {"type": "string", "description": "v4: Why it matters (for deep type)"},
+          "who_wins": {"type": "array", "items": {"type": "string"}, "description": "v4: Winners"},
+          "who_loses": {"type": "array", "items": {"type": "string"}, "description": "v4: Losers"},
+          "why": {"type": "array", "items": {"type": "string"}},
+          "what_to_watch": {"type": "array", "items": {"type": "string"}}
+        }
+      },
+      "minItems": 8,
+      "maxItems": 10,
+      "description": "v4.1: 8+ news items (1 deep + 3 short + 4+ mentions), with Layer 2 fillers if needed"
+    },
+    "news_diversity": {
+      "type": "object",
+      "description": "v4: News category diversity counts",
+      "properties": {
+        "macro_policy": {"type": "integer"},
+        "mega_cap": {"type": "integer"},
+        "sector_cycle": {"type": "integer"},
+        "single_name": {"type": "integer"}
+      }
+    },
+    "second_order_plays": {
+      "type": "array",
+      "description": "v4: Second-order beneficiaries with triggers",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ticker": {"type": "string"},
+          "why_sensitive": {"type": "string"},
+          "what_to_watch": {"type": "string"},
+          "trigger": {"type": "string"},
+          "invalidation": {"type": "string"}
+        }
+      }
+    },
+    "tomorrow_calendar": {
+      "type": "array",
+      "description": "v4: Tomorrow's events calendar",
+      "items": {
+        "type": "object",
+        "properties": {
+          "time": {"type": "string"},
+          "event": {"type": "string"},
+          "importance": {"enum": ["high", "medium", "low"]},
+          "affected_tickers": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "theme_board": {
+      "type": "object",
+      "description": "v4.1: Theme board with 12 sectors",
+      "properties": {
+        "ai_chips": {"type": "string", "description": "AI Semiconductors: NVDA, AMD, AVGO, TSM, ASML"},
+        "ai_cloud": {"type": "string", "description": "AI Cloud: MSFT, GOOGL, AMZN, META"},
+        "ai_networking": {"type": "string", "description": "AI Networking: MRVL, CRDO, ALAB"},
+        "ai_security": {"type": "string", "description": "AI Security: CRWD, PANW, FTNT, ZS"},
+        "power": {"type": "string", "description": "Power & Grid: CEG, VST, NEE"},
+        "nuclear": {"type": "string", "description": "Nuclear: OKLO, NNE, SMR"},
+        "drones": {"type": "string", "description": "Drones & Defense: PLTR, AXON, ASTS"},
+        "space": {"type": "string", "description": "Space: RKLB, LUNR"},
+        "quantum": {"type": "string", "description": "Quantum: IONQ, RGTI"},
+        "crypto": {"type": "string", "description": "Crypto: COIN, MSTR, MARA, RIOT"},
+        "consumer": {"type": "string", "description": "Consumer Tech: AAPL, TSLA"},
+        "healthcare": {"type": "string", "description": "Healthcare AI (emerging)"}
+      }
+    },
+    "repricing_dashboard": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["variable", "why_important", "leading_signal", "direct_impact"],
+        "properties": {
+          "variable": {"type": "string"},
+          "why_important": {"type": "string"},
+          "leading_signal": {"type": "string"},
+          "direct_impact": {"type": "string"}
+        }
+      },
+      "minItems": 3,
+      "maxItems": 5,
+      "description": "Repricing variables dashboard"
+    },
+    "industry_impact": {
+      "type": "object",
+      "required": ["first_order", "second_order"],
+      "properties": {
+        "first_order": {
+          "type": "object",
+          "required": ["beneficiaries", "losers", "timeframe"],
+          "properties": {
+            "beneficiaries": {"type": "array", "items": {"type": "string"}},
+            "losers": {"type": "array", "items": {"type": "string"}},
+            "timeframe": {"type": "string"},
+            "rationale": {"type": "string"}
+          }
+        },
+        "second_order": {
+          "type": "object",
+          "required": ["beneficiaries", "watch_points", "timeframe"],
+          "properties": {
+            "beneficiaries": {"type": "array", "items": {"type": "string"}},
+            "watch_points": {"type": "array", "items": {"type": "string"}},
+            "timeframe": {"type": "string"},
+            "rationale": {"type": "string"}
+          }
+        }
+      }
+    },
+    "key_stocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ticker", "name", "price", "change_pct", "setup", "catalyst", "risk"],
+        "properties": {
+          "ticker": {"type": "string", "pattern": "^[A-Z]{1,5}$"},
+          "name": {"type": "string"},
+          "price": {"type": "number"},
+          "change_pct": {"type": "number"},
+          "market_cap": {"type": "string"},
+          "pe_ttm": {"type": ["number", "null"]},
+          "gross_margin": {"type": "number"},
+          "setup": {"type": "string", "description": "What market is betting on"},
+          "catalyst": {"type": "string", "description": "Near-term catalyst"},
+          "risk": {"type": "string", "description": "Main risk factor"},
+          "valuation_anchor": {"type": "string"},
+          "peer_comparison": {"type": "string"}
+        }
+      },
+      "minItems": 3,
+      "maxItems": 8,
+      "description": "Key stocks analysis"
+    },
+    "scenarios": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "type": "object",
+          "properties": {
+            "description": {"type": "string"},
+            "positioning": {"type": "string"},
+            "probability": {"type": "string"}
+          }
+        },
+        "bull": {
+          "type": "object",
+          "properties": {
+            "description": {"type": "string"},
+            "positioning": {"type": "string"},
+            "triggers": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "bear": {
+          "type": "object",
+          "properties": {
+            "description": {"type": "string"},
+            "positioning": {"type": "string"},
+            "triggers": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      }
+    },
+    "timeline": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "event"],
+        "properties": {
+          "date": {"type": "string"},
+          "event": {"type": "string"},
+          "ticker": {"type": "string"},
+          "importance": {"enum": ["high", "medium", "low"]}
+        }
+      },
+      "description": "2-week watchlist calendar"
+    },
+    "contrarian_view": {
+      "type": "object",
+      "required": ["bear_case", "trigger_indicators"],
+      "properties": {
+        "bear_case": {"type": "string"},
+        "trigger_indicators": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "type"],
+        "properties": {
+          "name": {"type": "string"},
+          "type": {"enum": ["primary", "data", "news", "sec_filing"]},
+          "url": {"type": "string", "format": "uri"},
+          "filing_type": {"type": "string"}
+        }
+      },
+      "minItems": 2,
+      "description": "Source citations"
+    }
+  }
+}

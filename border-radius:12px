@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <title>AI 晶片三巨頭齊漲：CES 2026 後市場重算什麼？</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="preload" as="style" href="/assets/built/screen.css?v=c063a6b88d">
+    <link rel="preload" as="script" href="/assets/built/source.js?v=c063a6b88d">
+    
+    <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/inter-roman.woff2?v=c063a6b88d" crossorigin="anonymous">
+<style>
+    @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: optional;
+        src: url(/assets/fonts/inter-roman.woff2?v=c063a6b88d) format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+</style>
+
+    <link rel="stylesheet" type="text/css" href="/assets/built/screen.css?v=c063a6b88d">
+
+    <style>
+        :root {
+            --background-color: #ffffff
+        }
+    </style>
+
+    <script>
+        /* The script for calculating the color contrast has been taken from
+        https://gomakethings.com/dynamically-changing-the-text-color-based-on-background-color-contrast-with-vanilla-js/ */
+        var accentColor = getComputedStyle(document.documentElement).getPropertyValue('--background-color');
+        accentColor = accentColor.trim().slice(1);
+
+        if (accentColor.length === 3) {
+            accentColor = accentColor[0] + accentColor[0] + accentColor[1] + accentColor[1] + accentColor[2] + accentColor[2];
+        }
+
+        var r = parseInt(accentColor.substr(0, 2), 16);
+        var g = parseInt(accentColor.substr(2, 2), 16);
+        var b = parseInt(accentColor.substr(4, 2), 16);
+        var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+        var textColor = (yiq >= 128) ? 'dark' : 'light';
+
+        document.documentElement.className = `has-${textColor}-text`;
+    </script>
+
+    <meta name="description" content="NVDA 在 CES 2026 發布 Blackwell Ultra（推理效能 2.5x、能效 +40%），帶動 AI 晶片板塊齊漲。本文把『推理成本曲線』拆成可驗證的 4 個變數，並提供兩週事件時間軸與情境策略表（會員解鎖完整 Ticker Playbook）。">
+    <link rel="canonical" href="https://rocket-screener.ghost.io/ai-chips-ces-2026-01-05-flash/">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+    <meta property="og:site_name" content="Rocket Screener">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="AI 晶片三巨頭齊漲：CES 2026 後市場重算什麼？">
+    <meta property="og:description" content="NVDA 在 CES 2026 發布 Blackwell Ultra（推理效能 2.5x、能效 +40%），帶動 AI 晶片板塊齊漲。本文把『推理成本曲線』拆成可驗證的 4 個變數，並提供兩週事件時間軸與情境策略表（會員解鎖完整 Ticker Playbook）。">
+    <meta property="og:url" content="https://rocket-screener.ghost.io/ai-chips-ces-2026-01-05-flash/">
+    <meta property="og:image" content="https://static.ghost.org/v5.0.0/images/publication-cover.jpg">
+    <meta property="article:published_time" content="2026-01-06T00:58:42.000Z">
+    <meta property="article:modified_time" content="2026-01-06T00:58:42.000Z">
+    <meta property="article:tag" content="Daily Deep Brief">
+    <meta property="article:tag" content="Research">
+    <meta property="article:tag" content="us-stocks">
+    <meta property="article:tag" content="daily-brief">
+    <meta property="article:tag" content="theme-ai-semis">
+    <meta property="article:tag" content="t-nvda">
+    <meta property="article:tag" content="t-amd">
+    <meta property="article:tag" content="t-avgo">
+    
+    <meta property="article:publisher" content="https://www.facebook.com/ghost">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI 晶片三巨頭齊漲：CES 2026 後市場重算什麼？">
+    <meta name="twitter:description" content="NVDA 在 CES 2026 發布 Blackwell Ultra（推理效能 2.5x、能效 +40%），帶動 AI 晶片板塊齊漲。本文把『推理成本曲線』拆成可驗證的 4 個變數，並提供兩週事件時間軸與情境策略表（會員解鎖完整 Ticker Playbook）。">
+    <meta name="twitter:url" content="https://rocket-screener.ghost.io/ai-chips-ces-2026-01-05-flash/">
+    <meta name="twitter:image" content="https://static.ghost.org/v5.0.0/images/publication-cover.jpg">
+    <meta name="twitter:label1" content="Written by">
+    <meta name="twitter:data1" content="Garen">
+    <meta name="twitter:label2" content="Filed under">
+    <meta name="twitter:data2" content="Daily Deep Brief, Research, us-stocks, daily-brief, theme-ai-semis, t-nvda, t-amd, t-avgo">
+    <meta name="twitter:site" content="@ghost">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="840">
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Rocket Screener",
+        "url": "https://rocket-screener.ghost.io/",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "https://rocket-screener.ghost.io/favicon.ico"
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Garen",
+        "url": "https://rocket-screener.ghost.io/author/garen/",
+        "sameAs": []
+    },
+    "headline": "AI 晶片三巨頭齊漲：CES 2026 後市場重算什麼？",
+    "url": "https://rocket-screener.ghost.io/ai-chips-ces-2026-01-05-flash/",
+    "datePublished": "2026-01-06T00:58:42.000Z",
+    "dateModified": "2026-01-06T00:58:42.000Z",
+    "keywords": "Daily Deep Brief, Research, us-stocks, daily-brief, theme-ai-semis, t-nvda, t-amd, t-avgo",
+    "description": "NVDA 在 CES 2026 發布 Blackwell Ultra（推理效能 2.5x、能效 +40%），帶動 AI 晶片板塊齊漲。本文把『推理成本曲線』拆成可驗證的 4 個變數，並提供兩週事件時間軸與情境策略表（會員解鎖完整 Ticker Playbook）。",
+    "mainEntityOfPage": "https://rocket-screener.ghost.io/ai-chips-ces-2026-01-05-flash/"
+}
+    </script>
+
+    <meta name="generator" content="Ghost 6.10">
+    <link rel="alternate" type="application/rss+xml" title="Rocket Screener" href="https://rocket-screener.ghost.io/rss/">
+    <script defer src="https://cdn.jsdelivr.net/ghost/portal@~2.56/umd/portal.min.js" data-i18n="true" data-ghost="https://rocket-screener.ghost.io/" data-key="4ab7a4d9d75878dc7332a8d452" data-api="https://rocket-screener.ghost.io/ghost/api/content/" data-locale="en" crossorigin="anonymous"></script><style id="gh-members-styles">.gh-post-upgrade-cta-content,
+.gh-post-upgrade-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    text-align: center;
+    width: 100%;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.gh-post-upgrade-cta-content {
+    border-radius: 8px;
+    padding: 40px 4vw;
+}
+
+.gh-post-upgrade-cta h2 {
+    color: #ffffff;
+    font-size: 28px;
+    letter-spacing: -0.2px;
+    margin: 0;
+    padding: 0;
+}
+
+.gh-post-upgrade-cta p {
+    margin: 20px 0 0;
+    padding: 0;
+}
+
+.gh-post-upgrade-cta small {
+    font-size: 16px;
+    letter-spacing: -0.2px;
+}
+
+.gh-post-upgrade-cta a {
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 500;
+    box-shadow: none;
+    text-decoration: underline;
+}
+
+.gh-post-upgrade-cta a:hover {
+    color: #ffffff;
+    opacity: 0.8;
+    box-shadow: none;
+    text-decoration: underline;
+}
+
+.gh-post-upgrade-cta a.gh-btn {
+    display: block;
+    background: #ffffff;
+    text-decoration: none;
+    margin: 28px 0 0;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.gh-post-upgrade-cta a.gh-btn:hover {
+    opacity: 0.92;
+}</style>
+    <script defer src="https://cdn.jsdelivr.net/ghost/sodo-search@~1.8/umd/sodo-search.min.js" data-key="4ab7a4d9d75878dc7332a8d452" data-styles="https://cdn.jsdelivr.net/ghost/sodo-search@~1.8/umd/main.css" data-sodo-search="https://rocket-screener.ghost.io/" data-locale="en" crossorigin="anonymous"></script>
+    
+    <link href="https://rocket-screener.ghost.io/webmentions/receive/" rel="webmention">
+    <script defer src="/public/cards.min.js?v=c063a6b88d"></script>
+    <link rel="stylesheet" type="text/css" href="/public/cards.min.css?v=c063a6b88d">
+    <script defer src="/public/member-attribution.min.js?v=c063a6b88d"></script>
+    <script defer src="/public/ghost-stats.min.js?v=c063a6b88d" data-stringify-payload="false" data-datasource="analytics_events" data-storage="localStorage" data-host="https://rocket-screener.ghost.io/.ghost/analytics/api/v1/page_hit"  tb_site_uuid="4cdb3c28-c342-4d77-a6a6-f6a0b46b48c2" tb_post_uuid="aacf8c07-63ba-4edc-a057-33b64a22f1f7" tb_post_type="post" tb_member_uuid="undefined" tb_member_status="undefined"></script><style>:root {--ghost-accent-color: #FF1A75;}</style>
+
+</head>
+<body class="post-template tag-daily-deep-brief tag-research tag-us-stocks tag-daily-brief tag-theme-ai-semis tag-t-nvda tag-t-amd tag-t-avgo tag-hash-autogen tag-hash-edition-postclose tag-hash-format-flash has-sans-title has-sans-body">
+
+<div class="gh-viewport">
+    
+    <header id="gh-navigation" class="gh-navigation is-middle-logo gh-outer">
+    <div class="gh-navigation-inner gh-inner">
+
+        <div class="gh-navigation-brand">
+            <a class="gh-navigation-logo is-title" href="https://rocket-screener.ghost.io">
+                    Rocket Screener
+            </a>
+            <button class="gh-search gh-icon-button" aria-label="Search this site" data-ghost-search>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>            <button class="gh-burger gh-icon-button" aria-label="Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"></path></svg>                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg>            </button>
+        </div>
+
+        <nav class="gh-navigation-menu">
+            <ul class="nav">
+    <li class="nav-home"><a href="https://rocket-screener.ghost.io/">Home</a></li>
+    <li class="nav-about"><a href="https://rocket-screener.ghost.io/about/">About</a></li>
+</ul>
+
+        </nav>
+
+        <div class="gh-navigation-actions">
+                <button class="gh-search gh-icon-button" aria-label="Search this site" data-ghost-search>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>                <div class="gh-navigation-members">
+                            <a href="#/portal/signin" data-portal="signin">Sign in</a>
+                                <a class="gh-button" href="#/portal/signup" data-portal="signup">Subscribe</a>
+                </div>
+        </div>
+
+    </div>
+</header>
+
+    
+
+<main class="gh-main">
+
+    <article class="gh-article post tag-daily-deep-brief tag-research tag-us-stocks tag-daily-brief tag-theme-ai-semis tag-t-nvda tag-t-amd tag-t-avgo tag-hash-autogen tag-hash-edition-postclose tag-hash-format-flash no-image">
+
+        <header class="gh-article-header gh-canvas">
+
+                <a class="gh-article-tag" href="https://rocket-screener.ghost.io/tag/daily-deep-brief/">Daily Deep Brief</a>
+            <h1 class="gh-article-title is-title">AI 晶片三巨頭齊漲：CES 2026 後市場重算什麼？</h1>
+                <p class="gh-article-excerpt is-body">NVDA 在 CES 2026 發布 Blackwell Ultra（推理效能 2.5x、能效 +40%），帶動 AI 晶片板塊齊漲。本文把『推理成本曲線』拆成可驗證的 4 個變數，並提供兩週事件時間軸與情境策略表（會員解鎖完整 Ticker Playbook）。</p>
+
+            <div class="gh-article-meta">
+                <div class="gh-article-author-image instapaper_ignore">
+                            <a href="/author/garen/"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><path d="M3.513 18.998C4.749 15.504 8.082 13 12 13s7.251 2.504 8.487 5.998C18.47 21.442 15.417 23 12 23s-6.47-1.558-8.487-4.002zM12 12c2.21 0 4-2.79 4-5s-1.79-4-4-4-4 1.79-4 4 1.79 5 4 5z" fill="#FFF"/></g></svg>
+</a>
+                </div>
+                <div class="gh-article-meta-wrapper">
+                    <h4 class="gh-article-author-name"><a href="/author/garen/">Garen</a></h4>
+                    <div class="gh-article-meta-content">
+                        <time class="gh-article-meta-date" datetime="2026-01-06">06 Jan 2026</time>
+                            <span class="gh-article-meta-length"><span class="bull">—</span> 5 min read</span>
+                    </div>
+                </div>
+            </div>
+
+            
+        </header>
+
+        <section class="gh-content gh-canvas is-body">
+            
+<!--kg-card-begin: html-->
+<!-- Rocket Screener | Daily Brief | Post A: Flash -->
+
+<div style="margin:0 0 12px 0;">
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#111; color:#fff; font-size:12px; letter-spacing:.2px; margin-right:6px;">Daily Brief</span>
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#dcfce7; color:#166534; font-size:12px; margin-right:6px;">Flash</span>
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#f3f4f6; color:#111; font-size:12px; margin-right:6px;">NVDA</span>
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#f3f4f6; color:#111; font-size:12px; margin-right:6px;">AMD</span>
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#f3f4f6; color:#111; font-size:12px;">AVGO</span>
+</div>
+<p style="margin:0 0 10px 0; font-size:12px; color:#6b7280;">
+  Data as of <strong>2026-01-05</strong> US market close. Numbers from FMP/Alpha Vantage; event details from primary releases & aggregated news.
+</p>
+
+<!-- Today Package -->
+<div style="border:1px solid #e5e7eb; background:#ffffff; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:12px; color:#6b7280; margin:0 0 8px 0; letter-spacing:.2px; font-weight:700;">TODAY'S PACKAGE | 2026-01-05（美股日報三件套）</div>
+  <ul style="margin:0; padding-left:18px; font-size:14px; line-height:1.55;">
+    <li style="margin:6px 0;"><strong>Flash</strong>（本篇）：今日主線：事件→產業→標的（兩週觀察清單）</li>
+    <li style="margin:6px 0;"><a href="https://rocket-screener.ghost.io/nvda-earnings-preview-2026-01-05-earnings/" style="text-decoration:none; font-weight:700;">Earnings</a>：法說/財報：估值壓力測試 + 關鍵 KPI 清單</li>
+    <li style="margin:6px 0;"><a href="https://rocket-screener.ghost.io/nvda-deep-dive-2026-01-05-deep/" style="text-decoration:none; font-weight:700;">Deep Dive</a>：深度研究：商業模式/護城河/決策樹/風險監控</li>
+  </ul>
+</div>
+
+<!-- Chinese Executive Summary -->
+<div style="border:1px solid #166534; background:#dcfce7; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:12px; color:#166534; margin:0 0 8px 0; letter-spacing:.2px; font-weight:700;">中文摘要</div>
+  <p style="margin:0 0 0 0; font-size:14px; line-height:1.65; color:#111;">NVDA 在 CES 2026 發布 Blackwell Ultra，推理效能提升 <strong>2.5 倍</strong>、能效改善 <strong>+40%</strong>，帶動 AI 晶片板塊齊漲：NVDA +4.2%、AMD +2.8%、AVGO +1.9%。</p>
+  <p style="margin:10px 0 0 0; font-size:14px; line-height:1.65; color:#111;"><strong>這不是新品新聞，而是推理成本曲線下移的訊號。</strong>市場重算的是：雲端是否會因效能/瓦改善而前置部署。</p>
+  <p style="margin:10px 0 0 0; font-size:14px; line-height:1.65; color:#111;">本文把「推理成本曲線」拆成 <strong>4 個可驗證變數</strong>，並提供兩週事件時間軸與情境策略表。會員版包含完整 Ticker Playbook 與同業估值比較。</p>
+</div>
+
+<!-- English Executive Summary -->
+<div style="border:1px solid #dcfce7; background:#f0fdf4; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:12px; color:#166534; margin:0 0 8px 0; letter-spacing:.2px; font-weight:600;">EXECUTIVE SUMMARY</div>
+  <p style="margin:0; font-size:14px; line-height:1.6; color:#333;">
+    NVIDIA's CES 2026 keynote unveiled Blackwell Ultra with 2.5x inference performance and 40% better energy efficiency, triggering a sector-wide rally. NVDA surged 4.2% on 1.8x average volume, while AMD gained 2.8% on MI400 Azure deal momentum and AVGO rose 1.9% on AI ASIC expansion narrative.
+  </p>
+  <p style="margin:10px 0 0 0; font-size:14px; line-height:1.6; color:#333;">
+    The market isn't pricing a product launch—it's repricing the inference cost curve. Key variables: (1) whether inference unit costs drop another leg, (2) whether power/cooling bottlenecks ease, (3) whether cloud capex gets pulled forward.
+  </p>
+  <p style="margin:10px 0 0 0; font-size:14px; line-height:1.6; color:#333;">
+    NVDA trades at 52.3x P/E vs peer median 41.95x, a 25% premium. Watch: AMD CES (1/6), NVDA earnings (1/8), SMH flows over T+14.
+  </p>
+</div>
+
+<h2 style="margin:18px 0 10px 0;">一句話結論</h2>
+<blockquote style="border-left:4px solid #16a34a; padding:10px 14px; margin:0 0 14px 0; background:#f0fdf4;">
+  <p style="margin:0;"><strong>這不是新品新聞，而是推理成本曲線下移的訊號。</strong>市場重算的是：雲端是否會因效能/瓦改善而前置部署。</p>
+</blockquote>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">三個必記數字</h2>
+<div style="display:flex; flex-wrap:wrap; gap:12px; margin:0 0 14px 0;">
+  <div style="flex:1; min-width:140px; border:1px solid #eee; border-radius:12px; padding:14px; text-align:center;">
+    <div style="font-size:28px; font-weight:800; color:#16a34a;">2.5x</div>
+    <div style="font-size:13px; color:#666;">推理效能提升</div>
+    <div style="font-size:11px; color:#999;">NVIDIA CES 2026</div>
+  </div>
+  <div style="flex:1; min-width:140px; border:1px solid #eee; border-radius:12px; padding:14px; text-align:center;">
+    <div style="font-size:28px; font-weight:800; color:#16a34a;">+40%</div>
+    <div style="font-size:13px; color:#666;">能效比改善</div>
+    <div style="font-size:11px; color:#999;">NVIDIA CES 2026</div>
+  </div>
+  <div style="flex:1; min-width:140px; border:1px solid #eee; border-radius:12px; padding:14px; text-align:center;">
+    <div style="font-size:28px; font-weight:800; color:#2563eb;">1.8x</div>
+    <div style="font-size:13px; color:#666;">NVDA 成交量 vs 20日均量</div>
+    <div style="font-size:11px; color:#999;">FMP API</div>
+  </div>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">TL;DR</h2>
+<ul style="margin-top:0; padding-left:20px;">
+  <li style="margin:8px 0;"><strong>NVDA +4.2%</strong>：CES 發布 Blackwell Ultra，推理效能 2.5 倍、能效 +40%，與 AWS/Azure/GCP 首發合作</li>
+  <li style="margin:8px 0;"><strong>AMD +2.8%</strong>：MI400 獲 Azure 大單，Q2 量產，板塊情緒同步拉升</li>
+  <li style="margin:8px 0;"><strong>AVGO +1.9%</strong>：AI ASIC 擴張，客戶涵蓋 Google/Meta，提供非 GPU 替代路線</li>
+  <li style="margin:8px 0;"><strong>關鍵變數</strong>：推理單位成本、效能/瓦、供給/交付、雲端 Capex 是否前置</li>
+  <li style="margin:8px 0;"><strong>NVDA 估值</strong>：52.3x P/E vs 同業 41.95x，溢價 25%；到 $262.79 需 ~73x P/E</li>
+</ul>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">重新定價儀表板（Repricing Dashboard）</h2>
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">變數</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">為何重要</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">領先訊號</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">直接影響</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;"><strong>推理單位成本</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">推理負載放大時，算得省比算得快更重要</td>
+        <td style="border:1px solid #eee; padding:10px;">FP4 導入、客戶從 demo 到規模化</td>
+        <td style="border:1px solid #eee; padding:10px;">NVDA 定價權、雲端部署節奏</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;"><strong>效能/瓦</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">電力/散熱是硬限制，影響機櫃密度</td>
+        <td style="border:1px solid #eee; padding:10px;">雲端採用時程、擴建訊號</td>
+        <td style="border:1px solid #eee; padding:10px;">NVDA + 二階受惠（網通/電力）</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;"><strong>供給可得性</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">新品再強，交付跟不上 = 估值先修正</td>
+        <td style="border:1px solid #eee; padding:10px;">交付/供應鏈瓶頸消息</td>
+        <td style="border:1px solid #eee; padding:10px;">NVDA re-rate 風險</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;"><strong>雲端 Capex 前置</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">若推理成長期負載，部署更結構性</td>
+        <td style="border:1px solid #eee; padding:10px;">雲端採購節奏、法說訊號</td>
+        <td style="border:1px solid #eee; padding:10px;">AI 晶片 + 二階鏈</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- CTA -->
+<div style="border-radius:14px; padding:16px; margin:18px 0; background:#0b1220; color:#fff;">
+  <div style="font-size:16px; font-weight:800; margin:0 0 8px 0; letter-spacing:.2px;">會員版加值：完整 Ticker Playbook + 情境策略表</div>
+  <ul style="margin:0; padding-left:18px; font-size:14px; line-height:1.6; color:#e5e7eb;">
+    <li style="margin:6px 0;"><strong>關鍵個股分析</strong>：NVDA / AMD / AVGO 的 Setup、Catalyst、Risk、估值錨點</li>
+    <li style="margin:6px 0;"><strong>產業影響地圖</strong>：一階 vs 二階受惠者、時間軸、風險點</li>
+    <li style="margin:6px 0;"><strong>情境策略表</strong>：Bull / Base / Bear 條件與驗證節點</li>
+    <li style="margin:6px 0;"><strong>反方論點</strong>：什麼情況下這個敘事會失效？</li>
+  </ul>
+  <div style="margin-top:12px;">
+    <a href="https://rocket-screener.ghost.io/#/portal/signup" style="display:inline-block; padding:10px 14px; border-radius:10px; background:#ffffff; color:#0b1220; text-decoration:none; font-weight:800;">
+      解鎖全文（會員）
+    </a>
+  </div>
+  <p style="margin:10px 0 0 0; font-size:12px; color:#e5e7eb; line-height:1.5;">提醒：以下為研究用情境推演，非個人化投資建議。</p>
+</div>
+
+<!--members-only-->
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">關鍵個股分析</h2>
+
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">Ticker</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">價格</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">漲幅</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">P/E</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">毛利率</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">Setup</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="background:#f0fdf4;">
+        <td style="border:1px solid #eee; padding:10px;"><strong>NVDA</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">$188.85</td>
+        <td style="border:1px solid #eee; padding:10px; color:#16a34a;">+4.2%</td>
+        <td style="border:1px solid #eee; padding:10px;">52.3x</td>
+        <td style="border:1px solid #eee; padding:10px;">70.1%</td>
+        <td style="border:1px solid #eee; padding:10px;">推理成本曲線下移 + 部署前置，溢價能否續航</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;"><strong>AMD</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">$142.50</td>
+        <td style="border:1px solid #eee; padding:10px; color:#16a34a;">+2.8%</td>
+        <td style="border:1px solid #eee; padding:10px;">48.7x</td>
+        <td style="border:1px solid #eee; padding:10px;">47.5%</td>
+        <td style="border:1px solid #eee; padding:10px;">Azure 大單帶動，需量產與多客戶驗證</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;"><strong>AVGO</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">$185.20</td>
+        <td style="border:1px solid #eee; padding:10px; color:#16a34a;">+1.9%</td>
+        <td style="border:1px solid #eee; padding:10px;">35.2x</td>
+        <td style="border:1px solid #eee; padding:10px;">62.3%</td>
+        <td style="border:1px solid #eee; padding:10px;">AI ASIC 提供雲端分散路線，防守型 AI</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h3 style="margin:14px 0 8px 0;">催化劑與風險</h3>
+<ul style="margin-top:0;">
+  <li><strong>NVDA</strong>：催化劑 = 1/8 法說會；風險 = 供給/交付跟不上、定價壓力；估值錨點 = 同業 P/E 41.95x → $151</li>
+  <li><strong>AMD</strong>：催化劑 = 1/6 CES 發表；風險 = 量產/良率不如預期、毛利落差</li>
+  <li><strong>AVGO</strong>：催化劑 = AI ASIC 客戶擴張；風險 = 雲端投資放緩則敘事降溫</li>
+</ul>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">產業影響地圖</h2>
+
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">層級</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">受惠者</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">時間軸</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">邏輯</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="background:#f0fdf4;">
+        <td style="border:1px solid #eee; padding:10px;"><strong>一階</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">NVDA、AMD、AVGO</td>
+        <td style="border:1px solid #eee; padding:10px;">0-2 週</td>
+        <td style="border:1px solid #eee; padding:10px;">市場先交易需求加速與產品循環敘事</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;"><strong>二階</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">資料中心、網通 (MRVL, CRDO)、電力/散熱 (CEG, VST)</td>
+        <td style="border:1px solid #eee; padding:10px;">1-2 季</td>
+        <td style="border:1px solid #eee; padding:10px;">雲端資本支出擴張鏈受惠</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div style="border-left:4px solid #f59e0b; padding:10px 12px; margin:0 0 14px 0; background:#fffbeb;">
+  <p style="margin:0; font-size:13px; color:#92400e;"><strong>風險提示：</strong>若供給受限或導入慢，板塊可能快速回吐。觀察：雲端是否把推理視為長期負載、Capex 是否前置。</p>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">情境策略表（Scenario Playbook）</h2>
+
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">情境</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">驗證條件</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">市場反應</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">下一步盯什麼</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="background:#f0fdf4;">
+        <td style="border:1px solid #eee; padding:10px;"><strong>Bull</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">法說確認導入前置 + 毛利維持 + 雲端 Capex 上修</td>
+        <td style="border:1px solid #eee; padding:10px;">溢價擴大，資金擴散到二階鏈</td>
+        <td style="border:1px solid #eee; padding:10px;">SMH 資金流、供應鏈擴產訊號</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;"><strong>Base</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">訊號中性，交付/定價語氣保守</td>
+        <td style="border:1px solid #eee; padding:10px;">維持區間，等待下一個催化劑</td>
+        <td style="border:1px solid #eee; padding:10px;">Q1 財報、競品訂單動態</td>
+      </tr>
+      <tr style="background:#fef2f2;">
+        <td style="border:1px solid #eee; padding:10px;"><strong>Bear</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">交付延遲 / 定價壓力 / 雲端 Capex 未前置</td>
+        <td style="border:1px solid #eee; padding:10px;">估值收斂，回到同業框架（~42x）</td>
+        <td style="border:1px solid #eee; padding:10px;">供應鏈瓶頸、客戶轉單跡象</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">兩週事件時間軸</h2>
+<div style="border:1px solid #eee; border-radius:12px; padding:14px;">
+  <ul style="margin:0; padding-left:20px;">
+    <li style="margin:8px 0;"><strong>1/6</strong>：AMD CES 發表 <span style="background:#fef3c7; padding:2px 6px; border-radius:4px; font-size:12px;">High</span></li>
+    <li style="margin:8px 0;"><strong>1/8</strong>：NVDA 法說會 <span style="background:#fef3c7; padding:2px 6px; border-radius:4px; font-size:12px;">High</span></li>
+    <li style="margin:8px 0;"><strong>T+14</strong>：觀察 SMH 資金流向 <span style="background:#e5e7eb; padding:2px 6px; border-radius:4px; font-size:12px;">Medium</span></li>
+  </ul>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">反方論點（Contrarian View）</h2>
+<div style="border-left:4px solid #ef4444; padding:10px 14px; margin:0 0 14px 0; background:#fef2f2;">
+  <p style="margin:0;"><strong>Bear Case：</strong>供給/交付跟不上、競爭導致定價壓力、雲端 Capex 未前置</p>
+</div>
+<h3 style="margin:14px 0 8px 0;">觸發指標</h3>
+<ul style="margin-top:0;">
+  <li>交付延遲或供應鏈瓶頸消息</li>
+  <li>客戶轉單或降價促銷跡象</li>
+  <li>雲端財報顯示 Capex 維持或下修</li>
+</ul>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<h2 style="margin:18px 0 10px 0;">資料來源</h2>
+<ul style="margin-top:0; font-size:14px; color:#666;">
+  <li>NVIDIA CES 2026 Keynote</li>
+  <li>FMP API（價格、估值數據）</li>
+  <li>Alpha Vantage（歷史數據）</li>
+</ul>
+
+<p style="font-size:0.9em; color:#999; margin-top:20px;">
+  本文僅供參考，不構成投資建議。投資有風險，入市需謹慎。
+</p>
+
+<!--kg-card-end: html-->
+
+        </section>
+
+    </article>
+
+
+</main>
+
+
+            <section class="gh-container is-grid gh-outer">
+                <div class="gh-container-inner gh-inner">
+                    <h2 class="gh-container-title">Read more</h2>
+                    <div class="gh-feed">
+                            <article class="gh-card post no-image">
+    <a class="gh-card-link" href="/nvda-deep-dive-2026-01-05-deep/">
+        <div class="gh-card-wrapper">
+            <h3 class="gh-card-title is-title">NVDA 深度：推理經濟學與估值框架完整拆解</h3>
+                <p class="gh-card-excerpt is-body">NVDA 完整深度研究（Investment Memo）：推理經濟學、護城河、財務驅動、同業估值比較與 If/Then 決策樹。新增『怎麼讀』導航與會員解鎖 CTA。</p>
+            <footer class="gh-card-meta">
+<!--
+             -->
+                    <span class="gh-card-author">By Garen</span>
+                    <time class="gh-card-date" datetime="2026-01-06">06 Jan 2026</time>
+                <!--
+         --></footer>
+        </div>
+    </a>
+</article>
+                            <article class="gh-card post no-image">
+    <a class="gh-card-link" href="/nvda-earnings-preview-2026-01-05-earnings/">
+        <div class="gh-card-wrapper">
+            <h3 class="gh-card-title is-title">NVDA 財報前瞻：估值壓力測試與同業定價框架</h3>
+                <p class="gh-card-excerpt is-body">NVDA 1/8 法說會前，用同業倍數做估值壓力測試：52.3x P/E vs 同業 41.95x 的 25% 溢價，靠什麼守住？新增會後三情境解讀劇本（會員）。</p>
+            <footer class="gh-card-meta">
+<!--
+             -->
+                    <span class="gh-card-author">By Garen</span>
+                    <time class="gh-card-date" datetime="2026-01-06">06 Jan 2026</time>
+                <!--
+         --></footer>
+        </div>
+    </a>
+</article>
+                            <article class="gh-card post">
+    <a class="gh-card-link" href="/coming-soon/">
+            <figure class="gh-card-image">
+                <img
+                    srcset="https://static.ghost.org/v4.0.0/images/feature-image.jpg 160w,
+                            https://static.ghost.org/v4.0.0/images/feature-image.jpg 320w,
+                            https://static.ghost.org/v4.0.0/images/feature-image.jpg 600w,
+                            https://static.ghost.org/v4.0.0/images/feature-image.jpg 960w,
+                            https://static.ghost.org/v4.0.0/images/feature-image.jpg 1200w,
+                            https://static.ghost.org/v4.0.0/images/feature-image.jpg 2000w"
+                    sizes="320px"
+                    src="https://static.ghost.org/v4.0.0/images/feature-image.jpg"
+                    alt="Coming soon"
+                    loading="lazy"
+                >
+            </figure>
+        <div class="gh-card-wrapper">
+            <h3 class="gh-card-title is-title">Coming soon</h3>
+                    <p class="gh-card-excerpt is-body">This is Rocket Screener, a brand new site by Garen that&#39;s just getting started. Things will be up and running here shortly, but you can subscribe in the meantime if you&#39;d like to stay up to date and receive emails when new content is published!</p>
+            <footer class="gh-card-meta">
+<!--
+             -->
+                    <span class="gh-card-author">By Garen</span>
+                    <time class="gh-card-date" datetime="2026-01-04">04 Jan 2026</time>
+                <!--
+         --></footer>
+        </div>
+    </a>
+</article>
+                    </div>
+                </div>
+            </section>
+
+    
+    <footer class="gh-footer gh-outer">
+    <div class="gh-footer-inner gh-inner">
+
+        <div class="gh-footer-bar">
+            <span class="gh-footer-logo is-title">
+                    Rocket Screener
+            </span>
+            <nav class="gh-footer-menu">
+                <ul class="nav">
+    <li class="nav-sign-up"><a href="#/portal/">Sign up</a></li>
+</ul>
+
+            </nav>
+            <div class="gh-footer-copyright">
+                Powered by <a href="https://ghost.org/" target="_blank" rel="noopener">Ghost</a>
+            </div>
+        </div>
+
+                <section class="gh-footer-signup">
+                    <h2 class="gh-footer-signup-header is-title">
+                        Rocket Screener
+                    </h2>
+                    <p class="gh-footer-signup-subhead is-body">
+                        Thoughts, stories and ideas.
+                    </p>
+                    <form class="gh-form" data-members-form>
+    <input class="gh-form-input" id="footer-email" name="email" type="email" placeholder="jamie@example.com" required data-members-email>
+    <button class="gh-button" type="submit" aria-label="Subscribe">
+        <span><span>Subscribe</span> <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M224.49,136.49l-72,72a12,12,0,0,1-17-17L187,140H40a12,12,0,0,1,0-24H187L135.51,64.48a12,12,0,0,1,17-17l72,72A12,12,0,0,1,224.49,136.49Z"></path></svg></span>
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 24 24">
+    <g stroke-linecap="round" stroke-width="2" fill="currentColor" stroke="none" stroke-linejoin="round" class="nc-icon-wrapper">
+        <g class="nc-loop-dots-4-24-icon-o">
+            <circle cx="4" cy="12" r="3"></circle>
+            <circle cx="12" cy="12" r="3"></circle>
+            <circle cx="20" cy="12" r="3"></circle>
+        </g>
+        <style data-cap="butt">
+            .nc-loop-dots-4-24-icon-o{--animation-duration:0.8s}
+            .nc-loop-dots-4-24-icon-o *{opacity:.4;transform:scale(.75);animation:nc-loop-dots-4-anim var(--animation-duration) infinite}
+            .nc-loop-dots-4-24-icon-o :nth-child(1){transform-origin:4px 12px;animation-delay:-.3s;animation-delay:calc(var(--animation-duration)/-2.666)}
+            .nc-loop-dots-4-24-icon-o :nth-child(2){transform-origin:12px 12px;animation-delay:-.15s;animation-delay:calc(var(--animation-duration)/-5.333)}
+            .nc-loop-dots-4-24-icon-o :nth-child(3){transform-origin:20px 12px}
+            @keyframes nc-loop-dots-4-anim{0%,100%{opacity:.4;transform:scale(.75)}50%{opacity:1;transform:scale(1)}}
+        </style>
+    </g>
+</svg>        <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+    <style>
+        .checkmark {
+            width: 40px;
+            height: 40px;
+            display: block;
+            stroke-width: 2.5;
+            stroke: currentColor;
+            stroke-miterlimit: 10;
+        }
+
+        .checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke .3s cubic-bezier(0.650, 0.000, 0.450, 1.000) forwards;
+        }
+
+        @keyframes stroke {
+            100% { stroke-dashoffset: 0; }
+        }
+    </style>
+</svg>    </button>
+    <p data-members-error></p>
+</form>                </section>
+
+    </div>
+</footer>    
+</div>
+
+    <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="pswp__bg"></div>
+
+    <div class="pswp__scroll-wrap">
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/assets/built/source.js?v=c063a6b88d"></script>
+
+
+
+</body>
+</html>

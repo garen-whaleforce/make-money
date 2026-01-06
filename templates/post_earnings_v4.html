@@ -1,0 +1,589 @@
+<!-- Rocket Screener | Daily Brief | Post B: Earnings | v4.1 Template -->
+<!-- 支援兩種模式：Preview（法說前）/ Recap（法說後）-->
+<!-- 結構：免費區（估值壓力測試）→ Paywall → 會員區（完整分析） -->
+
+<div style="margin:0 0 12px 0;">
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#111; color:#fff; font-size:12px; letter-spacing:.2px; margin-right:6px;">Daily Brief</span>
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#fef3c7; color:#92400e; font-size:12px; margin-right:6px;">Earnings</span>
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:{{mode_bg}}; color:{{mode_color}}; font-size:12px; margin-right:6px;">{{mode_label}}</span>
+  <span style="display:inline-block; padding:4px 10px; border-radius:999px; background:#f3f4f6; color:#111; font-size:12px;">{{ticker}}</span>
+</div>
+<p style="margin:0 0 10px 0; font-size:12px; color:#6b7280;">
+  Data as of <strong>{{date}}</strong> US market close. Numbers from FMP/Alpha Vantage; event details from primary releases & aggregated news.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- 🆓 FREE PREVIEW ZONE -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- Thesis -->
+<h2 style="margin:18px 0 10px 0;">一句話結論</h2>
+<blockquote style="border-left:4px solid #f59e0b; padding:10px 14px; margin:0 0 14px 0; background:#fffbeb;">
+  <p style="margin:0;"><strong>{{thesis}}</strong></p>
+</blockquote>
+
+<!-- Earnings Scoreboard (for Recap mode) -->
+{{#if is_recap}}
+<h2 style="margin:18px 0 10px 0;">財報記分板（Earnings Scoreboard）</h2>
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:13px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">Ticker</th>
+        <th style="text-align:center; border:1px solid #eee; padding:8px; background:#fafafa;">Quarter</th>
+        <th style="text-align:center; border:1px solid #eee; padding:8px; background:#fafafa;">EPS</th>
+        <th style="text-align:center; border:1px solid #eee; padding:8px; background:#fafafa;">vs Est</th>
+        <th style="text-align:center; border:1px solid #eee; padding:8px; background:#fafafa;">Revenue</th>
+        <th style="text-align:center; border:1px solid #eee; padding:8px; background:#fafafa;">vs Est</th>
+        <th style="text-align:center; border:1px solid #eee; padding:8px; background:#fafafa;">Guidance</th>
+        <th style="text-align:center; border:1px solid #eee; padding:8px; background:#fafafa;">股價反應</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{earnings_scoreboard_rows}}
+    </tbody>
+  </table>
+</div>
+
+<!-- Verdict (for Recap) -->
+<div style="border:1px solid #92400e; background:#fffbeb; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:14px; font-weight:700; color:#92400e; margin:0 0 8px 0;">Verdict: {{verdict_summary}}</div>
+  <p style="margin:0; font-size:14px; color:#374151;">{{verdict_market_interpretation}}</p>
+</div>
+{{/if}}
+
+<!-- Valuation Stress Test -->
+<h2 style="margin:18px 0 10px 0;">估值壓力測試（Valuation Stress Test）</h2>
+<p style="margin-top:0; color:#666; font-size:14px;">
+  以現價 ${{price}} 與 TTM P/E {{pe_ttm}}x，推回 TTM EPS 約 ${{eps_ttm}}。再用不同倍數做 re-rating 推演：
+</p>
+
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">情境</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">P/E 假設</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">錨定來源</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">目標價</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">解讀</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="background:#fef2f2;">
+        <td style="border:1px solid #eee; padding:10px;"><strong>Bear</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">{{bear_pe}}x</td>
+        <td style="border:1px solid #eee; padding:10px;">{{bear_anchor}}</td>
+        <td style="border:1px solid #eee; padding:10px;"><strong>${{bear_price}}</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">{{bear_interpretation}}</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;"><strong>Peer Median</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">{{peer_pe}}x</td>
+        <td style="border:1px solid #eee; padding:10px;">{{peer_anchor}}</td>
+        <td style="border:1px solid #eee; padding:10px;"><strong>${{peer_price}}</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">{{peer_interpretation}}</td>
+      </tr>
+      <tr style="background:#f0fdf4;">
+        <td style="border:1px solid #eee; padding:10px;"><strong>Base</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">{{base_pe}}x</td>
+        <td style="border:1px solid #eee; padding:10px;">{{base_anchor}}</td>
+        <td style="border:1px solid #eee; padding:10px;"><strong>${{base_price}}</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">{{base_interpretation}}</td>
+      </tr>
+      <tr style="background:#ecfdf5;">
+        <td style="border:1px solid #eee; padding:10px;"><strong>Bull</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">{{bull_pe}}x</td>
+        <td style="border:1px solid #eee; padding:10px;">{{bull_anchor}}</td>
+        <td style="border:1px solid #eee; padding:10px;"><strong>${{bull_price}}</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">{{bull_interpretation}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Must Listen (for Preview) / What Market Heard (for Recap) -->
+<h2 style="margin:18px 0 10px 0;">{{#if is_recap}}市場聽到什麼{{else}}法說會必聽問題{{/if}}</h2>
+<div style="border:1px solid #e5e7eb; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <ul style="margin:0; padding-left:18px; font-size:14px; line-height:1.7;">
+    {{market_listening_items}}
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- 🔒 PAYWALL TRANSITION -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
+<div style="border:1px solid #e5e7eb; border-radius:12px; padding:16px; margin:24px 0; background:linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+  <div style="font-size:14px; font-weight:600; margin:0 0 8px 0;">以下為會員專屬內容</div>
+  <ul style="margin:0; padding-left:20px; font-size:13px; color:#64748b; line-height:1.7;">
+    <li>完整 Executive Summary（中英雙語）</li>
+    <li>預期差堆疊表（Expectation Stack）</li>
+    {{#if is_recap}}<li>P&L Bridge 分析 + Segment KPIs</li>{{/if}}
+    <li>同業比較升級版 + 估值框架差異</li>
+    <li>會後三情境解讀 + T+1/T+3/T+10 追蹤清單</li>
+    <li>同業 Re-rate 地圖</li>
+    <li>管理層提問清單（10-15 題）</li>
+  </ul>
+</div>
+
+<!--members-only-->
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- 🔐 MEMBERS-ONLY CONTENT -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- Chinese Executive Summary -->
+<div style="border:1px solid #92400e; background:#fffbeb; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:12px; color:#92400e; margin:0 0 8px 0; letter-spacing:.2px; font-weight:700;">中文摘要</div>
+  {{summary_zh}}
+</div>
+
+<!-- English Executive Summary -->
+<div style="border:1px solid #fef3c7; background:#fffbeb; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:12px; color:#92400e; margin:0 0 8px 0; letter-spacing:.2px; font-weight:600;">EXECUTIVE SUMMARY</div>
+  {{summary_en}}
+</div>
+
+<!-- Today Package Links -->
+<div style="border:1px solid #e5e7eb; background:#ffffff; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:12px; color:#6b7280; margin:0 0 8px 0; letter-spacing:.2px; font-weight:700;">TODAY'S PACKAGE | {{date}}</div>
+  <ul style="margin:0; padding-left:18px; font-size:14px; line-height:1.55;">
+    <li style="margin:6px 0;"><a href="{{flash_url}}" style="text-decoration:none; font-weight:700;">Flash</a>：今日主線 + News Radar + Playbook</li>
+    <li style="margin:6px 0;"><strong>Earnings</strong>（本篇）：法說/財報深度分析</li>
+    <li style="margin:6px 0;"><a href="{{deep_url}}" style="text-decoration:none; font-weight:700;">Deep Dive</a>：商業模式/護城河/決策樹</li>
+  </ul>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- P&L Bridge (for Recap mode) -->
+{{#if is_recap}}
+<h2 style="margin:18px 0 10px 0;">P&L Bridge 分析</h2>
+
+<!-- Revenue Drivers -->
+<div style="border:1px solid #e5e7eb; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:13px; font-weight:700; color:#6b7280; margin:0 0 10px 0;">營收驅動因素</div>
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+      <thead>
+        <tr>
+          <th style="text-align:left; border-bottom:1px solid #eee; padding:8px;">業務段</th>
+          <th style="text-align:center; border-bottom:1px solid #eee; padding:8px;">YoY 成長</th>
+          <th style="text-align:left; border-bottom:1px solid #eee; padding:8px;">vs 預期</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{revenue_drivers_rows}}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Margin Analysis -->
+<div style="display:flex; flex-wrap:wrap; gap:12px; margin:0 0 14px 0;">
+  <div style="flex:1; min-width:200px; border:1px solid #e5e7eb; border-radius:12px; padding:14px;">
+    <div style="font-size:13px; font-weight:700; color:#6b7280; margin:0 0 10px 0;">毛利率</div>
+    <div style="font-size:24px; font-weight:700; color:#111;">{{gross_margin_actual}}%</div>
+    <div style="font-size:12px; color:{{gross_margin_color}};">YoY {{gross_margin_yoy_change}}</div>
+    <ul style="margin:8px 0 0 0; padding-left:16px; font-size:12px; color:#6b7280;">
+      {{gross_margin_drivers}}
+    </ul>
+  </div>
+  <div style="flex:1; min-width:200px; border:1px solid #e5e7eb; border-radius:12px; padding:14px;">
+    <div style="font-size:13px; font-weight:700; color:#6b7280; margin:0 0 10px 0;">營業利益率</div>
+    <div style="font-size:24px; font-weight:700; color:#111;">{{op_margin_actual}}%</div>
+    <div style="font-size:12px; color:{{op_margin_color}};">YoY {{op_margin_yoy_change}}</div>
+    <ul style="margin:8px 0 0 0; padding-left:16px; font-size:12px; color:#6b7280;">
+      {{op_margin_drivers}}
+    </ul>
+  </div>
+</div>
+
+<!-- EPS Bridge -->
+<div style="border-left:4px solid #f59e0b; padding:10px 12px; margin:0 0 14px 0; background:#fffbeb;">
+  <p style="margin:0; font-size:14px;"><strong>EPS Bridge：</strong>{{eps_bridge}}</p>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Segment KPIs -->
+<h2 style="margin:18px 0 10px 0;">業務段 KPI</h2>
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:13px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">業務段</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">KPI</th>
+        <th style="text-align:center; border:1px solid #eee; padding:8px; background:#fafafa;">本季</th>
+        <th style="text-align:center; border:1px solid #eee; padding:8px; background:#fafafa;">vs 上季</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">重要性</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{segment_kpi_rows}}
+    </tbody>
+  </table>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Cash Flow & Balance Sheet -->
+<h2 style="margin:18px 0 10px 0;">現金流 & 資產負債表亮點</h2>
+<div style="display:flex; flex-wrap:wrap; gap:10px; margin:0 0 14px 0;">
+  <div style="flex:1; min-width:100px; text-align:center; padding:12px; background:#fafafa; border-radius:8px;">
+    <div style="font-size:11px; color:#6b7280;">FCF</div>
+    <div style="font-size:18px; font-weight:700;">{{fcf}}</div>
+  </div>
+  <div style="flex:1; min-width:100px; text-align:center; padding:12px; background:#fafafa; border-radius:8px;">
+    <div style="font-size:11px; color:#6b7280;">FCF Margin</div>
+    <div style="font-size:18px; font-weight:700;">{{fcf_margin}}%</div>
+  </div>
+  <div style="flex:1; min-width:100px; text-align:center; padding:12px; background:#fafafa; border-radius:8px;">
+    <div style="font-size:11px; color:#6b7280;">CapEx</div>
+    <div style="font-size:18px; font-weight:700;">{{capex}}</div>
+  </div>
+  <div style="flex:1; min-width:100px; text-align:center; padding:12px; background:#fafafa; border-radius:8px;">
+    <div style="font-size:11px; color:#6b7280;">Buyback</div>
+    <div style="font-size:18px; font-weight:700;">{{buyback}}</div>
+  </div>
+  <div style="flex:1; min-width:100px; text-align:center; padding:12px; background:#fafafa; border-radius:8px;">
+    <div style="font-size:11px; color:#6b7280;">Net Cash/Debt</div>
+    <div style="font-size:18px; font-weight:700;">{{net_cash_debt}}</div>
+  </div>
+</div>
+<ul style="margin:0; padding-left:18px; font-size:13px; color:#6b7280;">
+  {{cash_flow_highlights}}
+</ul>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Guidance Analysis -->
+<h2 style="margin:18px 0 10px 0;">指引分析</h2>
+<div style="display:flex; flex-wrap:wrap; gap:12px; margin:0 0 14px 0;">
+  <div style="flex:1; min-width:250px; border:1px solid #e5e7eb; border-radius:12px; padding:14px;">
+    <div style="font-size:13px; font-weight:700; color:#6b7280; margin:0 0 10px 0;">下季指引</div>
+    <div style="margin:0 0 8px 0;">
+      <span style="font-size:12px; color:#6b7280;">Revenue:</span>
+      <span style="font-size:14px; font-weight:600;">${{next_q_rev_low}}B - ${{next_q_rev_high}}B</span>
+      <span style="font-size:12px; color:#6b7280;">(vs Consensus: ${{next_q_rev_consensus}}B)</span>
+    </div>
+    <div style="margin:0 0 8px 0;">
+      <span style="font-size:12px; color:#6b7280;">Gross Margin:</span>
+      <span style="font-size:14px; font-weight:600;">{{next_q_gm_guidance}}</span>
+    </div>
+  </div>
+  <div style="flex:1; min-width:250px; border:1px solid #e5e7eb; border-radius:12px; padding:14px;">
+    <div style="font-size:13px; font-weight:700; color:#6b7280; margin:0 0 10px 0;">全年指引</div>
+    <div style="margin:0 0 8px 0;">
+      <span style="font-size:12px; color:#6b7280;">Revenue:</span>
+      <span style="font-size:14px; font-weight:600;">{{fy_revenue_guidance}}</span>
+    </div>
+    <div style="margin:0 0 8px 0;">
+      <span style="font-size:12px; color:#6b7280;">vs Prior:</span>
+      <span style="font-size:14px; font-weight:600;">{{fy_change_from_prior}}</span>
+    </div>
+  </div>
+</div>
+<div style="border-left:4px solid {{guidance_credibility_color}}; padding:10px 12px; margin:0 0 14px 0; background:#fafafa;">
+  <p style="margin:0; font-size:14px;"><strong>指引可信度：</strong>{{guidance_credibility}} — {{management_tone}}</p>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+{{/if}}
+
+<!-- Expectation Stack -->
+<h2 style="margin:18px 0 10px 0;">預期差堆疊表（Expectation Stack）</h2>
+<p style="margin-top:0; color:#666; font-size:14px;">
+  市場對法說的預期不只是 EPS beat/miss，而是這些關鍵變數的「反應區間」：
+</p>
+
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:13px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">項目</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">市場共識</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">關鍵閾值</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#f0fdf4;">正面反應區間</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fef2f2;">負面反應區間</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{expectation_stack_rows}}
+    </tbody>
+  </table>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Peer Comparison Extended -->
+<h2 style="margin:18px 0 10px 0;">同業比較升級版（Peer Comparison Extended）</h2>
+
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:13px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">Ticker</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">價格</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">P/E TTM</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">P/E Fwd</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">EV/Sales</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">毛利率</th>
+        <th style="text-align:left; border:1px solid #eee; padding:8px; background:#fafafa;">估值框架</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{peer_comparison_rows}}
+    </tbody>
+  </table>
+</div>
+
+<div style="border-left:4px solid #92400e; padding:10px 12px; margin:0 0 14px 0; background:#fffbeb;">
+  <p style="margin:0; font-size:13px;"><strong>估值框架差異：</strong>{{valuation_framework_note}}</p>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Management Question Bank (expanded for Preview mode) -->
+<h2 style="margin:18px 0 10px 0;">管理層提問清單（10-15 題）</h2>
+<div style="border:1px solid #eee; border-radius:12px; padding:14px;">
+  <ol style="margin:0; padding-left:20px; font-size:14px; line-height:1.7;">
+    {{earnings_questions}}
+  </ol>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Post-call Playbook -->
+<h2 style="margin:18px 0 10px 0;">會後三情境解讀（Post-call Playbook）</h2>
+<p style="margin-top:0; color:#666; font-size:14px;">
+  財報/法說最常見的誤區是只看「有沒有 beat」。更重要的是：公司用什麼語氣描述<strong>交付</strong>與<strong>定價</strong>。
+</p>
+
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa; width:16%;">情境</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa;">你會在電話會議中聽到什麼</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa; width:22%;">市場常見反應</th>
+        <th style="text-align:left; border:1px solid #eee; padding:10px; background:#fafafa; width:20%;">T+1 / T+3 / T+10 追什麼</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="background:#f0fdf4;">
+        <td style="border:1px solid #eee; padding:10px;"><strong>Beat + 強指引</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">{{beat_what_you_hear}}</td>
+        <td style="border:1px solid #eee; padding:10px;">{{beat_market_reaction}}</td>
+        <td style="border:1px solid #eee; padding:10px;">{{beat_tracking}}</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #eee; padding:10px;"><strong>In-line（中性）</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">{{inline_what_you_hear}}</td>
+        <td style="border:1px solid #eee; padding:10px;">{{inline_market_reaction}}</td>
+        <td style="border:1px solid #eee; padding:10px;">{{inline_tracking}}</td>
+      </tr>
+      <tr style="background:#fef2f2;">
+        <td style="border:1px solid #eee; padding:10px;"><strong>Miss 或指引轉弱</strong></td>
+        <td style="border:1px solid #eee; padding:10px;">{{miss_what_you_hear}}</td>
+        <td style="border:1px solid #eee; padding:10px;">{{miss_market_reaction}}</td>
+        <td style="border:1px solid #eee; padding:10px;">{{miss_tracking}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Post-call Tracking Timeline -->
+<div style="border:1px solid #e5e7eb; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="font-size:12px; color:#6b7280; margin:0 0 10px 0; font-weight:700;">會後追蹤時間軸</div>
+  <div style="display:flex; flex-wrap:wrap; gap:12px;">
+    <div style="flex:1; min-width:150px; padding:10px; background:#fafafa; border-radius:8px;">
+      <div style="font-size:11px; color:#6b7280; margin:0 0 4px 0;">T+1（隔日）</div>
+      <ul style="margin:0; padding-left:16px; font-size:13px;">
+        {{t_plus_1_items}}
+      </ul>
+    </div>
+    <div style="flex:1; min-width:150px; padding:10px; background:#fafafa; border-radius:8px;">
+      <div style="font-size:11px; color:#6b7280; margin:0 0 4px 0;">T+3（三日內）</div>
+      <ul style="margin:0; padding-left:16px; font-size:13px;">
+        {{t_plus_3_items}}
+      </ul>
+    </div>
+    <div style="flex:1; min-width:150px; padding:10px; background:#fafafa; border-radius:8px;">
+      <div style="font-size:11px; color:#6b7280; margin:0 0 4px 0;">T+10（兩週內）</div>
+      <ul style="margin:0; padding-left:16px; font-size:13px;">
+        {{t_plus_10_items}}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Peer Re-rate Map -->
+<h2 style="margin:18px 0 10px 0;">同業 Re-rate 地圖</h2>
+<p style="margin-top:0; color:#666; font-size:14px;">
+  {{ticker}} 的估值動向會連動哪些同業？
+</p>
+
+<div style="display:flex; flex-wrap:wrap; gap:12px; margin:0 0 14px 0;">
+  <div style="flex:1; min-width:200px; border:1px solid #e8f5e9; border-radius:12px; padding:14px; background:#f0fdf4;">
+    <div style="font-weight:700; margin:0 0 8px 0; color:#2e7d32;">若 {{ticker}} 溢價守住</div>
+    <ul style="margin:0; padding-left:18px; font-size:14px;">
+      {{if_premium_holds}}
+    </ul>
+  </div>
+  <div style="flex:1; min-width:200px; border:1px solid #ffebee; border-radius:12px; padding:14px; background:#fef2f2;">
+    <div style="font-weight:700; margin:0 0 8px 0; color:#dc2626;">若 {{ticker}} 溢價收斂</div>
+    <ul style="margin:0; padding-left:18px; font-size:14px;">
+      {{if_premium_compresses}}
+    </ul>
+  </div>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- 3x3 Post-Earnings Scenario Matrix (v4.1) -->
+<h2 style="margin:18px 0 10px 0;">法說後劇本矩陣（EPS × Guidance）</h2>
+<p style="margin-top:0; color:#666; font-size:14px;">
+  財報表現（EPS）和未來指引（Guidance）的九種組合，預判市場反應：
+</p>
+
+<div style="overflow-x:auto; margin:0 0 14px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:12px;">
+    <thead>
+      <tr>
+        <th style="border:1px solid #e5e7eb; padding:8px; background:#f9fafb; width:12%;"></th>
+        <th style="border:1px solid #e5e7eb; padding:8px; background:#dcfce7; text-align:center; width:29%;">
+          <strong>Guidance Raised</strong><br><span style="font-weight:400; color:#6b7280;">指引上調</span>
+        </th>
+        <th style="border:1px solid #e5e7eb; padding:8px; background:#fef3c7; text-align:center; width:29%;">
+          <strong>Guidance Maintained</strong><br><span style="font-weight:400; color:#6b7280;">指引維持</span>
+        </th>
+        <th style="border:1px solid #e5e7eb; padding:8px; background:#fecaca; text-align:center; width:29%;">
+          <strong>Guidance Lowered</strong><br><span style="font-weight:400; color:#6b7280;">指引下調</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- EPS Beat Row -->
+      <tr>
+        <td style="border:1px solid #e5e7eb; padding:8px; background:#dcfce7; font-weight:700;">
+          EPS<br>Beat
+        </td>
+        <td style="border:1px solid #e5e7eb; padding:10px; background:#f0fdf4;">
+          <div style="font-weight:700; color:#166534; margin:0 0 4px 0;">🚀 強勢突破</div>
+          <div style="font-size:11px; color:#374151;">{{matrix_beat_raised}}</div>
+          <div style="margin-top:6px; font-size:10px; color:#6b7280;">
+            <strong>動作：</strong>{{matrix_beat_raised_action}}
+          </div>
+        </td>
+        <td style="border:1px solid #e5e7eb; padding:10px; background:#fefce8;">
+          <div style="font-weight:700; color:#854d0e; margin:0 0 4px 0;">📈 溫和利多</div>
+          <div style="font-size:11px; color:#374151;">{{matrix_beat_maintained}}</div>
+          <div style="margin-top:6px; font-size:10px; color:#6b7280;">
+            <strong>動作：</strong>{{matrix_beat_maintained_action}}
+          </div>
+        </td>
+        <td style="border:1px solid #e5e7eb; padding:10px; background:#fef2f2;">
+          <div style="font-weight:700; color:#991b1b; margin:0 0 4px 0;">⚠️ 混淆信號</div>
+          <div style="font-size:11px; color:#374151;">{{matrix_beat_lowered}}</div>
+          <div style="margin-top:6px; font-size:10px; color:#6b7280;">
+            <strong>動作：</strong>{{matrix_beat_lowered_action}}
+          </div>
+        </td>
+      </tr>
+      <!-- EPS Inline Row -->
+      <tr>
+        <td style="border:1px solid #e5e7eb; padding:8px; background:#fef3c7; font-weight:700;">
+          EPS<br>Inline
+        </td>
+        <td style="border:1px solid #e5e7eb; padding:10px; background:#f0fdf4;">
+          <div style="font-weight:700; color:#166534; margin:0 0 4px 0;">📊 驚喜向上</div>
+          <div style="font-size:11px; color:#374151;">{{matrix_inline_raised}}</div>
+          <div style="margin-top:6px; font-size:10px; color:#6b7280;">
+            <strong>動作：</strong>{{matrix_inline_raised_action}}
+          </div>
+        </td>
+        <td style="border:1px solid #e5e7eb; padding:10px; background:#f9fafb;">
+          <div style="font-weight:700; color:#374151; margin:0 0 4px 0;">➖ 中性盤整</div>
+          <div style="font-size:11px; color:#374151;">{{matrix_inline_maintained}}</div>
+          <div style="margin-top:6px; font-size:10px; color:#6b7280;">
+            <strong>動作：</strong>{{matrix_inline_maintained_action}}
+          </div>
+        </td>
+        <td style="border:1px solid #e5e7eb; padding:10px; background:#fef2f2;">
+          <div style="font-weight:700; color:#991b1b; margin:0 0 4px 0;">📉 利空確認</div>
+          <div style="font-size:11px; color:#374151;">{{matrix_inline_lowered}}</div>
+          <div style="margin-top:6px; font-size:10px; color:#6b7280;">
+            <strong>動作：</strong>{{matrix_inline_lowered_action}}
+          </div>
+        </td>
+      </tr>
+      <!-- EPS Miss Row -->
+      <tr>
+        <td style="border:1px solid #e5e7eb; padding:8px; background:#fecaca; font-weight:700;">
+          EPS<br>Miss
+        </td>
+        <td style="border:1px solid #e5e7eb; padding:10px; background:#fefce8;">
+          <div style="font-weight:700; color:#854d0e; margin:0 0 4px 0;">🔄 觀望</div>
+          <div style="font-size:11px; color:#374151;">{{matrix_miss_raised}}</div>
+          <div style="margin-top:6px; font-size:10px; color:#6b7280;">
+            <strong>動作：</strong>{{matrix_miss_raised_action}}
+          </div>
+        </td>
+        <td style="border:1px solid #e5e7eb; padding:10px; background:#fef2f2;">
+          <div style="font-weight:700; color:#991b1b; margin:0 0 4px 0;">📉 弱勢</div>
+          <div style="font-size:11px; color:#374151;">{{matrix_miss_maintained}}</div>
+          <div style="margin-top:6px; font-size:10px; color:#6b7280;">
+            <strong>動作：</strong>{{matrix_miss_maintained_action}}
+          </div>
+        </td>
+        <td style="border:1px solid #e5e7eb; padding:10px; background:#fee2e2;">
+          <div style="font-weight:700; color:#7f1d1d; margin:0 0 4px 0;">💀 危機模式</div>
+          <div style="font-size:11px; color:#374151;">{{matrix_miss_lowered}}</div>
+          <div style="margin-top:6px; font-size:10px; color:#6b7280;">
+            <strong>動作：</strong>{{matrix_miss_lowered_action}}
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div style="border:1px solid #e5e7eb; background:#f9fafb; border-radius:8px; padding:12px; margin:0 0 14px 0;">
+  <div style="font-size:12px; font-weight:600; color:#374151; margin:0 0 6px 0;">💡 使用指南</div>
+  <ul style="margin:0; padding-left:16px; font-size:12px; color:#6b7280; line-height:1.6;">
+    <li>法說公布後，先確認 EPS beat/miss，再看指引方向</li>
+    <li>找到對應格子，確認市場反應預期與你的假設是否一致</li>
+    <li>若股價反應與矩陣預測相反，可能有 hidden catalyst 或市場定價錯誤</li>
+  </ul>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+
+<!-- Historical Earnings Impact Keywords (for Preview mode) -->
+{{#if is_preview}}
+<h2 style="margin:18px 0 10px 0;">歷史法說關鍵字分析</h2>
+<p style="margin-top:0; color:#666; font-size:14px;">
+  過去四季法說會，哪些關鍵字最常引發股價 re-rate？
+</p>
+<div style="border:1px solid #e5e7eb; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+  <div style="display:flex; flex-wrap:wrap; gap:8px;">
+    {{historical_keywords}}
+  </div>
+</div>
+
+<hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+{{/if}}
+
+<!-- Sources -->
+<h2 style="margin:18px 0 10px 0;">資料來源</h2>
+<ul style="margin-top:0; font-size:14px; color:#666;">
+  {{sources}}
+</ul>
+
+<p style="font-size:0.9em; color:#999; margin-top:20px;">
+  本文僅供參考，不構成投資建議。投資有風險，入市需謹慎。
+</p>
