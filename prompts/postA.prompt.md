@@ -47,22 +47,28 @@ Organize news_items into:
 ```
 FREE ZONE (30 seconds read):
 ────────────────────────────
-1. MARKET SNAPSHOT
+1. BILINGUAL EXECUTIVE SUMMARY (雙語摘要)
+   - 中文摘要 (100-150 字): 今日市場主線 + 關鍵數字
+   - English Summary (100-150 words): Key thesis + top movers
+   - This appears FIRST, before paywall, for newsletter preview
+
+2. MARKET SNAPSHOT
    - SPY, QQQ, 10Y, DXY, VIX with directional colors
 
-2. TODAY'S TOP 3
+3. TODAY'S TOP 3
    - Headlines + direction + one-liner for top 3 news
    - Must include impact score
 
-3. 今日主線 (THESIS)
+4. 今日主線 (THESIS)
    - Maximum 2 sentences
    - Must answer: "What is the market repricing?"
 
-4. 三個必記數字 (KEY NUMBERS)
+5. 三個必記數字 (KEY NUMBERS)
    - Exactly 3 numbers from input data
    - Format: value + label + source
+   - Visual card style (適合快速掃讀)
 
-5. 摘要 (SUMMARY)
+6. 摘要 (TL;DR)
    - 5-7 bullet points
    - Each: ticker + move + reason
 
@@ -72,12 +78,6 @@ PAYWALL: <!--members-only-->
 
 MEMBERS ZONE (5-7 minutes read):
 ────────────────────────────
-6. ENGLISH EXECUTIVE SUMMARY (200-300 words)
-   - Key market events
-   - Primary repricing thesis
-   - Top 3 tickers to watch
-   - 2-week outlook
-
 7. TODAY'S PACKAGE
    - Cross-links to Earnings and Deep Dive posts
 
@@ -163,9 +163,9 @@ MEMBERS ZONE (5-7 minutes read):
 - Mark source_type for each news item
 
 ### Paywall Structure
-- PUBLIC: Sections 1-5 (Market Snapshot through 摘要)
-- Insert `<!--members-only-->` after section 5
-- MEMBERS ONLY: Sections 6-18
+- PUBLIC: Sections 1-6 (Bilingual Summary through TL;DR 摘要)
+- Insert `<!--members-only-->` after section 6
+- MEMBERS ONLY: Sections 7-18
 
 ## Output Format
 
@@ -179,3 +179,21 @@ Return a JSON object matching `schemas/postA.schema.json` with:
 - Cross-link URLs populated
 
 Also return HTML content suitable for Ghost CMS with inline styles.
+
+## Quality Enforcement (CRITICAL)
+
+Before outputting, verify ALL of the following:
+
+1. **Number Traceability**: Every price, percentage, date comes from `research_pack`
+2. **No Investment Bank Citations**: Never cite Morgan Stanley, Goldman, JPMorgan, etc.
+3. **Field Completeness**:
+   - `key_numbers` has exactly 3 items
+   - `repricing_dashboard` has at least 3 variables
+   - All news sources have URLs
+4. **Content Consistency**:
+   - Tickers in `repricing_dashboard.direct_impact` appear in `key_stocks` or `news_items`
+   - Same ticker shows consistent change_pct throughout the post
+5. **Language Rules**: Use conditional language ("若...則..."), never "建議買/賣"
+6. **Paywall Structure**: Insert `<!--members-only-->` after section 6
+
+Set `meta.quality_gates_passed: true` only if ALL checks pass.

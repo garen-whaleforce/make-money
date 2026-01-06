@@ -51,11 +51,13 @@ You will receive (from `edition_pack`):
 ### Structure (follow exactly)
 
 ```
-FREE ZONE (Valuation Stress Test):
+FREE ZONE (2 minutes read):
 ────────────────────────────
-1. 一句話結論 (THESIS)
-   - e.g., "Beat but guide down" or "Miss but margin up"
+1. BILINGUAL EXECUTIVE SUMMARY (雙語摘要)
+   - 中文摘要 (100-150 字): 財報重點 + 估值結論
+   - English Summary (100-150 words): Earnings thesis + valuation takeaway
    - Include earnings date: "分析基於 {earnings_date} 發布的 {fiscal_period} 財報"
+   - This appears FIRST, before paywall, for newsletter preview
 
 2. 財報記分板 (EARNINGS SCOREBOARD)
    - Table: Ticker | Quarter | EPS Actual | EPS Est | vs Est | Revenue | Reaction
@@ -79,28 +81,22 @@ FREE ZONE (Valuation Stress Test):
 PAYWALL: <!--members-only-->
 ────────────────────────────
 
-MEMBERS ZONE:
+MEMBERS ZONE (10-15 minutes read):
 ────────────────────────────
-6. ENGLISH EXECUTIVE SUMMARY (200-300 words)
-   - Company and quarter analyzed
-   - Beat/miss summary with key metrics
-   - What results reveal about trajectory
-   - Fair value takeaway
-
-7. TODAY'S PACKAGE
+6. TODAY'S PACKAGE
    - Cross-links to Flash and Deep Dive posts
 
-8. 季度表現分析 (QUARTERLY ANALYSIS)
+7. 季度表現分析 (QUARTERLY ANALYSIS)
    - Revenue trends from `recent_earnings.history`
    - EPS trajectory across quarters
    - Margin changes if available
 
-9. 同業比較升級版 (PEER COMPARISON EXTENDED)
+8. 同業比較升級版 (PEER COMPARISON EXTENDED)
     - Table: Ticker | Price | P/E TTM | P/E Fwd | EV/S | GM% | Valuation Framework
     - Note explaining valuation framework differences
     - Use data from `peer_data`
 
-10. 法說後劇本矩陣（EPS × Guidance）
+9. 法說後劇本矩陣（EPS × Guidance）
     - 3x3 matrix grid for future earnings framework:
 
     |           | Guidance Raised | Guidance Maintained | Guidance Lowered |
@@ -112,13 +108,13 @@ MEMBERS ZONE:
     - Each cell: Description + Suggested Action
     - Apply to next earnings report
 
-11. 估值：下一季合理價 (VALUATION SCENARIOS)
+10. 估值：下一季合理價 (VALUATION SCENARIOS)
     - Methodology stated (P/E, EV/S, DCF)
     - Current metrics card
     - Scenarios table: Bear | Base | Bull with target price, multiple, rationale
     - Fair value range: Low | Mid | High
 
-12. 資料來源 (SOURCES)
+11. 資料來源 (SOURCES)
     - Data providers used
     - Earnings date noted
 ```
@@ -155,9 +151,9 @@ MEMBERS ZONE:
 - NOT OK: "[Investment Bank] 認為..." ([Bank] believes...)
 
 ### Paywall Structure
-- PUBLIC: Sections 1-5 (Thesis through Key Numbers)
+- PUBLIC: Sections 1-5 (Bilingual Summary through Key Numbers)
 - Insert `<!--members-only-->` after section 5
-- MEMBERS ONLY: Sections 6-12
+- MEMBERS ONLY: Sections 6-11
 
 ## Output Format
 

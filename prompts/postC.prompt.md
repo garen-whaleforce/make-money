@@ -53,23 +53,28 @@ FREE ZONE (3 minutes read):
    - 15 min: Financial Engine + Competition Matrix + Decision Tree
    - Full: Moat + Sensitivity + Dashboard + Questions
 
-2. 公司概覽 (COMPANY PROFILE CARD)
+2. BILINGUAL EXECUTIVE SUMMARY (雙語摘要)
+   - 中文摘要 (100-150 字): 投資命題 + 估值結論
+   - English Summary (150-200 words): Thesis + valuation takeaway
+   - This appears BEFORE paywall for newsletter preview
+
+3. 公司概覽 (COMPANY PROFILE CARD)
    - Ticker | Price | Change | Market Cap | P/E TTM | Gross Margin
 
-3. 五個必記數字 (FIVE KEY NUMBERS)
+4. 五個必記數字 (FIVE KEY NUMBERS)
    - 5 numbers in 2x3 grid
    - Each: Value | Label | Trend indicator
 
-4. 多空對決 (BULL VS BEAR CARDS)
+5. 多空對決 (BULL VS BEAR CARDS)
    - Bull card: Core thesis + 3 supporting points
    - Bear card: Core concern + 3 risks
    - Resolution signals
 
-5. 投資命題 (INVESTMENT THESIS)
+6. 投資命題 (INVESTMENT THESIS)
    - One paragraph core thesis
    - "Why now?" timing
 
-6. 估值快覽 (VALUATION QUICK VIEW)
+7. 估值快覽 (VALUATION QUICK VIEW)
    - Bear | Base | Bull target prices with visual
    - Current price marker
    - Key metric cards: TTM P/E, Forward P/E, EV/S
@@ -80,13 +85,6 @@ PAYWALL: <!--members-only-->
 
 MEMBERS ZONE (15-30 minutes read):
 ────────────────────────────
-7. ENGLISH EXECUTIVE SUMMARY (300 words)
-   - Company overview
-   - Thesis statement
-   - Key debate
-   - Valuation summary
-   - Near-term catalyst
-
 8. TODAY'S PACKAGE
    - Cross-links to Flash and Earnings posts
 
@@ -222,9 +220,9 @@ MEMBERS ZONE (15-30 minutes read):
 - FORBIDDEN: "建議持有" (recommend holding)
 
 ### Paywall Structure
-- PUBLIC: Sections 1-6 (Reading Guide through Valuation Quick View)
-- Insert `<!--members-only-->` after section 6
-- MEMBERS ONLY: Sections 7-25
+- PUBLIC: Sections 1-7 (Reading Guide + Bilingual Summary through Valuation Quick View)
+- Insert `<!--members-only-->` after section 7
+- MEMBERS ONLY: Sections 8-25
 
 ## Output Format
 
@@ -239,14 +237,36 @@ Return a JSON object matching `schemas/postC.schema.json` with:
 
 Also return HTML with inline styles for Ghost CMS.
 
-## Quality Checklist
+## Quality Enforcement (CRITICAL)
 
-Before finalizing, verify:
+Before outputting, verify ALL of the following:
+
+1. **Number Traceability**: Every price, margin, ratio comes from `deep_dive_data`
+2. **No Investment Bank Citations**: Never cite Morgan Stanley, Goldman, JPMorgan, etc.
+3. **Field Completeness**:
+   - `ticker_profile` has YTD, 52W high/low, avg_volume
+   - `valuation.scenarios` has `base`, `bull`, and `bear` cases with explicit math
+   - `if_then_decision_tree` has all 5 columns for each row
+   - All sources have URLs
+4. **Topic Integrity**:
+   - Only discuss the primary ticker and direct competitors
+   - No content contamination from unrelated companies
+5. **No Self-Contradiction**:
+   - If providing valuation, do not claim "insufficient data"
+   - Consistent numbers throughout the article
+6. **Language Rules**: Use conditional language ("若...則..."), never "建議買/賣"
+7. **Paywall Structure**: Insert `<!--members-only-->` after section 7
+
+Set `meta.quality_gates_passed: true` only if ALL checks pass.
+
+### Quality Checklist (Final Verification)
+
 - [ ] All numbers trace to input data (or disclosed as calculated)
-- [ ] No null/N/A values displayed
-- [ ] Valuation shows explicit math
-- [ ] Decision tree has all 5 columns
+- [ ] No null/N/A values displayed in key fields
+- [ ] Valuation shows explicit math (e.g., "TTM EPS × P/E = target")
+- [ ] Decision tree has all 5 columns filled
 - [ ] No sell-side attribution
+- [ ] Topic stays focused on primary ticker
 - [ ] Positioning uses conditional language
 - [ ] English summary is 250-350 words
 - [ ] Paywall divider is placed correctly
