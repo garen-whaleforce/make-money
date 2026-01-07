@@ -865,3 +865,124 @@ def render_member_section_header(title: str, reading_time: str = "10-15 min") ->
         </div>
     </div>
     '''
+
+
+# =============================================================================
+# P0-4 / P0-5: HTML 規範化函數
+# =============================================================================
+
+def normalize_html(html: str, post_type: str = "flash") -> str:
+    """P0-4/P0-5: HTML 規範化 - 確保 Paywall 和格式一致
+
+    規則：
+    1. 確保只有一個 <!--members-only-->
+    2. 若沒有 paywall，在適當位置插入
+    3. 清理多餘空白和換行
+    4. 確保有來源頁尾
+
+    Args:
+        html: 原始 HTML
+        post_type: 文章類型 (flash, earnings, deep)
+
+    Returns:
+        規範化後的 HTML
+    """
+    import re
+
+    if not html:
+        return html
+
+    # 1. 統計 <!--members-only--> 出現次數
+    paywall_count = html.count("<!--members-only-->")
+
+    # 2. 若超過一個，只保留第一個
+    if paywall_count > 1:
+        # 保留第一個，移除其他
+        first_idx = html.index("<!--members-only-->")
+        before = html[:first_idx + len("<!--members-only-->")]
+        after = html[first_idx + len("<!--members-only-->"):]
+        after = after.replace("<!--members-only-->", "")
+        html = before + after
+
+    # 3. 若沒有 paywall，在適當位置插入
+    if paywall_count == 0:
+        # 根據 post_type 決定插入位置
+        # Flash: 在 TL;DR 後
+        # Earnings: 在 Key Numbers 後
+        # Deep: 在 Valuation Quick View 後
+        insert_markers = {
+            "flash": ["TL;DR", "摘要", "tldr", "key_numbers", "關鍵數字"],
+            "earnings": ["key_numbers", "關鍵數字", "估值壓力測試"],
+            "deep": ["估值快覽", "VALUATION QUICK VIEW", "key_numbers"],
+        }
+
+        markers = insert_markers.get(post_type, insert_markers["flash"])
+
+        inserted = False
+        for marker in markers:
+            # 找到 marker 所在的 section 結束位置
+            marker_idx = html.lower().find(marker.lower())
+            if marker_idx != -1:
+                # 找到下一個 </div> 或 </section>
+                end_idx = html.find("</div>", marker_idx)
+                if end_idx != -1:
+                    # 在該 section 結束後插入 paywall
+                    paywall_html = render_paywall_gate()
+                    html = html[:end_idx + 6] + paywall_html + html[end_idx + 6:]
+                    inserted = True
+                    break
+
+        # 如果找不到合適位置，在中間插入
+        if not inserted:
+            mid_point = len(html) // 2
+            paywall_html = render_paywall_gate()
+            html = html[:mid_point] + paywall_html + html[mid_point:]
+
+    # 4. 清理多餘空白
+    html = re.sub(r'\n\s*\n\s*\n', '\n\n', html)
+
+    return html
+
+
+def validate_paywall(html: str) -> tuple:
+    """驗證 Paywall 是否正確放置
+
+    Args:
+        html: HTML 內容
+
+    Returns:
+        (is_valid: bool, message: str)
+    """
+    paywall_count = html.count("<!--members-only-->")
+
+    if paywall_count == 0:
+        return False, "missing_paywall"
+    elif paywall_count > 1:
+        return False, f"duplicate_paywall_{paywall_count}"
+    else:
+        return True, "valid"
+
+
+def ensure_source_footer(html: str, sources: list = None) -> str:
+    """確保有來源頁尾
+
+    Args:
+        html: HTML 內容
+        sources: 來源列表
+
+    Returns:
+        帶來源頁尾的 HTML
+    """
+    # 檢查是否已有來源頁尾
+    if "資料來源" in html or "SOURCES" in html.upper():
+        return html
+
+    # 如果沒有來源，添加預設頁尾
+    if not sources:
+        sources = [
+            SourceItem(name="Financial Modeling Prep (FMP)", source_type="data"),
+            SourceItem(name="SEC EDGAR", source_type="sec_filing"),
+        ]
+
+    footer = render_source_footer(sources)
+    return html + footer

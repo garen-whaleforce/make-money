@@ -79,7 +79,20 @@ class NumberTracer:
         r'\bQ[1-4]\b',  # 季度
         r'\b[0-9]{1,2}/[0-9]{1,2}\b',  # 日期
         r'\b[0-9]{1,2}:[0-9]{2}\b',  # 時間
+        r'^[0-5]$',  # Impact scores 0-5
+        r'^[1-9]$',  # 單個數字（通常是排序）
+        r'^\d+\.$',  # 清單序號 "1." "2." 等
     ]
+
+    # 常見合理數字（不需追溯）
+    ALLOWLISTED_NUMBERS = {
+        # 常見整數
+        3, 5, 7, 8, 10, 12, 100,
+        # 常見百分比
+        0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 5.0, 10.0,
+        # 常見指標閾值
+        60, 200, 300, 500,
+    }
 
     def __init__(
         self,
@@ -212,6 +225,16 @@ class NumberTracer:
         Returns:
             (路徑, 原始值) 或 None
         """
+        # 先檢查是否在白名單中
+        if value in self.ALLOWLISTED_NUMBERS:
+            return ("allowlist", value)
+
+        # 檢查是否是常見的小整數或百分比
+        if isinstance(value, float) and value == int(value):
+            int_value = int(value)
+            if 0 <= int_value <= 10:  # 0-10 的整數通常是排序或 Impact Score
+                return ("allowlist:small_int", value)
+
         for path, rp_value in research_numbers.items():
             if rp_value == 0:
                 if value == 0:

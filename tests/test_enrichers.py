@@ -70,24 +70,46 @@ class TestFMPEnricher:
         enricher = FMPEnricher(api_key="test_key")
         assert enricher.api_key == "test_key"
 
-    @patch("httpx.Client.get")
-    def test_get_quote_success(self, mock_get):
-        mock_response = Mock()
-        mock_response.json.return_value = [{
-            "price": 150.0,
-            "changesPercentage": 2.5,
-            "volume": 1000000,
-            "marketCap": 1e12,
-        }]
-        mock_response.raise_for_status = Mock()
-        mock_get.return_value = mock_response
-
+    def test_get_quote_success(self):
+        # Mock the internal _request method
         enricher = FMPEnricher(api_key="test_key", cache_ttl=0)
+
+        # Store original method
+        original_cached_request = enricher._cached_request
+
+        def mock_cached_request(cache_key, endpoint, params=None):
+            if "quote" in endpoint:
+                return [{
+                    "price": 150.0,
+                    "changesPercentage": 2.5,
+                    "volume": 1000000,
+                    "marketCap": 1e12,
+                    "avgVolume": 500000,
+                }]
+            elif "key-metrics-ttm" in endpoint:
+                return [{
+                    "yearHigh": 160.0,
+                    "yearLow": 100.0,
+                }]
+            elif "stock-price-change" in endpoint:
+                return [{
+                    "ytd": 15.5,
+                }]
+            return None
+
+        enricher._cached_request = mock_cached_request
+
         price = enricher.get_quote("NVDA")
 
         assert price is not None
         assert price.last == 150.0
         assert price.change_pct_1d == 2.5
+        assert price.high_52w == 160.0
+        assert price.low_52w == 100.0
+        assert price.change_ytd == 15.5
+
+        # Restore original method
+        enricher._cached_request = original_cached_request
 
     @patch("httpx.Client.get")
     def test_get_quote_empty_response(self, mock_get):

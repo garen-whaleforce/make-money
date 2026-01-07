@@ -85,6 +85,13 @@ class CodexRunner:
         },
     }
 
+    # P0 優化：各文章類型的推薦模型（成本/品質平衡）
+    POST_TYPE_MODELS = {
+        "flash": "gemini-3-flash-preview",    # 制式內容，用 Flash 節省成本
+        "earnings": "gemini-3-flash-preview", # 結構化輸出，Flash 足夠
+        "deep": "gemini-3-pro-preview",       # 深度分析，需要更強模型
+    }
+
     def __init__(
         self,
         model: str = "claude-sonnet-4-20250514",
@@ -104,8 +111,14 @@ class CodexRunner:
             temperature: Temperature 參數
             post_type: 文章類型 (flash, earnings, deep) - 用於選擇對應的 prompt/schema
         """
-        # 優先順序: LITELLM_MODEL > CODEX_MODEL > 預設值
-        self.model = os.getenv("LITELLM_MODEL") or os.getenv("CODEX_MODEL") or model
+        # 模型選擇優先順序:
+        # 1. LITELLM_MODEL 環境變數（強制覆蓋）
+        # 2. CODEX_MODEL 環境變數
+        # 3. POST_TYPE_MODELS[post_type]（按文章類型優化）
+        # 4. 參數傳入的 model
+        env_model = os.getenv("LITELLM_MODEL") or os.getenv("CODEX_MODEL")
+        type_model = self.POST_TYPE_MODELS.get(post_type) if post_type else None
+        self.model = env_model or type_model or model
         self.max_tokens = max_tokens
         self.temperature = temperature
         self.post_type = post_type
@@ -256,23 +269,41 @@ class CodexRunner:
         return self.prompt_template.replace("{research_pack}", research_pack_json)
 
     def _get_system_prompt(self) -> str:
-        """取得系統提示"""
-        return """你是一位專業的美股研究分析師。
-請嚴格按照 JSON 格式輸出，包含以下欄位：
-- title: 選定標題
-- title_candidates: 候選標題列表 (5-12個)
-- slug: URL 友好的 slug
-- excerpt: 摘要 (300字內)
-- tldr: 摘要重點列表 (3-6條)，在 markdown 中顯示為「摘要」標題
-- sections: 各章節內容
-- markdown: 完整 Markdown 內容
-- tags: 標籤列表
-- tickers_mentioned: 提及的股票代碼
-- what_to_watch: 觀察清單 (3-8點)
-- sources: 來源列表
-- disclosures: 免責聲明 (必須包含 not_investment_advice: true)
+        """取得系統提示 - P0-1: 強制純 JSON 輸出"""
+        # v4.3: 根據 post_type 使用專用系統提示
+        base_prompt = """你是一位專業的美股研究分析師。
 
-輸出純 JSON，不要加 markdown code block。"""
+## 輸出格式要求 (CRITICAL)
+- 輸出純 JSON，**絕對不要**加 ```json ``` 或任何 markdown code block
+- 直接輸出 JSON object，第一個字元必須是 {，最後一個字元必須是 }
+- 不要在 JSON 前後加任何文字說明
+
+## 必填欄位
+- title: 選定標題（中文）
+- title_en: 英文標題
+- slug: URL 友好的 slug（依 post_type 結尾: -flash, -earnings, -deep）
+- excerpt: 摘要 (250-400字)
+- tags: 標籤列表
+- meta: 文章元資料
+- sources: 來源列表（必須有 URL）
+- markdown: 完整 Markdown 內容
+- html: Ghost CMS HTML 內容（含 inline styles）
+
+## 語言規則
+- 主體語言: 繁體中文 (zh-TW)
+- 數字格式: 美式 (1,234.56)
+- 必須包含英文摘要 (executive_summary.en)
+
+## Paywall 規則 (v4.3)
+- 必須在 html 中放置 <!--members-only--> 分隔 FREE/MEMBERS 區域
+- 只能放一次，不可重複
+
+## 禁止事項
+- 不可憑空杜撰數字
+- 不可引用投資銀行研究
+- 不可使用「建議買/賣」、「應該」等字眼
+"""
+        return base_prompt
 
     def _parse_json_response(self, response_text: str) -> Optional[dict]:
         """解析 LLM 回應的 JSON
@@ -800,12 +831,19 @@ class CodexRunner:
         self,
         post: PostOutput,
         output_dir: str = "out",
+        post_type: Optional[str] = None,
     ) -> dict[str, Path]:
         """儲存文章
+
+        P0-1: 依 post_type 分開存檔
+        - flash: post_flash.json, post_flash.html
+        - earnings: post_earnings.json, post_earnings.html
+        - deep: post_deep.json, post_deep.html
 
         Args:
             post: 文章輸出
             output_dir: 輸出目錄
+            post_type: 文章類型 (flash, earnings, deep)
 
         Returns:
             {type: path} 字典
@@ -813,27 +851,31 @@ class CodexRunner:
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
 
+        # P0-1: Use post_type for file naming
+        pt = post_type or self.post_type or "post"
+        file_prefix = f"post_{pt}" if pt != "post" else "post"
+
         paths = {}
 
         # JSON
-        json_path = output_dir / "post.json"
+        json_path = output_dir / f"{file_prefix}.json"
         with open(json_path, "w") as f:
             f.write(post.to_json())
         paths["json"] = json_path
 
         # Markdown
-        md_path = output_dir / "post.md"
+        md_path = output_dir / f"{file_prefix}.md"
         with open(md_path, "w") as f:
             f.write(post.markdown)
         paths["markdown"] = md_path
 
         # HTML
-        html_path = output_dir / "post.html"
+        html_path = output_dir / f"{file_prefix}.html"
         with open(html_path, "w") as f:
             f.write(post.html)
         paths["html"] = html_path
 
-        logger.info(f"Post saved to {output_dir}")
+        logger.info(f"Post ({pt}) saved to {output_dir}")
         return paths
 
 

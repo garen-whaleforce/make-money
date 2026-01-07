@@ -153,10 +153,57 @@ project/
 
 ## 品質控管
 
-- 來源數量 ≥ 5
-- 數字可追溯至 research_pack
-- 無禁用詞 (保證獲利、穩賺等)
-- 必含免責聲明
+系統包含 11 個 Quality Gates，採用 **Fail-Closed** 原則：任何一關失敗就不自動發布。
+
+### Quality Gates 清單
+
+| Gate | 名稱 | 說明 |
+|------|------|------|
+| 1 | **sources** | 資訊來源數量 ≥ 3，不同出版者 ≥ 2 |
+| 2 | **structure** | 結構完整性（key_stocks, tldr, what_to_watch） |
+| 3 | **compliance** | 合規檢查（禁止投行引用、禁用詞檢測） |
+| 4 | **number_traceability** | 數字可追溯至 research_pack |
+| 5 | **valuation** | 估值完整性（Bear/Base/Bull 三情境） |
+| 6 | **topic_integrity** | 主題一致性（防止串稿/內容污染） |
+| 7 | **data_completeness** | 資料完整性（防止 null 欄位輸出） |
+| 8 | **json_html_consistency** | JSON 與 HTML 內容一致性 |
+| 9 | **flash_consistency** | Flash 內部一致性（repricing 變數對齊） |
+| 10 | **source_urls** | 來源 URL 完整性（關鍵來源必須有 URL） |
+| 11 | **publishing** | 發佈參數檢查（newsletter、segment） |
+
+### 執行品質檢查
+
+```bash
+# 執行品質檢查
+python -m src.quality.quality_gate -p out/post.json -r out/research_pack.json
+
+# 查看報告
+cat out/quality_report.json
+```
+
+### 關鍵規則
+
+- **數字可追溯**: 所有價格、百分比、日期必須來自 research_pack
+- **禁止投行引用**: 不可引用 Morgan Stanley、Goldman Sachs 等投行報告
+- **條件式語言**: 使用「若...則...」而非「應該買/賣」
+- **來源 URL**: news、sec_filing 類型來源必須有可驗證 URL
+
+## HTML 元件系統
+
+系統提供 8 種標準化 HTML 元件（位於 `src/writers/html_components.py`）：
+
+| 元件 | 用途 |
+|------|------|
+| `CardBox` | 卡片式資訊框（關鍵數字） |
+| `DataTable` | 數據表格（同業比較） |
+| `QuoteBlock` | 引用區塊（管理層語錄） |
+| `AlertBanner` | 警示橫幅（風險警告） |
+| `TickerPill` | 股票標籤（代碼 + 漲跌） |
+| `ScenarioMatrix` | 情境矩陣（3x3 EPS × Guidance） |
+| `TimelineBlock` | 時間軸（觀察清單） |
+| `SourceFooter` | 來源頁尾（資料來源） |
+
+所有元件使用 inline CSS，確保 email 相容性。
 
 ## License
 

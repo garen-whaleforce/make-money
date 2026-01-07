@@ -128,9 +128,9 @@
           "what_to_watch": {"type": "array", "items": {"type": "string"}}
         }
       },
-      "minItems": 8,
-      "maxItems": 10,
-      "description": "v4.1: 8+ news items (1 deep + 3 short + 4+ mentions), with Layer 2 fillers if needed"
+      "minItems": 10,
+      "maxItems": 12,
+      "description": "P0-3: 10-12 news items (1 deep + 3 short + 6-8 mentions), with Layer 2 fillers if needed"
     },
     "news_diversity": {
       "type": "object",

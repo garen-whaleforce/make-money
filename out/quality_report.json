@@ -1,15 +1,15 @@
 {
-  "run_id": "run_20260106_065539_aae7764a",
-  "timestamp": "2026-01-06T07:00:32.176726",
-  "overall_passed": true,
+  "run_id": "run_20260106_233715_7b37ee04",
+  "timestamp": "2026-01-06T23:43:57.305316",
+  "overall_passed": false,
   "gates": [
     {
       "name": "sources",
-      "passed": true,
-      "message": "OK (20 sources, 9 publishers)",
+      "passed": false,
+      "message": "Insufficient sources: 4 < 5",
       "details": {
-        "source_count": 20,
-        "distinct_publishers": 9,
+        "source_count": 4,
+        "distinct_publishers": 3,
         "event_type": "earnings"
       }
     },
@@ -18,154 +18,938 @@
       "passed": true,
       "message": "OK",
       "details": {
-        "key_stocks_count": 2,
-        "tldr_count": 5,
-        "what_to_watch_count": 7,
-        "title_candidates_count": 9
+        "key_stocks_count": 3,
+        "tldr_count": 6,
+        "what_to_watch_count": 8,
+        "title_candidates_count": 10
       }
     },
     {
       "name": "compliance",
-      "passed": true,
-      "message": "OK",
+      "passed": false,
+      "message": "Source count check failed",
       "details": {
-        "passed": true,
-        "source_count": 20,
-        "source_check_passed": true,
+        "passed": false,
+        "source_count": 4,
+        "source_check_passed": false,
         "numbers_traceable": true,
         "compliance_passed": true,
         "disclosure_present": true,
-        "warnings": [],
-        "errors": []
+        "warnings": [
+          "Insufficient sources: 4 < 5",
+          "Found 11 prices that may not be traceable to research_pack"
+        ],
+        "errors": [
+          "Source count check failed"
+        ]
       }
     },
     {
       "name": "number_traceability",
-      "passed": true,
-      "message": "Traced 13/16 numbers",
+      "passed": false,
+      "message": "Traced 103/127 numbers",
       "details": {
-        "passed": true,
-        "total_numbers": 16,
-        "traced_count": 13,
-        "untraced_count": 1,
-        "critical_untraced": 1,
+        "passed": false,
+        "total_numbers": 127,
+        "traced_count": 103,
+        "untraced_count": 23,
+        "critical_untraced": 13,
         "numbers": [
           {
-            "value": "0x",
-            "location": "iqgFBVV95cUxQSkI4UVg5SndyNWNaTU9LSkxIVjhGOGU3cnpvd0xRS1VBS3hweVVwbDdJWHVrLVdVcEdtd0s0QkVUOUlza3NMZGl",
+            "value": "$31.25",
+            "location": "同期 150% 的漲幅。  截至 2026 年 1 月 6 日收盤： - **QBTS**：股價 $31.25，市值 108 億美元，年初至今上漲 11.09% - **RGTI**：股價 $25.3",
             "traced": true,
-            "source_path": "candidate_events[0].is_rumor",
+            "source_path": "candidate_events[3].relevance_score",
             "reason": null
           },
           {
-            "value": "0x",
-            "location": "rLVdVcEdtd0s0QkVUOUlza3NMZGlZVFJBSFV1cTdpejBkaGZib0xfOFdfX3dyVFRHa3kyQ0hfRE0zS1d5c1lWQm4yRXF5cWhRal9",
+            "value": "$25.38",
+            "location": "：股價 $31.25，市值 108 億美元，年初至今上漲 11.09% - **RGTI**：股價 $25.38，市值 84 億美元，年初至今上漲 7.54% - **NVDA**：股價 $187.2",
             "traced": true,
-            "source_path": "candidate_events[0].is_rumor",
+            "source_path": "candidate_events[0].impact_score",
             "reason": null
           },
           {
-            "value": "9X",
-            "location": "eF9DbVJKaUFPTGMtR0JQV1VhQjd4N3lyUlczdEI5Y0RINzFTRU9XdmtHZ2lfdmlRN3U5T1dWLUVqVXJGSWZ4cDlCRkYyZWFtQkRa",
+            "value": "$187.24",
+            "location": "**：股價 $25.38，市值 84 億美元，年初至今上漲 7.54% - **NVDA**：股價 $187.24，市值 4.56 兆美元，年初至今下跌 0.85%  這波漲勢主要由散戶投資人推動，反",
+            "traced": true,
+            "source_path": "companies.DUOL.price.last",
+            "reason": null
+          },
+          {
+            "value": "$25.38",
+            "location": "數法**，參考同業與科技成長股估值。  ### RGTI 估值  **基本數據**： - 當前股價：$25.38 - 年營收：750 萬美元 - 市值：84 億美元 - 當前 PS 倍數：**1,12",
+            "traced": true,
+            "source_path": "candidate_events[0].impact_score",
+            "reason": null
+          },
+          {
+            "value": "$0.01",
+            "location": "x - P50（基準）：0.4x - P75（牛市）：8.6x  **合理價值區間**： - 熊市：$0.01（PS 0.4x） - 基準：$0.01（PS 0.4x） - 牛市：$0.19（PS 8",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 0.01"
+          },
+          {
+            "value": "$0.01",
+            "location": "75（牛市）：8.6x  **合理價值區間**： - 熊市：$0.01（PS 0.4x） - 基準：$0.01（PS 0.4x） - 牛市：$0.19（PS 8.6x）  **結論**： - 當前估值",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 0.01"
+          },
+          {
+            "value": "$0.19",
+            "location": "間**： - 熊市：$0.01（PS 0.4x） - 基準：$0.01（PS 0.4x） - 牛市：$0.19（PS 8.6x）  **結論**： - 當前估值 **嚴重高估**，即使以牛市情境計算，",
+            "traced": true,
+            "source_path": "valuations.RGTI.fair_value.bull",
+            "reason": null
+          },
+          {
+            "value": "$0.19",
+            "location": "PS 8.6x）  **結論**： - 當前估值 **嚴重高估**，即使以牛市情境計算，合理價值僅 $0.19 - 若營收未能快速成長，股價面臨 **99% 下跌風險** - **資料品質**：完整，",
+            "traced": true,
+            "source_path": "valuations.RGTI.fair_value.bull",
+            "reason": null
+          },
+          {
+            "value": "$31.25",
+            "location": "CACI 為 IT 服務）  ---  ### QBTS 估值  **基本數據**： - 當前股價：$31.25 - 年營收：2,410 萬美元 - 市值：108 億美元 - 當前 PS 倍數：**4",
+            "traced": true,
+            "source_path": "candidate_events[3].relevance_score",
+            "reason": null
+          },
+          {
+            "value": "$0.20",
+            "location": "x - P50（基準）：2.8x - P75（牛市）：5.9x  **合理價值區間**： - 熊市：$0.20（PS 2.8x） - 基準：$0.20（PS 2.8x） - 牛市：$0.41（PS 5",
+            "traced": true,
+            "source_path": "companies.ADI.fundamentals.net_margin",
+            "reason": null
+          },
+          {
+            "value": "$0.20",
+            "location": "75（牛市）：5.9x  **合理價值區間**： - 熊市：$0.20（PS 2.8x） - 基準：$0.20（PS 2.8x） - 牛市：$0.41（PS 5.9x）  **結論**： - 當前估值",
+            "traced": true,
+            "source_path": "companies.ADI.fundamentals.net_margin",
+            "reason": null
+          },
+          {
+            "value": "$0.41",
+            "location": "間**： - 熊市：$0.20（PS 2.8x） - 基準：$0.20（PS 2.8x） - 牛市：$0.41（PS 5.9x）  **結論**： - 當前估值 **極度高估**，合理價值僅 $0.2",
+            "traced": true,
+            "source_path": "companies.RGTI.fundamentals.gross_margin",
+            "reason": null
+          },
+          {
+            "value": "$0.20",
+            "location": "牛市：$0.41（PS 5.9x）  **結論**： - 當前估值 **極度高估**，合理價值僅 $0.20-$0.41 - 股價隱含市場預期營收將在 3 年內成長 **100 倍以上** - **資",
+            "traced": true,
+            "source_path": "companies.ADI.fundamentals.net_margin",
+            "reason": null
+          },
+          {
+            "value": "$0.41",
+            "location": ".41（PS 5.9x）  **結論**： - 當前估值 **極度高估**，合理價值僅 $0.20-$0.41 - 股價隱含市場預期營收將在 3 年內成長 **100 倍以上** - **資料品質**",
+            "traced": true,
+            "source_path": "companies.RGTI.fundamentals.gross_margin",
+            "reason": null
+          },
+          {
+            "value": "$187.24",
+            "location": "為成熟軟體公司，成長性較低  ---  ### NVDA 估值  **基本數據**： - 當前股價：$187.24 - EBITDA（TTM）：1,191 億美元 - 市值：4.56 兆美元 - 當前",
+            "traced": true,
+            "source_path": "companies.DUOL.price.last",
+            "reason": null
+          },
+          {
+            "value": "$130.66",
+            "location": "- P50（基準）：26.7x - P75（牛市）：47.2x  **合理價值區間**： - 熊市：$130.66（EV/EBITDA 26.7x） - 基準：$130.66（EV/EBITDA 26",
+            "traced": true,
+            "source_path": "valuations.NVDA.fair_value.bear",
+            "reason": null
+          },
+          {
+            "value": "$130.66",
+            "location": "x  **合理價值區間**： - 熊市：$130.66（EV/EBITDA 26.7x） - 基準：$130.66（EV/EBITDA 26.7x） - 牛市：$230.70（EV/EBITDA 47",
+            "traced": true,
+            "source_path": "valuations.NVDA.fair_value.bear",
+            "reason": null
+          },
+          {
+            "value": "$230.70",
+            "location": "/EBITDA 26.7x） - 基準：$130.66（EV/EBITDA 26.7x） - 牛市：$230.70（EV/EBITDA 47.2x）  **結論**： - 當前估值 **略高於基準**",
+            "traced": true,
+            "source_path": "companies.AAPL.estimates.price_target_low",
+            "reason": null
+          },
+          {
+            "value": "$130",
+            "location": "**： - 當前估值 **略高於基準**，但仍在合理區間內 - 若 AI 需求放緩，股價可能回調至 $130 附近（-30%） - 若 AI 需求持續強勁，股價有機會挑戰 $230（+23%） - *",
+            "traced": true,
+            "source_path": "valuations.NVDA.fair_value.bear",
+            "reason": null
+          },
+          {
+            "value": "$230",
+            "location": "需求放緩，股價可能回調至 $130 附近（-30%） - 若 AI 需求持續強勁，股價有機會挑戰 $230（+23%） - **資料品質**：完整，同業樣本（AAPL、ADI、AVGO）具代表性  -",
+            "traced": true,
+            "source_path": "companies.AAPL.estimates.price_target_low",
+            "reason": null
+          },
+          {
+            "value": "$25.38",
+            "location": "----|------------|----------|----------| | RGTI | $25.38   | $0.01      | $0.01      | $0.19      | ",
+            "traced": true,
+            "source_path": "candidate_events[0].impact_score",
+            "reason": null
+          },
+          {
+            "value": "$0.01",
+            "location": "------|----------|----------| | RGTI | $25.38   | $0.01      | $0.01      | $0.19      | -99.96%  | ",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 0.01"
+          },
+          {
+            "value": "$0.01",
+            "location": "----|----------| | RGTI | $25.38   | $0.01      | $0.01      | $0.19      | -99.96%  | -99.23%  | | ",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 0.01"
+          },
+          {
+            "value": "$0.19",
+            "location": "--| | RGTI | $25.38   | $0.01      | $0.01      | $0.19      | -99.96%  | -99.23%  | | QBTS | $31.25",
+            "traced": true,
+            "source_path": "valuations.RGTI.fair_value.bull",
+            "reason": null
+          },
+          {
+            "value": "$31.25",
+            "location": "| $0.19      | -99.96%  | -99.23%  | | QBTS | $31.25   | $0.20      | $0.20      | $0.41      | -99.",
+            "traced": true,
+            "source_path": "candidate_events[3].relevance_score",
+            "reason": null
+          },
+          {
+            "value": "$0.20",
+            "location": "| -99.96%  | -99.23%  | | QBTS | $31.25   | $0.20      | $0.20      | $0.41      | -99.37%  | -98.7",
+            "traced": true,
+            "source_path": "companies.ADI.fundamentals.net_margin",
+            "reason": null
+          },
+          {
+            "value": "$0.20",
+            "location": "6%  | -99.23%  | | QBTS | $31.25   | $0.20      | $0.20      | $0.41      | -99.37%  | -98.70%  | | ",
+            "traced": true,
+            "source_path": "companies.ADI.fundamentals.net_margin",
+            "reason": null
+          },
+          {
+            "value": "$0.41",
+            "location": "| | QBTS | $31.25   | $0.20      | $0.20      | $0.41      | -99.37%  | -98.70%  | | NVDA | $187.24 ",
+            "traced": true,
+            "source_path": "companies.RGTI.fundamentals.gross_margin",
+            "reason": null
+          },
+          {
+            "value": "$187.24",
+            "location": "| $0.41      | -99.37%  | -98.70%  | | NVDA | $187.24  | $130.66    | $130.66    | $230.70    | -30.",
+            "traced": true,
+            "source_path": "companies.DUOL.price.last",
+            "reason": null
+          },
+          {
+            "value": "$130.66",
+            "location": "| -99.37%  | -98.70%  | | NVDA | $187.24  | $130.66    | $130.66    | $230.70    | -30.22%  | +23.21",
+            "traced": true,
+            "source_path": "valuations.NVDA.fair_value.bear",
+            "reason": null
+          },
+          {
+            "value": "$130.66",
+            "location": "7%  | -98.70%  | | NVDA | $187.24  | $130.66    | $130.66    | $230.70    | -30.22%  | +23.21%  |  *",
+            "traced": true,
+            "source_path": "valuations.NVDA.fair_value.bear",
+            "reason": null
+          },
+          {
+            "value": "$230.70",
+            "location": "| | NVDA | $187.24  | $130.66    | $130.66    | $230.70    | -30.22%  | +23.21%  |  **重要提醒**： - RGTI",
+            "traced": true,
+            "source_path": "companies.AAPL.estimates.price_target_low",
+            "reason": null
+          },
+          {
+            "value": "$8.4B",
+            "location": "---|---|---|---|---| | RGTI | Rigetti Computing | $8.4B | $7.5M | - | 40.6% | -976.1% | - | | QBTS |",
+            "traced": true,
+            "source_path": "companies.RGTI.price.market_cap",
+            "reason": null
+          },
+          {
+            "value": "$7.5M",
+            "location": "---|---|---| | RGTI | Rigetti Computing | $8.4B | $7.5M | - | 40.6% | -976.1% | - | | QBTS | D-Wave ",
+            "traced": true,
+            "source_path": "companies.RGTI.fundamentals.revenue_ttm",
+            "reason": null
+          },
+          {
+            "value": "$10.8B",
+            "location": "| 40.6% | -976.1% | - | | QBTS | D-Wave Quantum | $10.8B | $24.1M | - | 82.8% | -355.2% | - | | IONQ",
+            "traced": true,
+            "source_path": "companies.QBTS.price.market_cap",
+            "reason": null
+          },
+          {
+            "value": "$24.1M",
+            "location": "-976.1% | - | | QBTS | D-Wave Quantum | $10.8B | $24.1M | - | 82.8% | -355.2% | - | | IONQ | IonQ | ",
+            "traced": true,
+            "source_path": "companies.QBTS.fundamentals.revenue_ttm",
+            "reason": null
+          },
+          {
+            "value": "$18.0B",
+            "location": "24.1M | - | 82.8% | -355.2% | - | | IONQ | IonQ | $18.0B | $79.8M | - | 22.8% | -584.9% | - | | BILI",
+            "traced": true,
+            "source_path": "companies.IONQ.price.market_cap",
+            "reason": null
+          },
+          {
+            "value": "$79.8M",
+            "location": "| 82.8% | -355.2% | - | | IONQ | IonQ | $18.0B | $79.8M | - | 22.8% | -584.9% | - | | BILI | Bilibil",
+            "traced": true,
+            "source_path": "companies.IONQ.fundamentals.revenue_ttm",
+            "reason": null
+          },
+          {
+            "value": "$11.4B",
+            "location": "| 22.8% | -584.9% | - | | BILI | Bilibili (參考) | $11.4B | $29.8B | - | 36.4% | 2.5% | - | | CACI | C",
+            "traced": true,
+            "source_path": "companies.BILI.price.market_cap",
+            "reason": null
+          },
+          {
+            "value": "$29.8B",
+            "location": "| -584.9% | - | | BILI | Bilibili (參考) | $11.4B | $29.8B | - | 36.4% | 2.5% | - | | CACI | CACI Intl",
+            "traced": true,
+            "source_path": "companies.BILI.fundamentals.revenue_ttm",
+            "reason": null
+          },
+          {
+            "value": "$12.4B",
+            "location": "- | 36.4% | 2.5% | - | | CACI | CACI Intl (參考) | $12.4B | $8.9B | - | 9.0% | 9.0% | - | | DUOL | Duo",
+            "traced": true,
+            "source_path": "companies.CACI.price.market_cap",
+            "reason": null
+          },
+          {
+            "value": "$8.9B",
+            "location": "% | 2.5% | - | | CACI | CACI Intl (參考) | $12.4B | $8.9B | - | 9.0% | 9.0% | - | | DUOL | Duolingo (參",
+            "traced": true,
+            "source_path": "companies.CACI.fundamentals.revenue_ttm",
+            "reason": null
+          },
+          {
+            "value": "$8.3B",
+            "location": "| - | 9.0% | 9.0% | - | | DUOL | Duolingo (參考) | $8.3B | $964.3M | - | 72.0% | 11.0% | - |  ### Take",
+            "traced": true,
+            "source_path": "companies.RGTI.price.market_cap",
+            "reason": null
+          },
+          {
+            "value": "$964.3M",
+            "location": ".0% | 9.0% | - | | DUOL | Duolingo (參考) | $8.3B | $964.3M | - | 72.0% | 11.0% | - |  ### Takeaways  ",
+            "traced": true,
+            "source_path": "companies.CACI.fundamentals.ebitda_ttm",
+            "reason": null
+          },
+          {
+            "value": "590x",
+            "location": "150% - 兩家公司合計年營收僅 3,200 萬美元，市值卻達 190 億美元，PS 倍數高達 590x - 量子運算仍處於早期研發階段，商業化應用至少需 3-5 年 - 高估值反映市場對未來技術突",
+            "traced": true,
+            "source_path": "companies.CACI.estimates.price_target_low",
+            "reason": null
+          },
+          {
+            "value": "590x",
+            "location": "1,652% 和 -2,080% 3. **估值極高**：合計市值 190 億美元，PS 倍數高達 590x，遠超同業  ### 短期與長期影響  **短期（2026）**： - 股價波動將持續加劇，",
+            "traced": true,
+            "source_path": "companies.CACI.estimates.price_target_low",
+            "reason": null
+          },
+          {
+            "value": "450x",
+            "location": "ockheed Martin、Google），但營收規模小 - 市值 108 億美元，PS 倍數約 450x  **財務傳導**： - 年營收 2,410 萬美元，毛利率 82.8%，營運虧損率 -3",
+            "traced": true,
+            "source_path": "companies.DUOL.estimates.price_target_high",
+            "reason": null
+          },
+          {
+            "value": "40x",
+            "location": "淨利潤率 53%，現金流強勁 - 基本面遠優於量子運算股，估值相對合理（Forward P/E 約 40x）  **催化劑**： - AI 需求持續強勁，資料中心營收成長 - 新一代 Blackwel",
+            "traced": true,
+            "source_path": "candidate_events[0].relevance_score",
+            "reason": null
+          },
+          {
+            "value": "120x",
+            "location": "價：$25.38 - 年營收：750 萬美元 - 市值：84 億美元 - 當前 PS 倍數：**1,120x**  **同業比較**（科技硬體股）： - P25（熊市）：0.4x - P50（基準）：",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 120.0"
+          },
+          {
+            "value": "0.4x",
+            "location": "- 當前 PS 倍數：**1,120x**  **同業比較**（科技硬體股）： - P25（熊市）：0.4x - P50（基準）：0.4x - P75（牛市）：8.6x  **合理價值區間**： - ",
+            "traced": true,
+            "source_path": "companies.RGTI.fundamentals.gross_margin",
+            "reason": null
+          },
+          {
+            "value": "0.4x",
+            "location": "120x**  **同業比較**（科技硬體股）： - P25（熊市）：0.4x - P50（基準）：0.4x - P75（牛市）：8.6x  **合理價值區間**： - 熊市：$0.01（PS 0.4",
+            "traced": true,
+            "source_path": "companies.RGTI.fundamentals.gross_margin",
+            "reason": null
+          },
+          {
+            "value": "8.6x",
+            "location": "*（科技硬體股）： - P25（熊市）：0.4x - P50（基準）：0.4x - P75（牛市）：8.6x  **合理價值區間**： - 熊市：$0.01（PS 0.4x） - 基準：$0.01（P",
+            "traced": true,
+            "source_path": "companies.CACI.fundamentals.gross_margin",
+            "reason": null
+          },
+          {
+            "value": "0.4x",
+            "location": "準）：0.4x - P75（牛市）：8.6x  **合理價值區間**： - 熊市：$0.01（PS 0.4x） - 基準：$0.01（PS 0.4x） - 牛市：$0.19（PS 8.6x）  **結",
+            "traced": true,
+            "source_path": "companies.RGTI.fundamentals.gross_margin",
+            "reason": null
+          },
+          {
+            "value": "0.4x",
+            "location": "6x  **合理價值區間**： - 熊市：$0.01（PS 0.4x） - 基準：$0.01（PS 0.4x） - 牛市：$0.19（PS 8.6x）  **結論**： - 當前估值 **嚴重高估**",
+            "traced": true,
+            "source_path": "companies.RGTI.fundamentals.gross_margin",
+            "reason": null
+          },
+          {
+            "value": "8.6x",
+            "location": "：$0.01（PS 0.4x） - 基準：$0.01（PS 0.4x） - 牛市：$0.19（PS 8.6x）  **結論**： - 當前估值 **嚴重高估**，即使以牛市情境計算，合理價值僅 $0.",
+            "traced": true,
+            "source_path": "companies.CACI.fundamentals.gross_margin",
+            "reason": null
+          },
+          {
+            "value": "448x",
+            "location": "：$31.25 - 年營收：2,410 萬美元 - 市值：108 億美元 - 當前 PS 倍數：**448x**  **同業比較**（軟體應用股）： - P25（熊市）：2.8x - P50（基準）：",
+            "traced": true,
+            "source_path": "companies.DUOL.estimates.price_target_high",
+            "reason": null
+          },
+          {
+            "value": "2.8x",
+            "location": "元 - 當前 PS 倍數：**448x**  **同業比較**（軟體應用股）： - P25（熊市）：2.8x - P50（基準）：2.8x - P75（牛市）：5.9x  **合理價值區間**： - ",
+            "traced": true,
+            "source_path": "companies.DUOL.fundamentals.current_ratio",
+            "reason": null
+          },
+          {
+            "value": "2.8x",
+            "location": "448x**  **同業比較**（軟體應用股）： - P25（熊市）：2.8x - P50（基準）：2.8x - P75（牛市）：5.9x  **合理價值區間**： - 熊市：$0.20（PS 2.8",
+            "traced": true,
+            "source_path": "companies.DUOL.fundamentals.current_ratio",
+            "reason": null
+          },
+          {
+            "value": "5.9x",
+            "location": "*（軟體應用股）： - P25（熊市）：2.8x - P50（基準）：2.8x - P75（牛市）：5.9x  **合理價值區間**： - 熊市：$0.20（PS 2.8x） - 基準：$0.20（P",
+            "traced": true,
+            "source_path": "companies.RGTI.estimates.analyst_count_last_quarter",
+            "reason": null
+          },
+          {
+            "value": "2.8x",
+            "location": "準）：2.8x - P75（牛市）：5.9x  **合理價值區間**： - 熊市：$0.20（PS 2.8x） - 基準：$0.20（PS 2.8x） - 牛市：$0.41（PS 5.9x）  **結",
+            "traced": true,
+            "source_path": "companies.DUOL.fundamentals.current_ratio",
+            "reason": null
+          },
+          {
+            "value": "2.8x",
+            "location": "9x  **合理價值區間**： - 熊市：$0.20（PS 2.8x） - 基準：$0.20（PS 2.8x） - 牛市：$0.41（PS 5.9x）  **結論**： - 當前估值 **極度高估**",
+            "traced": true,
+            "source_path": "companies.DUOL.fundamentals.current_ratio",
+            "reason": null
+          },
+          {
+            "value": "5.9x",
+            "location": "：$0.20（PS 2.8x） - 基準：$0.20（PS 2.8x） - 牛市：$0.41（PS 5.9x）  **結論**： - 當前估值 **極度高估**，合理價值僅 $0.20-$0.41 -",
+            "traced": true,
+            "source_path": "companies.RGTI.estimates.analyst_count_last_quarter",
+            "reason": null
+          },
+          {
+            "value": "38.3x",
+            "location": "（TTM）：1,191 億美元 - 市值：4.56 兆美元 - 當前 EV/EBITDA 倍數：**38.3x**  **同業比較**（半導體股）： - P25（熊市）：26.7x - P50（基準）",
+            "traced": true,
+            "source_path": "candidate_events[0].relevance_score",
+            "reason": null
+          },
+          {
+            "value": "26.7x",
+            "location": "EV/EBITDA 倍數：**38.3x**  **同業比較**（半導體股）： - P25（熊市）：26.7x - P50（基準）：26.7x - P75（牛市）：47.2x  **合理價值區間**：",
+            "traced": true,
+            "source_path": "companies.BILI.price.last",
+            "reason": null
+          },
+          {
+            "value": "26.7x",
+            "location": "8.3x**  **同業比較**（半導體股）： - P25（熊市）：26.7x - P50（基準）：26.7x - P75（牛市）：47.2x  **合理價值區間**： - 熊市：$130.66（EV",
+            "traced": true,
+            "source_path": "companies.BILI.price.last",
+            "reason": null
+          },
+          {
+            "value": "47.2x",
+            "location": "（半導體股）： - P25（熊市）：26.7x - P50（基準）：26.7x - P75（牛市）：47.2x  **合理價值區間**： - 熊市：$130.66（EV/EBITDA 26.7x） -",
+            "traced": true,
+            "source_path": "candidate_events[3].total_score",
+            "reason": null
+          },
+          {
+            "value": "26.7x",
+            "location": "P75（牛市）：47.2x  **合理價值區間**： - 熊市：$130.66（EV/EBITDA 26.7x） - 基準：$130.66（EV/EBITDA 26.7x） - 牛市：$230.70（",
+            "traced": true,
+            "source_path": "companies.BILI.price.last",
+            "reason": null
+          },
+          {
+            "value": "26.7x",
+            "location": "市：$130.66（EV/EBITDA 26.7x） - 基準：$130.66（EV/EBITDA 26.7x） - 牛市：$230.70（EV/EBITDA 47.2x）  **結論**： - 當前",
+            "traced": true,
+            "source_path": "companies.BILI.price.last",
+            "reason": null
+          },
+          {
+            "value": "47.2x",
+            "location": "準：$130.66（EV/EBITDA 26.7x） - 牛市：$230.70（EV/EBITDA 47.2x）  **結論**： - 當前估值 **略高於基準**，但仍在合理區間內 - 若 AI 需",
+            "traced": true,
+            "source_path": "candidate_events[3].total_score",
+            "reason": null
+          },
+          {
+            "value": "337x",
+            "location": "RGTI、QBTS、IONQ）合計市值 371 億美元，但年營收僅 1.1 億美元，PS 倍數高達 337x，遠超任何成熟科技公司。  2. **毛利率差異大**：QBTS 毛利率 82.8% 反映其",
+            "traced": true,
+            "source_path": "companies.NVDA.estimates.price_target_high",
+            "reason": null
+          },
+          {
+            "value": "1x",
+            "location": "om/rss/articles/CBMinwFBVV95cUxQa1RGTnR6R1p4ajlCMy1xcnctSGU1X1A1UW1CREgzTGFpTHVVU3JsY1F1S1dCVXFjX2dn",
+            "traced": true,
+            "source_path": "allowlist",
+            "reason": null
+          },
+          {
+            "value": "1X",
+            "location": "ticles/CBMinwFBVV95cUxQa1RGTnR6R1p4ajlCMy1xcnctSGU1X1A1UW1CREgzTGFpTHVVU3JsY1F1S1dCVXFjX2dnVVY2dGt3T",
             "traced": false,
             "source_path": null,
             "reason": "Cannot parse number"
           },
           {
-            "value": "19X",
-            "location": "lNExPTU5BTEVYeDNWYURZNEpvaFduUXZEV1I5cjk5UEtiUzVUQ19Xci1IVnBlQWFzTGNSaUpHMzl0QzFtUHkya0tYWnFvY2s3UUl",
+            "value": "700%",
+            "location": "VDA：2026 能否再創奇蹟？  ## 摘要  - QBTS、RGTI 2025 年股價漲幅超過 700%，遠超 NVIDIA 的 150% - 兩家公司合計年營收僅 3,200 萬美元，市值卻達 ",
             "traced": false,
             "source_path": null,
-            "reason": "Cannot parse number"
+            "reason": "No match found for 700.0"
           },
           {
-            "value": "8.81621%",
-            "location": "與 NVDA，AI 那一檔為資料不足。 - QBTS 走勢強但財務基礎薄：股價 30.61、單日 +8.81621%、成交量 42468008；但 Revenue TTM 8827000、FCF TT",
-            "traced": true,
-            "source_path": "companies.QBTS.price.change_pct_1d",
-            "reason": null
-          },
-          {
-            "value": "99.77%",
-            "location": "tiple_ps 的 fair value 僅 0.07/0.07/0.16，對應 upside -99.77%（熊/基準）與 -99.48%（牛），反映「營收基數過小」下倍數法會產生高度不穩定/失真",
-            "traced": true,
-            "source_path": "companies.IONQ.estimates.price_target_high",
-            "reason": null
-          },
-          {
-            "value": "99.48%",
-            "location": "value 僅 0.07/0.07/0.16，對應 upside -99.77%（熊/基準）與 -99.48%（牛），反映「營收基數過小」下倍數法會產生高度不穩定/失真風險。 - 投資判斷應從「可驗證",
-            "traced": true,
-            "source_path": "companies.IONQ.estimates.price_target_high",
-            "reason": null
-          },
-          {
-            "value": "8.81621%",
-            "location": "）與 NVDA，且 QBTS 在 2026-01-06 的價格資訊顯示：股價 30.61、單日上漲 8.81621%、成交量 42468008、market cap 10613068590；NVDA ",
-            "traced": true,
-            "source_path": "companies.QBTS.price.change_pct_1d",
-            "reason": null
-          },
-          {
-            "value": "0.38655%",
-            "location": "68008、market cap 10613068590；NVDA 則為股價 188.12、單日 -0.38655%、成交量 178569651、market cap 4580157423474。惟 ",
-            "traced": true,
-            "source_path": "companies.AVGO.fundamentals.operating_margin",
-            "reason": null
-          },
-          {
-            "value": "8.81621%",
-            "location": "味短期股價更依賴「溢價延續」而非「均值回歸」。  對 QBTS 而言，題材推動可能快速反映在價格（+8.81621%）與成交量，但財務傳導更慢：Revenue TTM 僅 8827000，EBITDA",
-            "traced": true,
-            "source_path": "companies.QBTS.price.change_pct_1d",
-            "reason": null
-          },
-          {
-            "value": "48.731555331195594%",
-            "location": "95484 / 164.92332953831252 - 上下行（bear/base/bull）：-48.731555331195594% / -48.731555331195594% / -12.3",
-            "traced": true,
-            "source_path": "companies.IONQ.price.last",
-            "reason": null
-          },
-          {
-            "value": "48.731555331195594%",
-            "location": "252 - 上下行（bear/base/bull）：-48.731555331195594% / -48.731555331195594% / -12.330783787841526%  ### QB",
-            "traced": true,
-            "source_path": "companies.IONQ.price.last",
-            "reason": null
-          },
-          {
-            "value": "12.330783787841526%",
-            "location": "l）：-48.731555331195594% / -48.731555331195594% / -12.330783787841526%  ### QBTS - 方法：peer_multiple_p",
+            "value": "150%",
+            "location": "## 摘要  - QBTS、RGTI 2025 年股價漲幅超過 700%，遠超 NVIDIA 的 150% - 兩家公司合計年營收僅 3,200 萬美元，市值卻達 190 億美元，PS 倍數高達 59",
             "traced": false,
             "source_path": null,
-            "reason": "No match found for 12.330783787841526"
+            "reason": "No match found for 150.0"
           },
           {
-            "value": "99.76724337388497%",
-            "location": "1115 / 0.15984889599821173 - 上下行（bear/base/bull）：-99.76724337388497% / -99.76724337388497% / -99.477",
+            "value": "700%",
+            "location": "ve Quantum（QBTS）與 Rigetti Computing（RGTI）股價分別上漲超過 700%，遠超 NVIDIA 同期 150% 的漲幅。  截至 2026 年 1 月 6 日收盤： ",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 700.0"
+          },
+          {
+            "value": "150%",
+            "location": "Rigetti Computing（RGTI）股價分別上漲超過 700%，遠超 NVIDIA 同期 150% 的漲幅。  截至 2026 年 1 月 6 日收盤： - **QBTS**：股價 $31.",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 150.0"
+          },
+          {
+            "value": "11.09%",
+            "location": "1 月 6 日收盤： - **QBTS**：股價 $31.25，市值 108 億美元，年初至今上漲 11.09% - **RGTI**：股價 $25.38，市值 84 億美元，年初至今上漲 7.54%",
+            "traced": true,
+            "source_path": "companies.DUOL.fundamentals.operating_margin",
+            "reason": null
+          },
+          {
+            "value": "7.54%",
+            "location": "至今上漲 11.09% - **RGTI**：股價 $25.38，市值 84 億美元，年初至今上漲 7.54% - **NVDA**：股價 $187.24，市值 4.56 兆美元，年初至今下跌 0.8",
+            "traced": true,
+            "source_path": "companies.RGTI.price.change_ytd",
+            "reason": null
+          },
+          {
+            "value": "0.85%",
+            "location": "上漲 7.54% - **NVDA**：股價 $187.24，市值 4.56 兆美元，年初至今下跌 0.85%  這波漲勢主要由散戶投資人推動，反映市場對量子運算技術突破的樂觀預期。然而，兩家公司基本",
+            "traced": true,
+            "source_path": "companies.QBTS.fundamentals.gross_margin",
+            "reason": null
+          },
+          {
+            "value": "652%",
+            "location": "410 萬美元，RGTI 僅 750 萬美元 2. **虧損擴大**：兩家公司淨利潤率分別為 -1,652% 和 -2,080% 3. **估值極高**：合計市值 190 億美元，PS 倍數高達 59",
+            "traced": true,
+            "source_path": "companies.CACI.estimates.price_target_consensus",
+            "reason": null
+          },
+          {
+            "value": "080%",
+            "location": "TI 僅 750 萬美元 2. **虧損擴大**：兩家公司淨利潤率分別為 -1,652% 和 -2,080% 3. **估值極高**：合計市值 190 億美元，PS 倍數高達 590x，遠超同業  #",
+            "traced": true,
+            "source_path": "companies.QBTS.fundamentals.gross_margin",
+            "reason": null
+          },
+          {
+            "value": "40.6%",
+            "location": "84 億美元，在量子運算純玩股中排名第二  **財務傳導**： - 年營收 750 萬美元，毛利率 40.6%，營運虧損率 -976% - 現金流為負，依賴股權融資維持營運 - 若技術突破，營收可能呈",
+            "traced": true,
+            "source_path": "candidate_events[0].relevance_score",
+            "reason": null
+          },
+          {
+            "value": "976%",
+            "location": "玩股中排名第二  **財務傳導**： - 年營收 750 萬美元，毛利率 40.6%，營運虧損率 -976% - 現金流為負，依賴股權融資維持營運 - 若技術突破，營收可能呈指數增長；若失敗，股價將崩",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 976.0"
+          },
+          {
+            "value": "82.8%",
+            "location": "08 億美元，PS 倍數約 450x  **財務傳導**： - 年營收 2,410 萬美元，毛利率 82.8%，營運虧損率 -355% - 現金充裕（流動比率 54.7），短期無破產風險 - 毛利率高",
+            "traced": true,
+            "source_path": "companies.QBTS.fundamentals.gross_margin",
+            "reason": null
+          },
+          {
+            "value": "355%",
+            "location": "450x  **財務傳導**： - 年營收 2,410 萬美元，毛利率 82.8%，營運虧損率 -355% - 現金充裕（流動比率 54.7），短期無破產風險 - 毛利率高反映軟體與服務占比大，但規模",
+            "traced": true,
+            "source_path": "companies.NVDA.estimates.price_target_high",
+            "reason": null
+          },
+          {
+            "value": "150%",
+            "location": "量子運算興起可能分散部分 AI 投資熱度，但 NVIDIA 也在布局量子模擬 - 2025 年漲幅 150%，但 2026 年初回調，反映獲利了結壓力  **財務傳導**： - 年營收 1,871 億",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 150.0"
+          },
+          {
+            "value": "53%",
+            "location": "026 年初回調，反映獲利了結壓力  **財務傳導**： - 年營收 1,871 億美元，淨利潤率 53%，現金流強勁 - 基本面遠優於量子運算股，估值相對合理（Forward P/E 約 40x） ",
+            "traced": true,
+            "source_path": "candidate_events[1].total_score",
+            "reason": null
+          },
+          {
+            "value": "22.8%",
+            "location": "已與美國政府、學術機構建立合作關係  **財務傳導**： - 年營收 7,980 萬美元，毛利率 22.8%，營運虧損率 -585% - 營收規模較 QBTS、RGTI 大，但仍處於虧損階段  **催",
+            "traced": true,
+            "source_path": "companies.DAY.price.change_pct_1d",
+            "reason": null
+          },
+          {
+            "value": "585%",
+            "location": "立合作關係  **財務傳導**： - 年營收 7,980 萬美元，毛利率 22.8%，營運虧損率 -585% - 營收規模較 QBTS、RGTI 大，但仍處於虧損階段  **催化劑**： - 量子位元",
+            "traced": true,
+            "source_path": "companies.CACI.price.last",
+            "reason": null
+          },
+          {
+            "value": "99%",
+            "location": "**嚴重高估**，即使以牛市情境計算，合理價值僅 $0.19 - 若營收未能快速成長，股價面臨 **99% 下跌風險** - **資料品質**：完整，但同業樣本差異大（BILI 為遊戲公司，CACI ",
             "traced": true,
             "source_path": "companies.IONQ.estimates.price_target_high",
             "reason": null
           },
           {
-            "value": "99.76724337388497%",
-            "location": "1173 - 上下行（bear/base/bull）：-99.76724337388497% / -99.76724337388497% / -99.47778864423975% - 重要提醒：在低",
+            "value": "30%",
+            "location": "值 **略高於基準**，但仍在合理區間內 - 若 AI 需求放緩，股價可能回調至 $130 附近（-30%） - 若 AI 需求持續強勁，股價有機會挑戰 $230（+23%） - **資料品質**：完",
+            "traced": true,
+            "source_path": "candidate_events[3].relevance_score",
+            "reason": null
+          },
+          {
+            "value": "23%",
+            "location": "股價可能回調至 $130 附近（-30%） - 若 AI 需求持續強勁，股價有機會挑戰 $230（+23%） - **資料品質**：完整，同業樣本（AAPL、ADI、AVGO）具代表性  ---  #",
+            "traced": true,
+            "source_path": "companies.DAY.price.change_pct_1d",
+            "reason": null
+          },
+          {
+            "value": "99.96%",
+            "location": "25.38   | $0.01      | $0.01      | $0.19      | -99.96%  | -99.23%  | | QBTS | $31.25   | $0.20    ",
             "traced": true,
             "source_path": "companies.IONQ.estimates.price_target_high",
             "reason": null
           },
           {
-            "value": "99.47778864423975%",
-            "location": "ull）：-99.76724337388497% / -99.76724337388497% / -99.47778864423975% - 重要提醒：在低營收基數下，倍數法輸出可能高度失真；此處更適",
+            "value": "99.23%",
+            "location": "0.01      | $0.01      | $0.19      | -99.96%  | -99.23%  | | QBTS | $31.25   | $0.20      | $0.20  ",
             "traced": true,
             "source_path": "companies.IONQ.estimates.price_target_high",
             "reason": null
+          },
+          {
+            "value": "99.37%",
+            "location": "31.25   | $0.20      | $0.20      | $0.41      | -99.37%  | -98.70%  | | NVDA | $187.24  | $130.66  ",
+            "traced": true,
+            "source_path": "companies.IONQ.estimates.price_target_high",
+            "reason": null
+          },
+          {
+            "value": "98.70%",
+            "location": "0.20      | $0.20      | $0.41      | -99.37%  | -98.70%  | | NVDA | $187.24  | $130.66    | $130.66",
+            "traced": true,
+            "source_path": "companies.IONQ.estimates.price_target_high",
+            "reason": null
+          },
+          {
+            "value": "30.22%",
+            "location": "187.24  | $130.66    | $130.66    | $230.70    | -30.22%  | +23.21%  |  **重要提醒**： - RGTI、QBTS 的估值分析基",
+            "traced": true,
+            "source_path": "candidate_events[3].relevance_score",
+            "reason": null
+          },
+          {
+            "value": "23.21%",
+            "location": "130.66    | $130.66    | $230.70    | -30.22%  | +23.21%  |  **重要提醒**： - RGTI、QBTS 的估值分析基於 **當前營收**，",
+            "traced": true,
+            "source_path": "companies.DAY.price.change_pct_1d",
+            "reason": null
+          },
+          {
+            "value": "40.6%",
+            "location": "| RGTI | Rigetti Computing | $8.4B | $7.5M | - | 40.6% | -976.1% | - | | QBTS | D-Wave Quantum | $10",
+            "traced": true,
+            "source_path": "candidate_events[0].relevance_score",
+            "reason": null
+          },
+          {
+            "value": "976.1%",
+            "location": "Rigetti Computing | $8.4B | $7.5M | - | 40.6% | -976.1% | - | | QBTS | D-Wave Quantum | $10.8B | $24",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 976.1"
+          },
+          {
+            "value": "82.8%",
+            "location": "| | QBTS | D-Wave Quantum | $10.8B | $24.1M | - | 82.8% | -355.2% | - | | IONQ | IonQ | $18.0B | $79",
+            "traced": true,
+            "source_path": "companies.QBTS.fundamentals.gross_margin",
+            "reason": null
+          },
+          {
+            "value": "355.2%",
+            "location": "| D-Wave Quantum | $10.8B | $24.1M | - | 82.8% | -355.2% | - | | IONQ | IonQ | $18.0B | $79.8M | - |",
+            "traced": true,
+            "source_path": "companies.NVDA.estimates.price_target_high",
+            "reason": null
+          },
+          {
+            "value": "22.8%",
+            "location": "55.2% | - | | IONQ | IonQ | $18.0B | $79.8M | - | 22.8% | -584.9% | - | | BILI | Bilibili (參考) | $11",
+            "traced": true,
+            "source_path": "companies.DAY.price.change_pct_1d",
+            "reason": null
+          },
+          {
+            "value": "584.9%",
+            "location": "| | IONQ | IonQ | $18.0B | $79.8M | - | 22.8% | -584.9% | - | | BILI | Bilibili (參考) | $11.4B | $29.",
+            "traced": true,
+            "source_path": "companies.CACI.price.last",
+            "reason": null
+          },
+          {
+            "value": "36.4%",
+            "location": "| | BILI | Bilibili (參考) | $11.4B | $29.8B | - | 36.4% | 2.5% | - | | CACI | CACI Intl (參考) | $12.4B",
+            "traced": true,
+            "source_path": "candidate_events[15].total_score",
+            "reason": null
+          },
+          {
+            "value": "2.5%",
+            "location": "I | Bilibili (參考) | $11.4B | $29.8B | - | 36.4% | 2.5% | - | | CACI | CACI Intl (參考) | $12.4B | $8.9",
+            "traced": true,
+            "source_path": "allowlist",
+            "reason": null
+          },
+          {
+            "value": "9.0%",
+            "location": "| | CACI | CACI Intl (參考) | $12.4B | $8.9B | - | 9.0% | 9.0% | - | | DUOL | Duolingo (參考) | $8.3B | ",
+            "traced": true,
+            "source_path": "allowlist:small_int",
+            "reason": null
+          },
+          {
+            "value": "9.0%",
+            "location": "CI | CACI Intl (參考) | $12.4B | $8.9B | - | 9.0% | 9.0% | - | | DUOL | Duolingo (參考) | $8.3B | $964.3",
+            "traced": true,
+            "source_path": "allowlist:small_int",
+            "reason": null
+          },
+          {
+            "value": "72.0%",
+            "location": "| | DUOL | Duolingo (參考) | $8.3B | $964.3M | - | 72.0% | 11.0% | - |  ### Takeaways  1. **市值與營收嚴重倒掛*",
+            "traced": true,
+            "source_path": "companies.DUOL.fundamentals.gross_margin",
+            "reason": null
+          },
+          {
+            "value": "11.0%",
+            "location": "L | Duolingo (參考) | $8.3B | $964.3M | - | 72.0% | 11.0% | - |  ### Takeaways  1. **市值與營收嚴重倒掛**：量子運算三",
+            "traced": true,
+            "source_path": "companies.DUOL.fundamentals.operating_margin",
+            "reason": null
+          },
+          {
+            "value": "82.8%",
+            "location": "，PS 倍數高達 337x，遠超任何成熟科技公司。  2. **毛利率差異大**：QBTS 毛利率 82.8% 反映其商業模式偏向軟體與服務，IONQ 僅 22.8% 顯示硬體成本高昂。RGTI 居中",
+            "traced": true,
+            "source_path": "companies.QBTS.fundamentals.gross_margin",
+            "reason": null
+          },
+          {
+            "value": "22.8%",
+            "location": ". **毛利率差異大**：QBTS 毛利率 82.8% 反映其商業模式偏向軟體與服務，IONQ 僅 22.8% 顯示硬體成本高昂。RGTI 居中（40.6%），顯示混合模式。  3. **全面虧損**",
+            "traced": true,
+            "source_path": "companies.DAY.price.change_pct_1d",
+            "reason": null
+          },
+          {
+            "value": "40.6%",
+            "location": "2.8% 反映其商業模式偏向軟體與服務，IONQ 僅 22.8% 顯示硬體成本高昂。RGTI 居中（40.6%），顯示混合模式。  3. **全面虧損**：三家公司營運利潤率均為負數，且虧損幅度遠超營",
+            "traced": true,
+            "source_path": "candidate_events[0].relevance_score",
+            "reason": null
+          },
+          {
+            "value": "976%",
+            "location": "合模式。  3. **全面虧損**：三家公司營運利潤率均為負數，且虧損幅度遠超營收（RGTI 達 -976%），顯示尚未找到可持續商業模式。相比之下，成熟科技公司（如 DUOL）已實現獲利。  ---",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 976.0"
+          },
+          {
+            "value": "50%",
+            "location": "- 政府訂單（如美國國防部、能源部）  4. **營收成長率**：    - 季度營收是否達到 50% 以上 QoQ 成長    - 毛利率是否持續改善（目標 >60%）  ### 競爭格局  5. ",
+            "traced": true,
+            "source_path": "candidate_events[1].total_score",
+            "reason": null
+          },
+          {
+            "value": "60%",
+            "location": "*：    - 季度營收是否達到 50% 以上 QoQ 成長    - 毛利率是否持續改善（目標 >60%）  ### 競爭格局  5. **巨頭動態**：    - IBM、Google、Micro",
+            "traced": true,
+            "source_path": "allowlist",
+            "reason": null
+          },
+          {
+            "value": "70%",
+            "location": "6. **資本市場情緒**：    - 散戶持股比例變化（目前 RGTI、QBTS 散戶持股 >70%）    - 機構投資人進場或撤出訊號  ### 風險事件  7. **股權稀釋風險**：    ",
+            "traced": true,
+            "source_path": "companies.DUOL.fundamentals.gross_margin",
+            "reason": null
+          },
+          {
+            "value": "3,200",
+            "location": "I 2025 年股價漲幅超過 700%，遠超 NVIDIA 的 150% - 兩家公司合計年營收僅 3,200 萬美元，市值卻達 190 億美元，PS 倍數高達 590x - 量子運算仍處於早期研發階",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 3200.0"
+          },
+          {
+            "value": "2,410",
+            "location": "圖押注下一個技術革命。  然而，這波漲勢的核心矛盾在於： 1. **營收極低**：QBTS 年營收 2,410 萬美元，RGTI 僅 750 萬美元 2. **虧損擴大**：兩家公司淨利潤率分別為 -",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 2410.0"
+          },
+          {
+            "value": "1,652",
+            "location": "2,410 萬美元，RGTI 僅 750 萬美元 2. **虧損擴大**：兩家公司淨利潤率分別為 -1,652% 和 -2,080% 3. **估值極高**：合計市值 190 億美元，PS 倍數高達 ",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 1652.0"
+          },
+          {
+            "value": "2,080",
+            "location": "RGTI 僅 750 萬美元 2. **虧損擴大**：兩家公司淨利潤率分別為 -1,652% 和 -2,080% 3. **估值極高**：合計市值 190 億美元，PS 倍數高達 590x，遠超同業 ",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 2080.0"
+          },
+          {
+            "value": "2,410",
+            "location": "，但營收規模小 - 市值 108 億美元，PS 倍數約 450x  **財務傳導**： - 年營收 2,410 萬美元，毛利率 82.8%，營運虧損率 -355% - 現金充裕（流動比率 54.7），",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 2410.0"
+          },
+          {
+            "value": "1,871",
+            "location": "25 年漲幅 150%，但 2026 年初回調，反映獲利了結壓力  **財務傳導**： - 年營收 1,871 億美元，淨利潤率 53%，現金流強勁 - 基本面遠優於量子運算股，估值相對合理（Forw",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 1871.0"
+          },
+          {
+            "value": "7,980",
+            "location": "美元，在量子運算股中最大 - 已與美國政府、學術機構建立合作關係  **財務傳導**： - 年營收 7,980 萬美元，毛利率 22.8%，營運虧損率 -585% - 營收規模較 QBTS、RGTI ",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 7980.0"
+          },
+          {
+            "value": "1,120",
+            "location": "前股價：$25.38 - 年營收：750 萬美元 - 市值：84 億美元 - 當前 PS 倍數：**1,120x**  **同業比較**（科技硬體股）： - P25（熊市）：0.4x - P50（基準",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 1120.0"
+          },
+          {
+            "value": "2,410",
+            "location": "---  ### QBTS 估值  **基本數據**： - 當前股價：$31.25 - 年營收：2,410 萬美元 - 市值：108 億美元 - 當前 PS 倍數：**448x**  **同業比較**",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 2410.0"
+          },
+          {
+            "value": "1,191",
+            "location": "# NVDA 估值  **基本數據**： - 當前股價：$187.24 - EBITDA（TTM）：1,191 億美元 - 市值：4.56 兆美元 - 當前 EV/EBITDA 倍數：**38.3x*",
+            "traced": false,
+            "source_path": null,
+            "reason": "No match found for 1191.0"
           }
         ],
-        "errors": [],
+        "errors": [
+          "Too many untraced critical numbers: 13 > 3"
+        ],
         "warnings": [
-          "Untraced numbers (1): 9X, 19X, 12.330783787841526%"
+          "Untraced numbers (23): $0.01, $0.01, $0.01, $0.01, 120x"
         ]
       }
     },
@@ -174,18 +958,71 @@
       "passed": true,
       "message": "Valuation availability: 100%",
       "details": {
-        "total_stocks": 2,
+        "total_stocks": 3,
         "null_scenarios": 0,
         "availability": 1.0,
         "warnings": []
       }
+    },
+    {
+      "name": "topic_integrity",
+      "passed": true,
+      "message": "Skipped (not deep dive)",
+      "details": {
+        "post_type": ""
+      }
+    },
+    {
+      "name": "data_completeness",
+      "passed": true,
+      "message": "OK (0 null fields, 0 warnings)",
+      "details": {
+        "null_fields": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "json_html_consistency",
+      "passed": true,
+      "message": "OK",
+      "details": {
+        "errors": []
+      }
+    },
+    {
+      "name": "flash_consistency",
+      "passed": true,
+      "message": "Skipped (not flash)",
+      "details": {
+        "post_type": ""
+      }
+    },
+    {
+      "name": "source_urls",
+      "passed": true,
+      "message": "OK (4/4 sources have URLs)",
+      "details": {
+        "total_sources": 4,
+        "sources_with_url": 4,
+        "coverage": 1.0,
+        "sources_without_url": [],
+        "invalid_urls": [],
+        "critical_missing": [],
+        "warnings": []
+      }
     }
   ],
-  "can_publish": true,
+  "can_publish": false,
   "can_send_newsletter": false,
   "recommended_action": "draft",
-  "errors": [],
+  "errors": [
+    "[sources] Insufficient sources: 4 < 5",
+    "[compliance] Source count check failed",
+    "[trace] Too many untraced critical numbers: 13 > 3"
+  ],
   "warnings": [
-    "Untraced numbers (1): 9X, 19X, 12.330783787841526%"
+    "Insufficient sources: 4 < 5",
+    "Found 11 prices that may not be traceable to research_pack",
+    "Untraced numbers (23): $0.01, $0.01, $0.01, $0.01, 120x"
   ]
 }

@@ -663,6 +663,68 @@ class GhostPublisher:
                 visibility=visibility,
             )
 
+    def upsert_by_slug(
+        self,
+        post,  # PostOutput or dict
+        status: str = "published",
+        send_newsletter: bool = False,
+        email_segment: str = "all",
+        visibility: str = "paid",
+    ) -> PublishResult:
+        """P0-7: Upsert by slug - 若 slug 存在則更新，不存在則建立
+
+        規則：
+        1. 以 slug 為 unique key 查詢
+        2. 若存在：更新內容（不重發 newsletter）
+        3. 若不存在：建立新文章（可選發 newsletter）
+        4. newsletter 只在首次建立時發送
+
+        Args:
+            post: 文章輸出 (PostOutput 物件或 dict)
+            status: 文章狀態 (draft/published)
+            send_newsletter: 首次建立時是否發送 newsletter
+            email_segment: newsletter 收件人群組
+            visibility: 文章可見度 (public/members/paid)
+
+        Returns:
+            PublishResult 實例（含 is_update 標記）
+        """
+        # 支援 dict 和 PostOutput 物件
+        slug = post.get('slug', '') if isinstance(post, dict) else getattr(post, 'slug', '')
+
+        if not slug:
+            return PublishResult(success=False, error="Slug is required for upsert")
+
+        # 檢查是否已存在
+        existing = self.get_post_by_slug(slug)
+
+        if existing:
+            # 存在則更新（不發 newsletter）
+            logger.info(f"[Upsert] Updating existing post: {slug} (id={existing.get('id')})")
+            result = self.update_post(
+                existing["id"],
+                post,
+                status=status,
+                visibility=visibility,
+            )
+            # 標記這是更新操作
+            if result.success:
+                logger.info(f"[Upsert] Updated: {result.url}")
+            return result
+        else:
+            # 不存在則建立
+            logger.info(f"[Upsert] Creating new post: {slug}")
+            result = self.create_post(
+                post,
+                status=status,
+                send_newsletter=send_newsletter,
+                email_segment=email_segment,
+                visibility=visibility,
+            )
+            if result.success:
+                logger.info(f"[Upsert] Created: {result.url}")
+            return result
+
     def save_result(
         self,
         result: PublishResult,

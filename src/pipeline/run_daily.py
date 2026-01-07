@@ -340,15 +340,16 @@ def stage_ingest(run_date: str, theme: Optional[str] = None) -> Dict:
         data["market_snapshot"] = enricher.get_market_snapshot()
         console.print("  ✓ Collected market snapshot")
 
-    # Ensure minimum 8 news items with Layer 2 Radar Fillers
-    MIN_NEWS_ITEMS = 8
+    # P0-3: 升級到 10-12 條新聞 (Flash News Radar 需要更多素材)
+    MIN_NEWS_ITEMS = 10
+    TARGET_NEWS_ITEMS = 12
     if len(data["news_items"]) < MIN_NEWS_ITEMS:
-        console.print(f"  [yellow]⚠ Only {len(data['news_items'])} news items, need {MIN_NEWS_ITEMS}[/yellow]")
+        console.print(f"  [yellow]⚠ Only {len(data['news_items'])} news items, need {MIN_NEWS_ITEMS}-{TARGET_NEWS_ITEMS}[/yellow]")
         console.print("  Collecting Layer 2 Radar Fillers...")
         data["news_items"] = ensure_minimum_news_items(
             news_items=data["news_items"],
             universe_tickers=universe_tickers,
-            min_count=MIN_NEWS_ITEMS,
+            min_count=TARGET_NEWS_ITEMS,  # 目標 12 條
         )
         console.print(f"  ✓ Now have {len(data['news_items'])} news items (with fillers)")
     else:
@@ -661,25 +662,75 @@ def stage_pack(ingest_data: Dict, run_date: str, run_id: str) -> EditionPack:
     return pack
 
 
+def _should_generate_earnings(edition_pack: EditionPack, max_days_old: int = 90) -> tuple:
+    """P0-2: 判斷是否生成 Earnings 文章
+
+    規則：
+    1. 必須有 recent_earnings 資料
+    2. 財報日期不能太舊（預設 90 天內）
+
+    Args:
+        edition_pack: 今日版本資料包
+        max_days_old: 財報最大天數
+
+    Returns:
+        (should_generate: bool, reason: str)
+    """
+    if not edition_pack.recent_earnings:
+        return False, "no_earnings_data"
+
+    earnings_date = edition_pack.recent_earnings.get("earnings_date")
+    if not earnings_date:
+        return False, "no_earnings_date"
+
+    # 檢查財報是否太舊
+    try:
+        from datetime import datetime
+        earnings_dt = datetime.fromisoformat(earnings_date.replace("Z", "+00:00"))
+        days_old = (datetime.now(earnings_dt.tzinfo or None) - earnings_dt).days if earnings_dt.tzinfo else (datetime.now() - datetime.fromisoformat(earnings_date)).days
+        if days_old > max_days_old:
+            return False, f"earnings_too_old_{days_old}d"
+    except Exception:
+        pass  # 無法解析日期時，仍然生成
+
+    return True, "recent_earnings_available"
+
+
 def stage_write(
     edition_pack: EditionPack,
     run_id: str,
     post_types: List[str] = None
 ) -> Dict[str, Optional[PostOutput]]:
     """
-    Stage 3: Generate posts using skills
-    - Post A (Flash): Always - uses postA.prompt.md and postA.schema.json
-    - Post B (Earnings): Conditional - uses postB.prompt.md and postB.schema.json
-    - Post C (Deep Dive): Always - uses postC.prompt.md and postC.schema.json
+    Stage 3: Generate posts using skills (P0-1: 使用三篇專用 prompts + schemas)
+
+    - Post A (Flash): Always - uses prompts/postA.prompt.md + schemas/postA.schema.json
+    - Post B (Earnings): Conditional* - uses prompts/postB.prompt.md + schemas/postB.schema.json
+    - Post C (Deep Dive): Always - uses prompts/postC.prompt.md + schemas/postC.schema.json
+
+    *P0-2: Earnings 只在有近期財報資料時生成
+
+    Output files (P0-1):
+    - out/post_flash.json, out/post_flash.html
+    - out/post_earnings.json, out/post_earnings.html (可選)
+    - out/post_deep.json, out/post_deep.html
     """
     from ..writers.codex_runner import CodexRunner
     from ..writers.cross_links import generate_cross_links, inject_cross_links
 
-    console.print("\n[bold cyan]Stage 3: Write[/bold cyan]")
+    console.print("\n[bold cyan]Stage 3: Write (P0-1: Three Prompts/Schemas)[/bold cyan]")
+
+    # P0-2: 判斷是否生成 Earnings
+    should_earnings, earnings_reason = _should_generate_earnings(edition_pack)
 
     if post_types is None:
-        # v4.2: Earnings 永遠觸發，分析 deep dive ticker 的最近一次財報
-        post_types = ["flash", "earnings", "deep"]
+        # v4.3: 預設生成 flash 和 deep，Earnings 條件觸發
+        post_types = ["flash", "deep"]
+        if should_earnings:
+            post_types.insert(1, "earnings")  # 插入到 flash 和 deep 之間
+            console.print(f"  ✓ Earnings 觸發: {earnings_reason}")
+        else:
+            console.print(f"  [yellow]⚠ Earnings 跳過: {earnings_reason}[/yellow]")
 
     # Generate cross-links for all posts
     topic = "market"
@@ -690,10 +741,14 @@ def stage_write(
         run_date=edition_pack.date,
         topic=topic,
         deep_dive_ticker=edition_pack.deep_dive_ticker,
-        earnings_ticker=edition_pack.deep_dive_ticker,  # TODO: separate earnings ticker
+        earnings_ticker=edition_pack.deep_dive_ticker,  # Same ticker for coherence
         has_earnings="earnings" in post_types,
     )
     console.print(f"  ✓ Generated cross-links for {len(post_types)} posts")
+
+    # P0-1: Add cross_links to edition_pack for prompts to use
+    pack_dict = edition_pack.to_dict()
+    pack_dict["cross_links"] = cross_links
 
     posts = {}
 
@@ -701,9 +756,10 @@ def stage_write(
         console.print(f"  Generating {post_type}...")
 
         try:
-            # Create post-type specific writer with corresponding prompt and schema
+            # P0-1: Create post-type specific writer with corresponding prompt and schema
             writer = CodexRunner(post_type=post_type)
             console.print(f"    Using prompt: {writer.prompt_path}")
+            console.print(f"    Using schema: {writer.schema_path}")
 
             # Determine slug parameters
             ticker = None
@@ -722,9 +778,10 @@ def stage_write(
             if not validate_slug(slug, post_type):
                 raise ValueError(f"Invalid slug format: {slug}")
 
-            # Generate content using post-type specific prompt
+            # P0-1: Generate content using post-type specific prompt
+            # Use pack_dict which includes cross_links
             post = writer.generate(
-                edition_pack.to_dict(),
+                pack_dict,  # Contains cross_links
                 run_id=run_id,
             )
 
@@ -744,6 +801,10 @@ def stage_write(
                     json_data=post_dict,
                     html_content=post_dict.get("html", ""),
                 )
+
+                # P0-1: Save individual post files to out/ immediately
+                _save_post_output(post_dict, post_type)
+
                 console.print(f"    ✓ {post_type}: {slug}")
             else:
                 console.print(f"    [yellow]⚠ Failed to generate {post_type}[/yellow]")
@@ -751,60 +812,125 @@ def stage_write(
 
         except Exception as e:
             console.print(f"    [red]✗ Error generating {post_type}: {e}[/red]")
+            import traceback
+            traceback.print_exc()
             posts[post_type] = None
 
     return posts
 
 
+def _save_post_output(post_dict: Dict, post_type: str) -> None:
+    """P0-1: Save post output to out/ directory with type-specific naming
+
+    P0-4/P0-5: 在存檔前進行 HTML 規範化
+    """
+    from ..writers.html_components import normalize_html, validate_paywall
+
+    out_dir = Path("out")
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # P0-4/P0-5: HTML 規範化
+    html_content = post_dict.get("html", "")
+    if html_content:
+        html_content = normalize_html(html_content, post_type)
+        post_dict["html"] = html_content
+
+        # 驗證 paywall
+        is_valid, msg = validate_paywall(html_content)
+        if not is_valid:
+            console.print(f"    [yellow]⚠ Paywall 驗證: {msg}[/yellow]")
+
+    # Save JSON
+    json_path = out_dir / f"post_{post_type}.json"
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(post_dict, f, indent=2, ensure_ascii=False)
+
+    # Save HTML
+    html_path = out_dir / f"post_{post_type}.html"
+    with open(html_path, "w", encoding="utf-8") as f:
+        f.write(html_content)
+
+
 def stage_qa(
     posts: Dict[str, Optional[PostOutput]],
-    edition_pack: EditionPack
+    edition_pack: EditionPack,
+    run_id: str = "",
 ) -> Dict[str, Dict]:
     """
-    Stage 4: Run quality gates on all posts
+    Stage 4: Run quality gates on all posts (P0-6: 三篇各自 + 總 Gate)
+
+    P0-6 實作：
+    1. 每篇文章獨立執行品質 Gate
+    2. 總 Gate 檢查跨篇一致性（Edition Coherence）
+    3. 任何一篇 fail = 總體 fail（Fail-Closed）
     """
-    console.print("\n[bold cyan]Stage 4: Quality Gate[/bold cyan]")
+    from ..quality.quality_gate import run_daily_quality_gate
 
-    results = {}
-    all_passed = True
+    console.print("\n[bold cyan]Stage 4: Quality Gate (P0-6: Daily Gate)[/bold cyan]")
 
+    # 收集文章 dict
+    posts_dict = {}
     for post_type, post in posts.items():
-        if post is None:
-            results[post_type] = {"passed": False, "error": "Post not generated"}
-            all_passed = False
-            continue
+        if post is not None:
+            posts_dict[post_type] = post.json_data
 
-        console.print(f"  Checking {post_type}...")
+    # P0-6: 執行 Daily Quality Gate
+    daily_report = run_daily_quality_gate(
+        posts=posts_dict,
+        edition_pack=edition_pack.to_dict(),
+        run_id=run_id or edition_pack.run_id,
+        date=edition_pack.date,
+    )
 
-        try:
-            report = run_quality_gates(
-                post.json_data,
-                edition_pack.to_dict(),
-                post_type
-            )
+    # 更新各篇 PostOutput 的 quality 狀態
+    for post_type, post in posts.items():
+        if post is not None and post_type in daily_report.post_reports:
+            report = daily_report.post_reports[post_type]
+            post.quality_passed = report.overall_passed
+            post.quality_report = report.to_dict()
 
-            passed = report.get("overall_passed", False)
-            post.quality_passed = passed
-            post.quality_report = report
-            results[post_type] = report
+    # 顯示各篇結果
+    for post_type, report in daily_report.post_reports.items():
+        status = "✓" if report.overall_passed else "✗"
+        color = "green" if report.overall_passed else "red"
+        console.print(f"  [{color}]{status} {post_type}[/{color}]")
 
-            status = "✓" if passed else "✗"
-            color = "green" if passed else "red"
-            console.print(f"    [{color}]{status} {post_type}[/{color}]")
+        if not report.overall_passed:
+            for error in report.errors[:3]:
+                console.print(f"      - {error}")
 
-            if not passed:
-                all_passed = False
-                for error in report.get("errors", [])[:3]:
-                    console.print(f"      - {error}")
+    # 顯示 Daily Gate 結果
+    daily_status = "✓" if daily_report.daily_gate.passed else "✗"
+    daily_color = "green" if daily_report.daily_gate.passed else "red"
+    console.print(f"  [{daily_color}]{daily_status} Daily Edition Coherence[/{daily_color}]")
 
-        except Exception as e:
-            console.print(f"    [red]✗ QA failed for {post_type}: {e}[/red]")
-            results[post_type] = {"passed": False, "error": str(e)}
-            all_passed = False
+    if not daily_report.daily_gate.passed:
+        console.print(f"      - {daily_report.daily_gate.message}")
 
-    console.print(f"\n  Overall: {'[green]PASSED[/green]' if all_passed else '[red]FAILED[/red]'}")
+    # 總結
+    console.print(f"\n  Overall: {'[green]PASSED[/green]' if daily_report.overall_passed else '[red]FAILED[/red]'}")
+    console.print(f"  Can Publish: {daily_report.can_publish_all}")
 
-    return results
+    # 儲存 quality report
+    report_path = Path("out/quality_report.json")
+    with open(report_path, "w", encoding="utf-8") as f:
+        json.dump(daily_report.to_dict(), f, indent=2, ensure_ascii=False)
+    console.print(f"  Report saved to: {report_path}")
+
+    return {
+        "overall_passed": daily_report.overall_passed,
+        "can_publish_all": daily_report.can_publish_all,
+        "post_reports": {
+            pt: r.to_dict() for pt, r in daily_report.post_reports.items()
+        },
+        "daily_gate": {
+            "passed": daily_report.daily_gate.passed,
+            "message": daily_report.daily_gate.message,
+            "details": daily_report.daily_gate.details,
+        },
+        "errors": daily_report.errors,
+        "warnings": daily_report.warnings,
+    }
 
 
 def stage_publish(
@@ -814,68 +940,73 @@ def stage_publish(
     visibility: str = "paid",  # P0-4: Default visibility for paywall
 ) -> Dict[str, Dict]:
     """
-    Stage 5: Publish to Ghost
+    Stage 5: Publish to Ghost (P0-7: Upsert by slug)
+
+    P0-7 實作：
+    - 以 slug 為 unique key 執行 upsert
+    - 若 slug 已存在：更新內容（不重發 newsletter）
+    - 若 slug 不存在：建立新文章
 
     Strategy:
-    - Post A (Flash): publish-send (email)
+    - Post A (Flash): publish-send (email on first create only)
     - Post B (Earnings): publish only (no email)
     - Post C (Deep Dive): publish only (no email)
 
     All posts use paywall (visibility=paid) by default.
     """
-    console.print("\n[bold cyan]Stage 5: Publish[/bold cyan]")
+    from ..publishers.ghost_admin import GhostPublisher
+
+    console.print("\n[bold cyan]Stage 5: Publish (P0-7: Upsert by slug)[/bold cyan]")
 
     results = {}
 
     # Determine newsletter/segment based on mode
     if mode == "test":
-        newsletter = "daily-brief-test"
         segment = "label:internal"
     else:
-        newsletter = "daily-brief"
         segment = "status:-free"  # Paid members only
 
-    console.print(f"  Newsletter: {newsletter}, Segment: {segment}, Visibility: {visibility}")
+    console.print(f"  Mode: {mode}, Segment: {segment}, Visibility: {visibility}")
 
-    # Publish order: B, C first (no email), then A (with email)
+    # Publish order: B, C first (no email), then A (with email on first create)
     publish_order = ["earnings", "deep", "flash"]
 
-    for post_type in publish_order:
-        post = posts.get(post_type)
-        if post is None:
-            results[post_type] = {"skipped": True, "reason": "Post not generated"}
-            continue
+    with GhostPublisher() as publisher:
+        for post_type in publish_order:
+            post = posts.get(post_type)
+            if post is None:
+                results[post_type] = {"skipped": True, "reason": "Post not generated"}
+                continue
 
-        # Validate post type
-        if not isinstance(post, PostOutput):
-            console.print(f"    [red]✗ Invalid post type: {type(post).__name__}[/red]")
-            results[post_type] = {"skipped": True, "reason": f"Invalid post type: {type(post).__name__}"}
-            continue
+            # Validate post type
+            if not isinstance(post, PostOutput):
+                console.print(f"    [red]✗ Invalid post type: {type(post).__name__}[/red]")
+                results[post_type] = {"skipped": True, "reason": f"Invalid post type: {type(post).__name__}"}
+                continue
 
-        # Only Post A (Flash) gets email
-        send_email = (post_type == "flash" and mode == "prod")
+            # Only Post A (Flash) gets email on first create
+            send_newsletter = (post_type == "flash" and mode == "prod")
 
-        console.print(f"  Publishing {post_type}...")
+            console.print(f"  Publishing {post_type} (slug: {post.slug})...")
 
-        result = publish_post(
-            post=post,
-            mode=mode,
-            newsletter=newsletter,
-            segment=segment,
-            send_email=send_email,
-            confirm_high_risk=confirm_high_risk,
-            visibility=visibility,  # P0-4: Pass visibility to Ghost
-        )
+            # P0-7: Use upsert_by_slug
+            result = publisher.upsert_by_slug(
+                post=post.json_data,
+                status="published" if mode == "prod" else "draft",
+                send_newsletter=send_newsletter,
+                email_segment=segment,
+                visibility=visibility,
+            )
 
-        results[post_type] = result
-        post.publish_result = result
+            results[post_type] = result.to_dict()
+            post.publish_result = result.to_dict()
 
-        if result.get("success"):
-            console.print(f"    [green]✓ {result.get('url')}[/green]")
-            if result.get("newsletter_sent"):
-                console.print("      [cyan]Newsletter sent[/cyan]")
-        else:
-            console.print(f"    [red]✗ {result.get('error')}[/red]")
+            if result.success:
+                console.print(f"    [green]✓ {result.url}[/green]")
+                if result.newsletter_sent:
+                    console.print("      [cyan]Newsletter sent[/cyan]")
+            else:
+                console.print(f"    [red]✗ {result.error}[/red]")
 
     return results
 

@@ -1,51 +1,166 @@
 {
   "meta": {
-    "run_id": "run_20260106_134326_f3c439a4",
-    "created_at": "2026-01-06T21:43:26.812924",
-    "version": "2.0"
+    "run_id": "run_20260107_010622_ab170487",
+    "created_at": "2026-01-07T09:07:56.578623",
+    "version": "4.3",
+    "market_snapshot": {
+      "spy_change": "+0.59%",
+      "qqq_change": "+0.88%",
+      "us10y": "4.18%",
+      "dxy": "98.32",
+      "vix": "14.75"
+    }
   },
-  "date": "2026-01-06",
+  "date": "2026-01-07",
   "edition": "postclose",
   "primary_event": {
     "event": {
-      "id": "7d353597ca0c3efb",
-      "title": "IREN's GPU Expansion Accelerates: Is Revenue Visibility Improving? - Yahoo Finance",
-      "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNQzdXVkdQQ2F4dU9rdk9GSDZPMEhwR2JWWnVTdTVEUV9yMG9aZHJEOW00SjgzNVp5TDFEZU0tNmVlcUFNTTAwcXBTTXZYaUE2YWg2a2N6UzlCcHhRUy02QTBLNm9ZMFBENElPdlZHN21vTTFvTFNRVzU5SnBoSFlrV2pzWXV5UEYteHBRU3V3?oc=5",
-      "published_at": "2026-01-05T17:04:00",
-      "publisher": "Yahoo Finance",
-      "related_tickers": [],
-      "related_themes": [
-        "ai_chips"
+      "id": "b330a3c77c6e5774",
+      "title": "QBTS, RGTI Beat NVDA in 2025: Can Quantum Win Again in 2026? - Zacks Investment Research",
+      "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxQa1RGTnR6R1p4ajlCMy1xcnctSGU1X1A1UW1CREgzTGFpTHVVU3JsY1F1S1dCVXFjX2dnVVY2dGt3TGlFOHdKeU1YcXZZM05fOVB2V05wSHhZZmtWV3BxaG9BRm5ncHJJLXM0MEN0OVhfdFFqcG52TExzUEpwY01raHc4WHZvU2lQem5UVUNLeEFYWnpYVEp5Mm1iQTl5OTA?oc=5",
+      "published_at": "2026-01-06T19:30:10",
+      "publisher": "Zacks Investment Research",
+      "related_tickers": [
+        "RGTI"
       ],
-      "query": "GPU",
-      "snippet": "IREN's GPU Expansion Accelerates: Is Revenue Visibility Improving?&nbsp;&nbsp;Yahoo Finance"
+      "related_themes": [
+        "quantum"
+      ],
+      "query": "RGTI stock",
+      "snippet": "QBTS, RGTI Beat NVDA in 2025: Can Quantum Win Again in 2026?&nbsp;&nbsp;Zacks Investment Research"
     },
     "event_type": "earnings",
-    "relevance_score": 20,
-    "credibility_score": 20,
+    "relevance_score": 40,
+    "credibility_score": 10,
     "impact_score": 25,
-    "total_score": 45.5,
+    "total_score": 52.5,
     "is_rumor": false,
     "matched_tickers": [
-      "IREN"
+      "NVDA",
+      "QBTS",
+      "RGTI"
     ],
     "matched_themes": [
       "ai_chips",
-      "ai_infra"
+      "quantum"
     ]
   },
   "primary_theme": {
-    "id": "earnings",
+    "id": "ai_chips",
     "matched_tickers": [
-      "IREN"
-    ]
+      "NVDA",
+      "QBTS",
+      "RGTI"
+    ],
+    "matched_themes": [
+      "ai_chips",
+      "quantum"
+    ],
+    "event_type": "earnings"
   },
   "news_items": [
+    {
+      "id": "ba0af382808d5d35",
+      "title": "The Ripple Effects of the AI Data Center Boom - The Information",
+      "url": "https://news.google.com/rss/articles/CBMif0FVX3lxTE1sRVBVZnF6UFdmR0xlRUlfSEhxeWlNYUpJRVFsemlMVmpCVDFzbzZSWHRCWXhxRHBudzRWT1FkQllqd3o2SlBMeFBQSzZzdHFTOTFQb0xVSFQxN1RZeWppeG1iUVlVTFVYeDdfdzl6ZlBKZWpaSld1T3RJODBBUW8?oc=5",
+      "published_at": "2026-01-07T01:00:00",
+      "publisher": "The Information",
+      "related_tickers": [],
+      "related_themes": [
+        "ai_infra"
+      ],
+      "query": "data center",
+      "snippet": "The Ripple Effects of the AI Data Center Boom&nbsp;&nbsp;The Information"
+    },
+    {
+      "id": "43dfe8f01f8dc7c4",
+      "title": "Nvidia: AI Spending Alarm Bell (NASDAQ:NVDA) - Seeking Alpha",
+      "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxOR3RudFRHaUVudzY1V2FIR3kwc2lJeFVOeXo1d3JvTHZJZ25zemJiam1WbUdITmxBdW1zclF3V0UxWFBFOHoxdHZUMDBHcmd5T1dZUHhZUFk5SkdsWTFfb0N5MkMzbElUdVFSWlhYeTBVYUEyRXdqR2RsNEs4YzBaeHIyNnZOMHVlNnI2UTVEQjVCdw?oc=5",
+      "published_at": "2026-01-07T01:00:00",
+      "publisher": "Seeking Alpha",
+      "related_tickers": [
+        "NVDA"
+      ],
+      "related_themes": [
+        "ai_chips"
+      ],
+      "query": "NVDA stock",
+      "snippet": "Nvidia: AI Spending Alarm Bell (NASDAQ:NVDA)&nbsp;&nbsp;Seeking Alpha"
+    },
+    {
+      "id": "ad3f8047848e4322",
+      "title": "Photonic raises $130M to scale quantum computers with entanglement-based networking - SiliconANGLE",
+      "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNcWRNeFBycUdVZjQ3SlNPY19PY2FFNHJ5Z0g1QngzS2tkWDh2NTJTak1oMDZIQ1hxekFHMXBhNE9wczVDQnROWnBwTEVPUU42OWFMU2RkR2E2RzdoNHVmcFFERHlrbFNVTjFqT3lBcXd4VG9QbUFPeTZRSnB2bTkwNFI4M21sRlBjWW5SOUY3RU9HUko4dGM2YjVoakVZVWNPaWliSndLOVRMTzFNMm44SQ?oc=5",
+      "published_at": "2026-01-07T00:59:18",
+      "publisher": "SiliconANGLE",
+      "related_tickers": [],
+      "related_themes": [
+        "ai_networking"
+      ],
+      "query": "networking",
+      "snippet": "Photonic raises $130M to scale quantum computers with entanglement-based networking&nbsp;&nbsp;SiliconANGLE"
+    },
+    {
+      "id": "60e745524e17b6e8",
+      "title": "DeFi, ethics disputes remain in Senate crypto bill ahead of Jan. 15 vote - CoinDesk",
+      "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxOUDNJQ0tNVTBCREowMmpSY3oxYy1uZndZMC05QjBkYUFtd0trNFVGUVhxNmU0LU9ZSm5pYnp6LVVSbmRvVmU1NVREUlpVekF4Y1hkME5hYnd4blR6VmY3RlpvOEtLR0VfS1pwZGd1Rkl5U2ZRcnZaQW9BNFZHVWNYWTRka1ltNEh3Yks2QU5XUEhaWE5nT0tHVXgzNUZ0TmlCWURITm53RUJQQnktcGI5WGVjNA?oc=5",
+      "published_at": "2026-01-07T00:59:15",
+      "publisher": "CoinDesk",
+      "related_tickers": [],
+      "related_themes": [
+        "crypto"
+      ],
+      "query": "crypto",
+      "snippet": "DeFi, ethics disputes remain in Senate crypto bill ahead of Jan. 15 vote&nbsp;&nbsp;CoinDesk"
+    },
+    {
+      "id": "f8d32aeba53a192d",
+      "title": "Should You Buy ASML Stock Before Jan. 28? - The Motley Fool",
+      "url": "https://news.google.com/rss/articles/CBMiigFBVV95cUxQMTJjMmRQRS1pWk1YRXdTODJlLXZQaVFBb2R5Z1hjSXNJSmJpT1d1WERZQlZWUkltb2xUcFViSnlibzhHbUppcEt2SmNSQ3V0eV93Rnh3VHl3OElzeEhid3dPNV81aEhSVHBmUml1cFpNYUlLRDVpSkt1dDI0dzQtYW9XRUJxYlg2dnc?oc=5",
+      "published_at": "2026-01-07T00:48:00",
+      "publisher": "The Motley Fool",
+      "related_tickers": [
+        "ASML"
+      ],
+      "related_themes": [
+        "ai_chips"
+      ],
+      "query": "ASML stock",
+      "snippet": "Should You Buy ASML Stock Before Jan. 28?&nbsp;&nbsp;The Motley Fool"
+    },
+    {
+      "id": "360ef3c385951cae",
+      "title": "Christian Kleinerman Sells 10,000 Shares of Snowflake (NYSE:SNOW) Stock - MarketBeat",
+      "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxQSHdoSnpXeFZXZS1aVlhsMTRYdF9EYXNfSVdZVzJyWFcweTFoak5wNzdGVG9sVUdZcmtRaUQwQkgyZmpGc3dhN1hlamZMc1pUdkpubDY5VDZlVWhkdE5yTHF4Y0p5TTNxVjVielpoNjRaTnBSU0FlUUdKN2ZkZmV1dzBJLXdEeFFMV0s0SlVoRjZadHlvWjAwdWNWTVh0bTRoRDcxSWdRajZsN3JvejRwS1NUZnJ3V0ZtQ3F6Qk53?oc=5",
+      "published_at": "2026-01-07T00:39:17",
+      "publisher": "MarketBeat",
+      "related_tickers": [
+        "SNOW"
+      ],
+      "related_themes": [
+        "ai_data"
+      ],
+      "query": "SNOW stock",
+      "snippet": "Christian Kleinerman Sells 10,000 Shares of Snowflake (NYSE:SNOW) Stock&nbsp;&nbsp;MarketBeat"
+    },
+    {
+      "id": "5d6f3f142ddf0197",
+      "title": "Alibaba Cloud leads AI infrastructure market after Forrester recognition - CHOSUNBIZ - Chosunbiz",
+      "url": "https://news.google.com/rss/articles/CBMiekFVX3lxTFBnam56TDY2OHE1SHhrYlZlNUVCZDBjX2k0NGFQT2ZzMTRXVlB3YnVjOHdHN2hyRTdHUURkWE5zSVduT3RrSURXbGFfQjF3RjdnNUVWa0gyS3I0R28zZW1yNGhKY2ZWMWs4QkEzTFJGTE1wSXd4c3lhX0VR0gGOAUFVX3lxTE5PQVgtTVh5SlV6LWswbFdHMVY0MFZBZ2dxS0oyRUxYdk16WnhYRzRfQWpQRjBSYV9oeV8xU3FpNWlnOFRUclJMUVhpbjJ2Ynl4VHFKU3laa3YwRUNhMEhIaDJWNklqTklFRzQtTVdleUQ0OFcxak1IZnhCOVFySzdpUU02NkM3bThMTzRtTFE?oc=5",
+      "published_at": "2026-01-07T00:39:00",
+      "publisher": "Chosunbiz",
+      "related_tickers": [],
+      "related_themes": [
+        "ai_cloud"
+      ],
+      "query": "cloud computing",
+      "snippet": "Alibaba Cloud leads AI infrastructure market after Forrester recognition - CHOSUNBIZ&nbsp;&nbsp;Chosunbiz"
+    },
     {
       "id": "98eeaf6fe52447eb",
       "title": "3 Quantum Computing Stocks Analysts Rate ‘Strong Buy’ With 30%+ Upside - TipRanks",
       "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNZEZXNlJwNjZrMTV4dWRHc3NKVXB1dW9SWVI0TFhZbFkwdVc2cldPcEVIS2NMN2FnZUZZT1dNTGZQb3ZLeGFxTXNiLW9HV3h6dVZGM1ZjYVlaeFI4N3lYel9zTEl3X1I4NUtGajVqRTAyM19OZ0VmSDVzV3hGWkNTV2tXZkR5dURRZFlRaXBwa1V2OXR2WjRFTmxkdVY?oc=5",
-      "published_at": "2026-01-06T13:35:36",
+      "published_at": "2026-01-07T00:31:46",
       "publisher": "TipRanks",
       "related_tickers": [
         "QBTS"
@@ -57,356 +172,262 @@
       "snippet": "3 Quantum Computing Stocks Analysts Rate ‘Strong Buy’ With 30%+ Upside&nbsp;&nbsp;TipRanks"
     },
     {
-      "id": "30220f090fc70c49",
-      "title": "Beale Infrastructure in talks to build data center campus outside Tulsa, Oklahoma - Data Center Dynamics",
-      "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxPWWozVGpmb0dwajJtRzZoRjhVdHFGc1ZxN3lzNGpOV2RycGpzeV9rbktBYUJZUkpjdWJCRFdzakxrV3h5dm53S0pyMFdrMUhRQW1VSGpNVElvdkR0VTZCVEhZUHloalQ3NzBTZ0Zic1ZwVi13VGx6c1ZRSWtKSnNOMzA1UXY2UVhudk9CcWp1SHBLV1BFNWRCRUVaTDUzQjJzSHNuVkJBNmhwbGIwUmpBZ0tMc0pPaWptMDFOdW9WTUNYdw?oc=5",
-      "published_at": "2026-01-06T13:35:25",
-      "publisher": "Data Center Dynamics",
-      "related_tickers": [],
-      "related_themes": [
-        "ai_infra"
-      ],
-      "query": "data center",
-      "snippet": "Beale Infrastructure in talks to build data center campus outside Tulsa, Oklahoma&nbsp;&nbsp;Data Center Dynamics"
-    },
-    {
-      "id": "ef3894619ffe432e",
-      "title": "XRP price is on the rise today as crypto markets show early signs of a rebound: Here are 2 reasons why - Fast Company",
-      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNNXdXTkhJU2lFVzlRb2doZE93eVIzQlZyNzNYNXpyaDZmbGotQ2hkRThqNmc1S1BTa1hYZmtWT2VzaE4tV0haLUVZWWhSaFRBWUpCcVVwUUM1d1EtSEZKVEVqbWwyRUJYQWViVGRIWnE5N0JtVGN1dzFNNVhyZ0dscm82Y0ZIWjZjampWNVlrQ1lBbzRZQ0NqOTNiRQ?oc=5",
-      "published_at": "2026-01-06T13:28:06",
-      "publisher": "Fast Company",
-      "related_tickers": [],
-      "related_themes": [
-        "crypto"
-      ],
-      "query": "crypto",
-      "snippet": "XRP price is on the rise today as crypto markets show early signs of a rebound: Here are 2 reasons why&nbsp;&nbsp;Fast Company"
-    },
-    {
-      "id": "473defd394d11799",
-      "title": "Leveraging Big Data Insights to Maximise Returns with Vanguard (VWRP) ETFs - The AI Journal",
-      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQN0Nfa1FuZTVvMFpkTkNpSFJkeGt4T0ZqWnV2SVBJUndOTURldi1jSHpWT0RLM0QzYy1VcjY5ZTVVbXlPSXZ4VWxIb2xpWkxuRHdLRHZic1I4dDBIQ2ZmYV9RbHpDZGVWalN1akR0TG81RXoxczBPYUxSZDFsOFZ4Q05TMWZnQlJUT0loWEZlUzJENkdxXzJ0ag?oc=5",
-      "published_at": "2026-01-06T13:18:12",
-      "publisher": "The AI Journal",
-      "related_tickers": [],
-      "related_themes": [
-        "ai_data"
-      ],
-      "query": "big data",
-      "snippet": "Leveraging Big Data Insights to Maximise Returns with Vanguard (VWRP) ETFs&nbsp;&nbsp;The AI Journal"
-    },
-    {
-      "id": "9f7df952914a4254",
-      "title": "Crypto Latecomer Morgan Stanley Files for Bitcoin, Solana ETFs - Bloomberg.com",
-      "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOeVVINU9ZaGZ6aVdrM0dweVlJZURjRjlBdHh6bVItc3lMakFtMG90al9YYkkyTU5nNzQ5dW5CVWxvazhsTUZwTHRVMC1fb3hHRGZRb2RUalNjbnowS2tuQUlUZVdhVkVEUnV1UEdvMnRvaTRyTXp5SU9KM2Y3OV9CanRpVm5LZWtidVhtNjR6ckFTOTNIcTZBUVhwY2Q2Mlo0c2duemR1czFuR2hyaDEyMDhn?oc=5",
-      "published_at": "2026-01-06T13:10:55",
-      "publisher": "Bloomberg.com",
-      "related_tickers": [],
-      "related_themes": [
-        "crypto"
-      ],
-      "query": "crypto",
-      "snippet": "Crypto Latecomer Morgan Stanley Files for Bitcoin, Solana ETFs&nbsp;&nbsp;Bloomberg.com"
-    },
-    {
-      "id": "428f4b96aa51c342",
-      "title": "NVIDIA releases new physical AI models, plus autonomous vehicle tools - The Robot Report",
-      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPSGM0c1hkM2wxWVI1QzBzZlliV1l0YmRNVTBIVFdZSnNyNmRxVmN0WDVBUXBKQUxqWWdMWC1LaE1wdFAyX19xYnR1b2pQVXRTQnJDenFFMFcwb2doRzd3U3p3RzV6LWVJWTBDWmVUazk3eWJsLVhHaWVMT1g0U0JTQXRYVHJwZW1aZ0FKb1JBeWctZmZWOUF1YnRBVy0zY0VGWmc?oc=5",
-      "published_at": "2026-01-06T13:05:12",
-      "publisher": "The Robot Report",
-      "related_tickers": [],
-      "related_themes": [
-        "robotics"
-      ],
-      "query": "robot",
-      "snippet": "NVIDIA releases new physical AI models, plus autonomous vehicle tools&nbsp;&nbsp;The Robot Report"
-    },
-    {
-      "id": "6c3be34b56249e39",
-      "title": "The data center rebellion is here, and it’s reshaping the political landscape - The Washington Post",
-      "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxOTjdhSlhUR2ZXaU1uOFhzdnQ5OHEyWlZMRDRRSVFBZExuRlYyTlRidUs0bDdsNlpabUduRE5aX1VScFBMTzQwTVhCY29LRkNfQWdrd2ZuMHJzNUFXVGJCTTlibHR4U2FDRGJENE5paXVEMGVHd1M4WUZ3X2kzb1RYRVhjNWx5Y0JxM0s2MnE2Z3czR0RMbXhCc1RyUHcyMkVwM1gyRHZySUI1OTExclE?oc=5",
-      "published_at": "2026-01-06T13:01:29",
-      "publisher": "The Washington Post",
-      "related_tickers": [],
-      "related_themes": [
-        "ai_infra"
-      ],
-      "query": "data center",
-      "snippet": "The data center rebellion is here, and it’s reshaping the political landscape&nbsp;&nbsp;The Washington Post"
-    },
-    {
-      "id": "fc641e1ef93f1f43",
-      "title": "IonQ: When Quantum Hype Fades (NYSE:IONQ) (Rating Downgrade) - Seeking Alpha",
-      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPSzYwZTJEckcxSjdOUk5rLVFVbER4ZThjWVA1SzQxYlVBeTV2NDVieThpeWVzd3MxOEJnV2NoUGRtUzRJLVNqWkZHa1pHemtRelpBcm5FdG14cEVYOGlmN200Z2hUY0tLclF2Z3otSk1OOS16cGROR0FhYnRlQlFEQTUxTVhqeTFzOVJSMFNPX2pwR01jZGRNbzBxN2x4LTZnLW5Cb3hCa2psQXc2Z2p5bVVRa1p5bF9q?oc=5",
-      "published_at": "2026-01-06T12:59:42",
-      "publisher": "Seeking Alpha",
+      "id": "42a9d7e680580c81",
+      "title": "Is CrowdStrike’s New AI Cybersecurity Accelerator With AWS and NVIDIA Altering The Investment Case For CrowdStrike Holdings (CRWD)? - simplywall.st",
+      "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxNb0JJOFU0ZzA3OTJDdWxTRHk5NWZnU3JSV1ZvVTlsNTZXSFVJRUJzMDU2N3QxdDRTODIwUzNSUko0REtPUlRySUdYRkMwUDhVQ3VtVDZnUFJXY041T1dtdWNQbzVqX0xpQkpqNnRydFVIaTc1UTRGZUlMUDR6MjdqSWcwaktLZ25GV0JKc3ZNQjUxbWtlc1llTUhQQjRLSlczdy10dnE5NUpoVWFYUWMwLTEwc2l1bFBrc2hUMzViczUzMW41NTJhcHFjeHJOLUR2X2FPa1pn0gHbAUFVX3lxTE9UUHNMQ3U3WmVCbkdRVmN2dEplSW41MEtpTm9wYWlFbGhvM1NwczhUd3p0eHdvRFdrcGVfb2tMY2ZQam94NEx1UlFxb21odWNiTG52RjR6M1BCWWp0LS1pc01UY3ZFUG1oY2hkb1kyVk8zdWo5clRzMzh5blYyRlY5NWRKcWJOZ1A0cWw0X041ZmlJV1ppRzJKeEhvcmpNSzVodXgwaHRlTzBoS0FjS2N1S2F1MmVQWFlnUmJQQm1CSFROU0xXaWRPSnozMkV5YnpLV1pWZlRxaEYzYw?oc=5",
+      "published_at": "2026-01-07T00:31:03",
+      "publisher": "simplywall.st",
       "related_tickers": [
-        "IONQ"
+        "CRWD"
       ],
       "related_themes": [
-        "quantum"
+        "ai_security"
       ],
-      "query": "IONQ stock",
-      "snippet": "IonQ: When Quantum Hype Fades (NYSE:IONQ) (Rating Downgrade)&nbsp;&nbsp;Seeking Alpha"
+      "query": "CRWD stock",
+      "snippet": "Is CrowdStrike’s New AI Cybersecurity Accelerator With AWS and NVIDIA Altering The Investment Case For CrowdStrike Holdings (CRWD)?&nbsp;&nbsp;simplywall.st"
     },
     {
-      "id": "cb816f84f932eb11",
-      "title": "CRWV vs. NBIS: Which AI Infrastructure Stock Will Outperform in 2026? - TipRanks",
-      "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxQMXJ5STI4aEpYUUVMRjlvT0FuMFhxMzkxZERwbTJOOVpuU1JIMXZ4QWQ5LVI3MzBSbkxGV3J3ZXZJQ0lPNXpMcWNOOExoUmRkd210UUVqTlBQT21kR2cwOUtjbTRVZVRuOEMwbmRpbmxoZW5lVFRWUllFNW03TE5rNXY5ZENXcGZLVVZBQWFqVEZhSDcwWTNUS0sxX2w?oc=5",
-      "published_at": "2026-01-06T12:52:48",
-      "publisher": "TipRanks",
-      "related_tickers": [
-        "NBIS"
-      ],
-      "related_themes": [
-        "ai_infra"
-      ],
-      "query": "NBIS stock",
-      "snippet": "CRWV vs. NBIS: Which AI Infrastructure Stock Will Outperform in 2026?&nbsp;&nbsp;TipRanks"
-    },
-    {
-      "id": "9f128aa22d7b939c",
-      "title": "AWS quietly increases prices for H200 EC2 instances by 15% - Data Center Dynamics",
-      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxPZHFyWFEyOXZ0VDVfTUo4VGhIeWN3VUU2enlvM0JhQzVzQWthN1BOc2l6WlgtY1BEMVlZNzYxOGdTY2ZGbjJ3Z1JDZkVSZ3hzWWxXRmlhRV9EVkRpV1Y3dzFXc1Fwa0dfMEQ0aWRjTldDQ1kzZXJmdjBBbEVKZm1zTWtkbjVuZ29Ta2hoM1JzbVJEY3pvdUZLMkJhbkl5TzQwbVVj?oc=5",
-      "published_at": "2026-01-06T12:51:37",
-      "publisher": "Data Center Dynamics",
-      "related_tickers": [],
-      "related_themes": [
-        "ai_infra"
-      ],
-      "query": "data center",
-      "snippet": "AWS quietly increases prices for H200 EC2 instances by 15%&nbsp;&nbsp;Data Center Dynamics"
-    },
-    {
-      "id": "e98c1b124ed837b0",
-      "title": "MongoDB (MDB) Sees Target Price Raised by Needham to $500 | MDB Stock News - GuruFocus",
-      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxOaVBURjFteU1mbnhVVTVleXlUN1ZYaXJxU1kyM1pqRmxHYTZobkpfOVdEWjVZN0RiTHhZLXZTV3dRSkV4NVJtMVZGaG5JVlFIWVFycWpBZWVCeU43ZXJwYktZOWxmcFhQb05UamwxdEZPZ25LTWpfUTctSkVkVE52TGtNZE1Bb3VIVnM0Z0luQWt3YkZqaE5OVV9iN1c1Z1l6Z3F4WXBPODlqNDQt?oc=5",
-      "published_at": "2026-01-06T12:41:00",
-      "publisher": "GuruFocus",
-      "related_tickers": [
-        "MDB"
-      ],
-      "related_themes": [
-        "ai_data"
-      ],
-      "query": "MDB stock",
-      "snippet": "MongoDB (MDB) Sees Target Price Raised by Needham to $500 | MDB Stock News&nbsp;&nbsp;GuruFocus"
-    },
-    {
-      "id": "e3e1f7eb1a8af278",
-      "title": "D-Wave Quantum rises as it shows off industry first on-chip cryogenic control of qubits (QBTS:NYSE) - Seeking Alpha",
-      "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxPMTFoaHF3LUxhYXlRSnZFbVVsYUNzM0k2MDllTm9yTEEycnVuSmctcmVaczZYM3k0LVVqUVkzYXpmM1BNSWw1WGN0ZjBJNU5kYUk0WGVzNkJJUndKb09lUWpFdFdSa1NocTFULW04SlF2eUtuc3RXNVNKVG1WMnZubUZxQkR5ZExYN3ZidTR3dVlvMTlTNFhLaUY1aUFKNEFraW9XUmlveUljV18wNzJtazlnQnpfZFBHZk9UQjVBczhqZDQ?oc=5",
-      "published_at": "2026-01-06T12:38:46",
-      "publisher": "Seeking Alpha",
-      "related_tickers": [
-        "QBTS"
-      ],
-      "related_themes": [
-        "quantum"
-      ],
-      "query": "QBTS stock",
-      "snippet": "D-Wave Quantum rises as it shows off industry first on-chip cryogenic control of qubits (QBTS:NYSE)&nbsp;&nbsp;Seeking Alpha"
-    },
-    {
-      "id": "9be8a92ea9a086da",
-      "title": "Can Pure-Play Quantum Stocks Really Make You $5 Million in 10 Years? - The Motley Fool",
-      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxOdUZLaG1hMHF1RWUtYXZlTHI3LUJOeXcyS3N5M2FmS3VtUGllQ1hndVJyQjRQNDRzdENOSVh1Uzh2dzNsal9YMjFYN2hQbWNjX0N6RzFzWW91eUszc20yQm9FQlYxX0o5S3l3S1pZek1iUVBHY042ODhaMXVGZVdmM2FVdVQwZUNZLUlFUVVHdzdZdDdpdVNDbA?oc=5",
-      "published_at": "2026-01-06T12:38:00",
-      "publisher": "The Motley Fool",
-      "related_tickers": [],
-      "related_themes": [
-        "quantum"
-      ],
-      "query": "quantum computing",
-      "snippet": "Can Pure-Play Quantum Stocks Really Make You $5 Million in 10 Years?&nbsp;&nbsp;The Motley Fool"
-    },
-    {
-      "id": "e694daf04d6489fc",
-      "title": "Stocks making the biggest moves premarket: Vistra, Onestream, Microchip Technology & more - CNBC",
-      "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxNVFhfdkJGdU1EOFZtakg3YlBmSUgzU1pVaXNtRXlfc1FMN3pHeVhCcGVFTE5BU1QxeVBhUGd2UFRKVFMtNm9ZQUZaaF80enBKZ1pKUDBXVjVpSEZZZU5Ddkp2TnJsN0dpcDdaaU1aVWdsdW1jSGRCdXlseUFrZDR3Q29EMHdLbVJWWVJBYzFWU28yOGVS?oc=5",
-      "published_at": "2026-01-06T12:34:25",
-      "publisher": "CNBC",
-      "related_tickers": [
-        "VST"
-      ],
-      "related_themes": [
-        "power_grid"
-      ],
-      "query": "VST stock",
-      "snippet": "Stocks making the biggest moves premarket: Vistra, Onestream, Microchip Technology & more&nbsp;&nbsp;CNBC"
-    },
-    {
-      "id": "29c47567977bd604",
-      "title": "The new tech job doesn't require a degree. It starts in a data center - Data Center Dynamics",
-      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxOTVhPRXI1dmFHQlVIWVFXUEVmWkwwalQ1QVFOTDF6Vk10a1pJV0JtU2JTLW1TM2E5V1RhQW0tWXZxS0RoSkVwZ3MzMmw1QmpzdXBlTFktQ24yT29JZnZ1UUQwZEtaN3RaU3M1ekt6S3pIM2ZvZEc0U3dZcnM1TGtoZHpyUzdwYVEyeEh4LXE4a0Q4SklMU0NrbzRIc3dMNm1xYWk0VDd5WEljOFFIYU9idDdacVhEUQ?oc=5",
-      "published_at": "2026-01-06T12:33:05",
-      "publisher": "Data Center Dynamics",
-      "related_tickers": [],
-      "related_themes": [
-        "ai_infra"
-      ],
-      "query": "data center",
-      "snippet": "The new tech job doesn't require a degree. It starts in a data center&nbsp;&nbsp;Data Center Dynamics"
-    },
-    {
-      "id": "93b525418a9b2b95",
-      "title": "Hennion & Walsh Asset Management Inc. Cuts Stock Position in Intuitive Surgical, Inc. $ISRG - MarketBeat",
-      "url": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxNMndjWjBCRFhLWDJjUU1JMW45Mkc4ajkyVFNJMlhuUHZmV09SSGR1eVFqUEZwbkJ6bndnRk4xR09aMnFaWVBpY3hNTUZ4c2gwU0dWai10Uk5sZjlDaFNscno2Q2RoSmNXM3JqYTk2eGUzV1NSTUFUMHlQN2F5ai1MNm9wQlFwend3MlFuZEFtVVBhY2VjZUJnQVBMdEQ4bGN3OHh0QTJwanhVTkQ3U0hwZE16b1pVaS1xM3duSW9TcnA3SkMtcS1UcmZISWdnNEpVOVhVVXB3RXFMRk1KRllR?oc=5",
-      "published_at": "2026-01-06T12:26:14",
+      "id": "1794d99351757be5",
+      "title": "Rubrik (NYSE:RBRK) Director Sells $812,240.00 in Stock - MarketBeat",
+      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQNUZiSEpjWDIzZEliT1h3Q1hyUU0td1dNcHdqUHBCcFFWNjlqcUxvTU40b1lJSTh1TkhqTlQwbHdDMDFNNE5pYzRzTjJYNGhTSlBuSGR2QmpYd1EzQThyVWw1WDNKRjlZbzAtQU5WTGZQMlhQd3NqaUc2TU9IQVlvTzM1QlZHRmRnUWlJLTZvUWF5eEJvVUN2ZmFwdXlqX3h2cW0tYg?oc=5",
+      "published_at": "2026-01-07T00:27:22",
       "publisher": "MarketBeat",
       "related_tickers": [
-        "ISRG"
+        "RBRK"
       ],
       "related_themes": [
-        "robotics"
+        "ai_security"
       ],
-      "query": "ISRG stock",
-      "snippet": "Hennion & Walsh Asset Management Inc. Cuts Stock Position in Intuitive Surgical, Inc. $ISRG&nbsp;&nbsp;MarketBeat"
+      "query": "RBRK stock",
+      "snippet": "Rubrik (NYSE:RBRK) Director Sells $812,240.00 in Stock&nbsp;&nbsp;MarketBeat"
     },
     {
-      "id": "90e8880f35ad623e",
-      "title": "Tesla Stock Falls. Nvidia Self-Driving Tech Is Having a ‘ChatGPT Moment.’ - Barron's",
-      "url": "https://news.google.com/rss/articles/CBMikANBVV95cUxOeXZFX05FenJ6MHpMdUVfQS1uQmw2U1lMNHltYXRqZFhXV0VubzcyNWwyZ0phM0RoRjZkWjN1UHVsWlhpMjFXb0t1eGRwOG53dmI4RVlhcTNObGdtZ3d1VXRRZk9wMmw1TVJqWGNQWXl2TVRVdlNUaVpZMlZiMG5CZEpxVkRrRHRHRjdPSUxEODRHOTF2UWhsX25QTEJHUlZiM0I4UmFTTzZsTmFxZ2JKbDljSThJVFBZRmlrNEFTYV8xbS1pWFppejZwSXdZTXRhQ1FfamdFOVdON09Sd2hsbXpJa1RNNTlSQ1daQ0FubkxpSmNwUmJDZDU1WFZpU2NMNl83OWNaQ0t2QU1RRXpqbEFIYkdlVkp2Q0JEbFV6ZmpUcjBsN1lOdWdpbHpGLVN2ZEVySV9PTVIzODBPdjBISVhEZzRnOTZ4d0JPMkdMaE95alk3ZEloSW9kVTV3eThnUVhidUdOQWtaUTc1VE5PTTdqdG10QnZJcW5EMk1SYS02eTNWdnRJejN3NVUwaVVq?oc=5",
-      "published_at": "2026-01-06T12:26:00",
-      "publisher": "Barron's",
+      "id": "9febfc1b2cb0d384",
+      "title": "Global Index Maker MSCI Defers Decision on Dropping Crypto-Focused Companies - Yahoo Finance",
+      "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxObXNaQmZpZXJON3FkNmxSc3dPUVJkZXdLdTUzRVZQMUZEQkFvVFYwZlRrUkkzS2tPcXpVUlNYNE5xOFE3aU01THpFRnVYQW0xeTQzc2htbjQ4ZERvUkFWRHB0UHBtTG1ueWwySDNUUkdHM1ZWcUlZTzM1QnBFNFBlSEtn?oc=5",
+      "published_at": "2026-01-07T00:24:34",
+      "publisher": "Yahoo Finance",
+      "related_tickers": [],
+      "related_themes": [
+        "crypto"
+      ],
+      "query": "crypto",
+      "snippet": "Global Index Maker MSCI Defers Decision on Dropping Crypto-Focused Companies&nbsp;&nbsp;Yahoo Finance"
+    },
+    {
+      "id": "49d10d14b7a9a7aa",
+      "title": "Symbotic Inc. (SYM) exceeds market returns: Some facts to consider - MSN",
+      "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxNRmtWZ3dlUWRoMjdHckZPbjlwV2FzLXQwRmYzQlJHbjBSRzlJeDdEcmoyclBpS0M0UGxtR0RZQTdSZk05OElaNGZmUXYwU3FYYkdrMnJuMkkzM2lyclY0SHp3ZzROeVNjcnZMMmhxTmh1UFFxeE5xdkJRekFDNlh4OUxqUWtLYTRtVjFGa3lDelBMNlFQSmlfazRyamFuV0d3SlZiZEpOR1lWNDVDNmpZNF9HTlpQUmxlQkhfYWN6SVF6WUJnbm1RZXVvcFpsaGc2ZGhxVTktVHhHZw?oc=5",
+      "published_at": "2026-01-07T00:21:24",
+      "publisher": "MSN",
       "related_tickers": [
-        "TSLA"
+        "SYM"
       ],
       "related_themes": [
         "robotics"
       ],
-      "query": "TSLA stock",
-      "snippet": "Tesla Stock Falls. Nvidia Self-Driving Tech Is Having a ‘ChatGPT Moment.’&nbsp;&nbsp;Barron's"
+      "query": "SYM stock",
+      "snippet": "Symbotic Inc. (SYM) exceeds market returns: Some facts to consider&nbsp;&nbsp;MSN"
     },
     {
-      "id": "8595456da69f9a7f",
-      "title": "Morgan Stanley files for bitcoin, solana ETFs in digital assets push - Reuters",
-      "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNbjBuZWhOVFJ6NmZoLVdkLTV0b2JjRmg2S2ZCS3h0LWV6RlN3cmtQMFpkRFlSUndycGg1Ynh0MjllY01JVkxKNmFqVFpvOU9seHV3N2d0UzJDWTBBZnZOVTNKcEJTMWJMRnFpYWpoZnQ5ZE1Melp0Z0o1cEpiQVBWTEttTQ?oc=5",
-      "published_at": "2026-01-06T12:25:49",
-      "publisher": "Reuters",
+      "id": "a7fd9347e2d258e0",
+      "title": "GDU Launches UAV-P300, The World’s First Drone with AI-Driven Optical & Electronic Fog Penetration Capabilities - Yahoo Finance",
+      "url": "https://news.google.com/rss/articles/CBMifkFVX3lxTE1aaUpwTXV4d3ZYbDVQVUJWdm9YODNWemR1SHNCdGFJc2pacVRIc2drU1JkTGplSnhUcUZUZHRsWU1HYTRmeWtkN2JSR1F4WnY0d0dHVG1JYXAxWFRpVlE5SnZXUzd6NFZGWUtSX2tHQ2tJV2ltdFRJRGwtYVNfUQ?oc=5",
+      "published_at": "2026-01-07T00:19:55",
+      "publisher": "Yahoo Finance",
+      "related_tickers": [],
+      "related_themes": [
+        "drones"
+      ],
+      "query": "UAV",
+      "snippet": "GDU Launches UAV-P300, The World’s First Drone with AI-Driven Optical & Electronic Fog Penetration Capabilities&nbsp;&nbsp;Yahoo Finance"
+    },
+    {
+      "id": "42c57decec0b4582",
+      "title": "Is It Too Late To Consider Ondas Holdings (ONDS) After The Recent 7 Day Surge - Yahoo Finance",
+      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPVUJ0R2pGR1FtbzBUTmJzLWc2OXg0Y2JFZGFra0hUNVNDRlNCbFBESnRfaF9uWHV4TzB0enFYQVBjQjNZMUQzcHktRUxKUXdzWjRvSmI1a2hfMlp2SVRmbzNmM3d5ckcxaGUxY3VDUnptMDF4RG9sNzRIV1lMaU1yNDdjd2U?oc=5",
+      "published_at": "2026-01-07T00:17:00",
+      "publisher": "Yahoo Finance",
+      "related_tickers": [
+        "ONDS"
+      ],
+      "related_themes": [
+        "drones"
+      ],
+      "query": "ONDS stock",
+      "snippet": "Is It Too Late To Consider Ondas Holdings (ONDS) After The Recent 7 Day Surge&nbsp;&nbsp;Yahoo Finance"
+    },
+    {
+      "id": "908929a509246fe2",
+      "title": "CoreWeave (CRWV) Valuation Check After Mixed Returns And Price‑To‑Sales Signal - Yahoo Finance",
+      "url": "https://news.google.com/rss/articles/CBMiigFBVV95cUxORFRLaDVXcXRIbzJSSUMzTFBvUzhEOUxwSE93VGlMRFgzYmhIQ0ZDbW00WV96VlcyWnVlYkhBOHBVV1AybFNTRXR2ckswdHlEZlNVZ0pjV3BFVTZ1TzNmU3F5ODJYRzJpNVE1UjBieDF4WWxTMFo4Z2VxOFd5cks2R0xCVXVkRE9zLWc?oc=5",
+      "published_at": "2026-01-07T00:15:00",
+      "publisher": "Yahoo Finance",
+      "related_tickers": [
+        "CRWV"
+      ],
+      "related_themes": [
+        "ai_infra"
+      ],
+      "query": "CRWV stock",
+      "snippet": "CoreWeave (CRWV) Valuation Check After Mixed Returns And Price‑To‑Sales Signal&nbsp;&nbsp;Yahoo Finance"
+    },
+    {
+      "id": "d4df183a5e76972c",
+      "title": "XRP jumps 20% in a week as traders rotate beyond bitcoin and ether - CNBC",
+      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxNbDFmNV9FRDVXOE53eFNtMFoxZ1lsaXFDTDMyd0lMYW9NOFJyX1NMdXEzTktOX3BKeXZRNjdTcmVCNmpmRkMzSzctMzhIYWgxLVZVZ0Q0bzdSVngxSEpOUTdoRWp1TE1ZN29rSzN5b1pCU3RDZDVYN2FyRUVjRGJaMWt6NUp4VEtrNGtacWg5U0pCZVJpTmYtMHpSaHQycnVVR2EwSnNCV28tOVI1U0o3b0V1eGZpdw?oc=5",
+      "published_at": "2026-01-07T00:08:28",
+      "publisher": "CNBC",
       "related_tickers": [],
       "related_themes": [
         "crypto"
       ],
       "query": "bitcoin",
-      "snippet": "Morgan Stanley files for bitcoin, solana ETFs in digital assets push&nbsp;&nbsp;Reuters"
+      "snippet": "XRP jumps 20% in a week as traders rotate beyond bitcoin and ether&nbsp;&nbsp;CNBC"
     },
     {
-      "id": "73d73713f5af3cad",
-      "title": "Assessing Zscaler (ZS) Valuation After Mizuho Upgrade And New AI Security Leadership Moves - simplywall.st",
-      "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOTUZlU0Ric1ZiQVVtUnMzR0YtdlFrd25aeHFpS2NWZFFmdW5BSjlCcEs0YjIwY3ctOU9TT1VKSzJJQlRuRko4T2MtRHZQZWNQaWlPRnRCUDlvQzNveUtEZDR6N2g5WTVqX2RIM2NFUTc1SjBCUC13QWhLdVZ3OUNmQ2x3QUVyblRCajF6T2FEeUxUZkthQmV0R0M3TDU5eFZPT1A2ZkVXV016Z19zTzdrekxaNWhNZkEwbjFjQm0xUUHSAcYBQVVfeXFMTjV6Zm1UTDdZdXVGM1FSYV9qZmRBYnRwSW8zVWNma1llbHhjXzBGT3pDeG1Wb01NY08xVi1OZ2FiV2RQUVVWcGJMRDdSLWZiZjB1TkdabmtJLVJucUgxLU5oTV9tLWlHQ2VWQ2pGRmt3NkVBTU4wam56cXBPYjlfeHZHVUxqMjFpaEptXzZqWHJMYkpKYkFoZVJaMmpsbm5nc1ZHc2t0Wnloa3llc09TT3lVNEFGNm1ZQnlmUFdldHFYODFlTTl3?oc=5",
-      "published_at": "2026-01-06T12:25:11",
-      "publisher": "simplywall.st",
-      "related_tickers": [
-        "ZS"
-      ],
-      "related_themes": [
-        "ai_security"
-      ],
-      "query": "ZS stock",
-      "snippet": "Assessing Zscaler (ZS) Valuation After Mizuho Upgrade And New AI Security Leadership Moves&nbsp;&nbsp;simplywall.st"
-    },
-    {
-      "id": "bbfa47dc2e24f0de",
-      "title": "Grab acquires AI robotics firm Infermove to boost delivery capabilities - Reuters",
-      "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxOLTU3SVZKU1l3Z3Q1V3Z5dXd6eUc5NkFYYUdQNnMzaVZFcWttcDVqT1pVUW9ucnduUGFSc1F0b1ZaZjlQUE5lRVk1NndzenJYd1p1YnVBWmRsVk9fN0ZJZTVSZzd6b2YwVlMxUG1GZFNvMVlDX25scUdXRlNqNURMcEJKcExIckRsYV93akQ4WndySVdNRWEwam5nQzJUNW5yMmF4aU9IMXVpOUZpamhKOEk3SzFpTmc?oc=5",
-      "published_at": "2026-01-06T12:24:38",
-      "publisher": "Reuters",
+      "id": "0d2a4889471a5217",
+      "title": "CES 2026: Nvidia Unleashes Rubin on AI Data Center Market - Data Center Knowledge",
+      "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxOdTR2ZXlPOTRhTXZZeDliWlJDRHpSNkN0TXF2Sm5pdTR3RGNpTTQxMnlEckJ6SGpXeU1OckQ1ZF9pNkpfQk5JcldkR0hpUXBHOHN6bEtJT3VQNVZRaUVkUnhmMDh2YXNyU1NFbFBwcG5Mdlp5aEdIX3NJVmVDVXJXdUF6X00yYy05VUhHTzVWU3RmWkdUSHBaNXR6RUpnWndncmFYNVFydjN5V1FyOGZWbUJ5cklIQUNFY05z?oc=5",
+      "published_at": "2026-01-07T00:00:15",
+      "publisher": "Data Center Knowledge",
       "related_tickers": [],
       "related_themes": [
-        "robotics"
+        "ai_infra"
       ],
-      "query": "robotics",
-      "snippet": "Grab acquires AI robotics firm Infermove to boost delivery capabilities&nbsp;&nbsp;Reuters"
+      "query": "data center",
+      "snippet": "CES 2026: Nvidia Unleashes Rubin on AI Data Center Market&nbsp;&nbsp;Data Center Knowledge"
+    },
+    {
+      "id": "e115cebaba5bece4",
+      "title": "VAST Data Co-Founder on building AI before the hype - Frontier Enterprise",
+      "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPQ0hnTnA4OVBmQklRSnJpUVNNMHVNdVJTRFd4ZnczVUV0Vkt3ejd2NGV1WHlWRF9DZ1VaTmE2ZVVsM0VVYzdFNFVUcDB2a0NsenR0X1lmeUxkZEpzZHJjNWhpOTY0WnVITURnQTJDOEIxc3R2YWZHb0k3Q19NX1JVbUxNVVhLdGhhZDdEbXZnQzBtUQ?oc=5",
+      "published_at": "2026-01-07T00:00:00",
+      "publisher": "Frontier Enterprise",
+      "related_tickers": [],
+      "related_themes": [
+        "ai_data"
+      ],
+      "query": "big data",
+      "snippet": "VAST Data Co-Founder on building AI before the hype&nbsp;&nbsp;Frontier Enterprise"
+    },
+    {
+      "id": "a61b2d6621f7d135",
+      "title": "Rocket Lab COO Klein sells $7.29 million in RKLB stock - Investing.com",
+      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNUXZ3aW9jemhNQ1kyVUZSS2pvcEgyVm5fQVUtbUlNR2FKMTdJaGxkXzR6UGNQNkQxZlQ2eWlhRkRFank3WFV2c0NHVmYtNGc2SUFkaXZBRVJ2U0hNOHQtNHlLSTVRZTdyRU5FbHpIa21ocHlVM252WGdxRmVJWnA1Tm15dVhweXdXcUs5TzFSMGcxWTF3M2RkWjE4b3RSLXR3MzItQ1dSZ3ZCeExaNHU0clAzcnVVZ1Zm?oc=5",
+      "published_at": "2026-01-06T23:57:35",
+      "publisher": "Investing.com",
+      "related_tickers": [
+        "RKLB"
+      ],
+      "related_themes": [
+        "robotics",
+        "space"
+      ],
+      "query": "RKLB stock",
+      "snippet": "Rocket Lab COO Klein sells $7.29 million in RKLB stock&nbsp;&nbsp;Investing.com"
+    },
+    {
+      "id": "1d18933082a95e2b",
+      "title": "Senate Banking Republicans make ‘closing offer’ to Dems on crypto bill - Politico",
+      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxNUXFlZy1PaklhMXllTER5ZXdKMl9OS0VOc1l3LUhpTzZIRzE4Z2tvYlMzXzdUVlh4aTRVLVVJUVdYZlN5R3FqeGxPeE1za1VzU1NpWkduTTJ3YTVSN1ptUzk1SGY0VnV1dFZUdlNmUXkyaTd4c2hUZjUyczJXWWFLQ1k0ZXJJMUZaS0Jfbl9nSDRQYUJXSlZ6dw?oc=5",
+      "published_at": "2026-01-06T23:51:35",
+      "publisher": "Politico",
+      "related_tickers": [],
+      "related_themes": [
+        "crypto"
+      ],
+      "query": "crypto",
+      "snippet": "Senate Banking Republicans make ‘closing offer’ to Dems on crypto bill&nbsp;&nbsp;Politico"
     }
   ],
   "market_data": {
     "NVDA": {
-      "price": 188.12,
-      "change_pct": -0.38655,
-      "market_cap": 4580157423474,
-      "volume": 178569651
+      "price": 187.24,
+      "change_pct": -0.46779,
+      "market_cap": 4558732064487,
+      "volume": 174977604
     },
     "AMD": {
-      "price": 221.08,
-      "change_pct": -1.06949,
-      "market_cap": 358816669548,
-      "volume": 31162937
+      "price": 214.35,
+      "change_pct": -3.04415,
+      "market_cap": 347893762971,
+      "volume": 39858808
     },
     "AVGO": {
-      "price": 343.42,
-      "change_pct": -1.20822,
-      "market_cap": 1618238190380,
-      "volume": 30887208
+      "price": 343.77,
+      "change_pct": 0.10192,
+      "market_cap": 1619887434357,
+      "volume": 20896133
     },
     "TSM": {
-      "price": 322.25,
-      "change_pct": 0.82601,
-      "market_cap": 1671357082510,
-      "volume": 17378204
+      "price": 327.43,
+      "change_pct": 1.60745,
+      "market_cap": 1698223272385,
+      "volume": 15446433
     },
     "MSFT": {
-      "price": 472.85,
-      "change_pct": -0.0190299,
-      "market_cap": 3514698679202,
-      "volume": 24752522
+      "price": 478.51,
+      "change_pct": 1.197,
+      "market_cap": 3556769514612.9995,
+      "volume": 22938953
     },
     "GOOGL": {
-      "price": 316.54,
-      "change_pct": 0.44106,
-      "market_cap": 3819887911675.0005,
-      "volume": 30145691
+      "price": 314.34,
+      "change_pct": -0.69501,
+      "market_cap": 3793339123511.0005,
+      "volume": 30866953
     }
   },
   "earnings_calendar": [],
   "key_stocks": [
     {
       "ticker": "NVDA",
-      "price": 188.12,
-      "change_pct": -0.38655,
-      "market_cap": 4580157423474
+      "price": 187.24,
+      "change_pct": -0.46779,
+      "market_cap": 4558732064487
     },
     {
       "ticker": "AMD",
-      "price": 221.08,
-      "change_pct": -1.06949,
-      "market_cap": 358816669548
+      "price": 214.35,
+      "change_pct": -3.04415,
+      "market_cap": 347893762971
     },
     {
       "ticker": "AVGO",
-      "price": 343.42,
-      "change_pct": -1.20822,
-      "market_cap": 1618238190380
+      "price": 343.77,
+      "change_pct": 0.10192,
+      "market_cap": 1619887434357
     },
     {
       "ticker": "TSM",
-      "price": 322.25,
-      "change_pct": 0.82601,
-      "market_cap": 1671357082510
+      "price": 327.43,
+      "change_pct": 1.60745,
+      "market_cap": 1698223272385
     },
     {
       "ticker": "MSFT",
-      "price": 472.85,
-      "change_pct": -0.0190299,
-      "market_cap": 3514698679202
+      "price": 478.51,
+      "change_pct": 1.197,
+      "market_cap": 3556769514612.9995
     },
     {
       "ticker": "GOOGL",
-      "price": 316.54,
-      "change_pct": 0.44106,
-      "market_cap": 3819887911675.0005
+      "price": 314.34,
+      "change_pct": -0.69501,
+      "market_cap": 3793339123511.0005
     }
   ],
   "peer_data": {
     "NVDA": {
       "ticker": "NVDA",
       "name": "NVIDIA Corporation",
-      "market_cap": 4580157423474,
+      "market_cap": 4558732064487,
       "fundamentals": {
-        "revenue_ttm": 130497000000,
-        "ebitda_ttm": 86137000000,
-        "net_income_ttm": 72880000000,
-        "fcf_ttm": 60853000000,
+        "revenue_ttm": 187142000000,
+        "ebitda_ttm": 119090000000,
+        "net_income_ttm": 99198000000,
+        "fcf_ttm": 77324000000,
         "gross_margin": 0.7005001549625418,
         "operating_margin": 0.5884408630879225,
         "net_margin": 0.5300680766476793,
@@ -428,12 +449,12 @@
     "AMD": {
       "ticker": "AMD",
       "name": "Advanced Micro Devices, Inc.",
-      "market_cap": 358816669548,
+      "market_cap": 347893762971,
       "fundamentals": {
-        "revenue_ttm": 25785000000,
-        "ebitda_ttm": 5258000000,
-        "net_income_ttm": 1641000000,
-        "fcf_ttm": 2405000000,
+        "revenue_ttm": 32027000000,
+        "ebitda_ttm": 6118000000,
+        "net_income_ttm": 3306000000,
+        "fcf_ttm": 5448000000,
         "gross_margin": 0.4826240359696506,
         "operating_margin": 0.08783214163049927,
         "net_margin": 0.1032254035657414,
@@ -449,16 +470,16 @@
         "price_target_low": 200,
         "price_target_consensus": 293.16,
         "price_target_median": 300,
-        "analyst_count_last_quarter": 37
+        "analyst_count_last_quarter": 32
       }
     },
     "AVGO": {
       "ticker": "AVGO",
       "name": "Broadcom Inc.",
-      "market_cap": 1618238190380,
+      "market_cap": 1619887434357,
       "fundamentals": {
         "revenue_ttm": 63887000000,
-        "ebitda_ttm": 34714000000,
+        "ebitda_ttm": 34345000000,
         "net_income_ttm": 23126000000,
         "fcf_ttm": 26914000000,
         "gross_margin": 0.6776652527118193,
@@ -482,12 +503,12 @@
     "TSM": {
       "ticker": "TSM",
       "name": "Taiwan Semiconductor Manufacturing Company Limited",
-      "market_cap": 1671357082510,
+      "market_cap": 1698223272385,
       "fundamentals": {
-        "revenue_ttm": 2894308000000,
-        "ebitda_ttm": 1984849000000,
-        "net_income_ttm": 1158380200000,
-        "fcf_ttm": 870170000000,
+        "revenue_ttm": 3631425000000,
+        "ebitda_ttm": 2732109457000,
+        "net_income_ttm": 1571931352000,
+        "fcf_ttm": 889874479000,
         "gross_margin": 0.5897646240800788,
         "operating_margin": 0.49512920024508283,
         "net_margin": 0.4369687183405963,
@@ -509,12 +530,12 @@
     "MSFT": {
       "ticker": "MSFT",
       "name": "Microsoft Corporation",
-      "market_cap": 3514698679202,
+      "market_cap": 3556769514612.9995,
       "fundamentals": {
-        "revenue_ttm": 281724000000,
-        "ebitda_ttm": 160165000000,
-        "net_income_ttm": 101832000000,
-        "fcf_ttm": 71611000000,
+        "revenue_ttm": 293812000000,
+        "ebitda_ttm": 169991000000,
+        "net_income_ttm": 104912000000,
+        "fcf_ttm": 78017000000,
         "gross_margin": 0.6876403958994187,
         "operating_margin": 0.46266660313397684,
         "net_margin": 0.3570718690863545,
@@ -536,12 +557,12 @@
     "GOOGL": {
       "ticker": "GOOGL",
       "name": "Alphabet Inc.",
-      "market_cap": 3819887911675.0005,
+      "market_cap": 3793339123511.0005,
       "fundamentals": {
-        "revenue_ttm": 350018000000,
-        "ebitda_ttm": 135394000000,
-        "net_income_ttm": 100118000000,
-        "fcf_ttm": 72764000000,
+        "revenue_ttm": 385477000000,
+        "ebitda_ttm": 171744000000,
+        "net_income_ttm": 124251000000,
+        "fcf_ttm": 73552000000,
         "gross_margin": 0.5917214256622315,
         "operating_margin": 0.3218791263810811,
         "net_margin": 0.32233051517989403,
@@ -576,8 +597,8 @@
       {
         "ticker": "NVDA",
         "name": "NVIDIA Corporation",
-        "market_cap": 4580157423474,
-        "revenue_ttm": 130497000000,
+        "market_cap": 4558732064487,
+        "revenue_ttm": 187142000000,
         "revenue_growth": null,
         "gross_margin": 0.7005001549625418,
         "operating_margin": 0.5884408630879225,
@@ -588,7 +609,7 @@
       {
         "ticker": "AVGO",
         "name": "Broadcom Inc.",
-        "market_cap": 1618238190380,
+        "market_cap": 1619887434357,
         "revenue_ttm": 63887000000,
         "revenue_growth": null,
         "gross_margin": 0.6776652527118193,
@@ -600,8 +621,8 @@
       {
         "ticker": "GOOGL",
         "name": "Alphabet Inc.",
-        "market_cap": 3819887911675.0005,
-        "revenue_ttm": 350018000000,
+        "market_cap": 3793339123511.0005,
+        "revenue_ttm": 385477000000,
         "revenue_growth": null,
         "gross_margin": 0.5917214256622315,
         "operating_margin": 0.3218791263810811,
@@ -612,8 +633,8 @@
       {
         "ticker": "MSFT",
         "name": "Microsoft Corporation",
-        "market_cap": 3514698679202,
-        "revenue_ttm": 281724000000,
+        "market_cap": 3556769514612.9995,
+        "revenue_ttm": 293812000000,
         "revenue_growth": null,
         "gross_margin": 0.6876403958994187,
         "operating_margin": 0.46266660313397684,
@@ -622,12 +643,228 @@
         "forward_ps": null
       }
     ],
-    "markdown": "| Ticker | Company | Market Cap | Revenue TTM | Rev Growth | Gross Margin | Op Margin | Fwd P/E |\n|---|---|---|---|---|---|---|---|\n| NVDA | NVIDIA Corporation | $4.6T | $130.5B | - | 70.1% | 58.8% | - |\n| AVGO | Broadcom Inc. | $1.6T | $63.9B | - | 67.8% | 39.9% | - |\n| GOOGL | Alphabet Inc. | $3.8T | $350.0B | - | 59.2% | 32.2% | - |\n| MSFT | Microsoft Corporatio | $3.5T | $281.7B | - | 68.8% | 46.3% | - |",
+    "markdown": "| Ticker | Company | Market Cap | Revenue TTM | Rev Growth | Gross Margin | Op Margin | Fwd P/E |\n|---|---|---|---|---|---|---|---|\n| NVDA | NVIDIA Corporation | $4.6T | $187.1B | - | 70.1% | 58.8% | - |\n| AVGO | Broadcom Inc. | $1.6T | $63.9B | - | 67.8% | 39.9% | - |\n| GOOGL | Alphabet Inc. | $3.8T | $385.5B | - | 59.2% | 32.2% | - |\n| MSFT | Microsoft Corporatio | $3.6T | $293.8B | - | 68.8% | 46.3% | - |",
     "takeaways": [
       "NVDA 市值 $4.6T，在同業中排名第 1/4"
     ]
   },
   "valuations": {},
   "deep_dive_ticker": "NVDA",
-  "deep_dive_reason": "fallback_default"
+  "deep_dive_reason": "highest_impact",
+  "deep_dive_data": {
+    "ticker": "NVDA",
+    "company_profile": {
+      "name": "NVIDIA Corporation",
+      "sector": "Technology",
+      "industry": "Semiconductors",
+      "peers": [
+        "AAPL",
+        "ADI",
+        "AVGO",
+        "ENTG",
+        "GOOGL",
+        "IMOS",
+        "MSFT",
+        "TER",
+        "TSM"
+      ]
+    },
+    "price_data": {
+      "last": 187.24,
+      "change_pct_1d": -0.46779,
+      "volume": 174977604,
+      "market_cap": 4558732064487,
+      "as_of": "2026-01-07T01:07:43.093887+00:00",
+      "change_ytd": -0.85252846,
+      "high_52w": null,
+      "low_52w": null,
+      "avg_volume": null
+    },
+    "fundamentals": {
+      "revenue_ttm": 187142000000,
+      "ebitda_ttm": 119090000000,
+      "net_income_ttm": 99198000000,
+      "fcf_ttm": 77324000000,
+      "gross_margin": 0.7005001549625418,
+      "operating_margin": 0.5884408630879225,
+      "net_margin": 0.5300680766476793,
+      "debt_to_equity": null,
+      "current_ratio": 4.467574304889741
+    },
+    "estimates": {
+      "revenue_ntm": null,
+      "eps_ntm": null,
+      "ebitda_ntm": null,
+      "revenue_growth_ntm": null,
+      "price_target_high": 352,
+      "price_target_low": 140,
+      "price_target_consensus": 262.79,
+      "price_target_median": 257.5,
+      "analyst_count_last_quarter": 28
+    },
+    "valuation": {},
+    "peer_comparison": {
+      "headers": [
+        "Ticker",
+        "Company",
+        "Market Cap",
+        "Revenue TTM",
+        "Rev Growth",
+        "Gross Margin",
+        "Op Margin",
+        "Forward P/E"
+      ],
+      "rows": [
+        {
+          "ticker": "NVDA",
+          "name": "NVIDIA Corporation",
+          "market_cap": 4558732064487,
+          "revenue_ttm": 187142000000,
+          "revenue_growth": null,
+          "gross_margin": 0.7005001549625418,
+          "operating_margin": 0.5884408630879225,
+          "net_margin": 0.5300680766476793,
+          "forward_pe": null,
+          "forward_ps": null
+        },
+        {
+          "ticker": "AVGO",
+          "name": "Broadcom Inc.",
+          "market_cap": 1619887434357,
+          "revenue_ttm": 63887000000,
+          "revenue_growth": null,
+          "gross_margin": 0.6776652527118193,
+          "operating_margin": 0.3988917933225852,
+          "net_margin": 0.3619828760154648,
+          "forward_pe": null,
+          "forward_ps": null
+        },
+        {
+          "ticker": "GOOGL",
+          "name": "Alphabet Inc.",
+          "market_cap": 3793339123511.0005,
+          "revenue_ttm": 385477000000,
+          "revenue_growth": null,
+          "gross_margin": 0.5917214256622315,
+          "operating_margin": 0.3218791263810811,
+          "net_margin": 0.32233051517989403,
+          "forward_pe": null,
+          "forward_ps": null
+        },
+        {
+          "ticker": "MSFT",
+          "name": "Microsoft Corporation",
+          "market_cap": 3556769514612.9995,
+          "revenue_ttm": 293812000000,
+          "revenue_growth": null,
+          "gross_margin": 0.6876403958994187,
+          "operating_margin": 0.46266660313397684,
+          "net_margin": 0.3570718690863545,
+          "forward_pe": null,
+          "forward_ps": null
+        }
+      ],
+      "markdown": "| Ticker | Company | Market Cap | Revenue TTM | Rev Growth | Gross Margin | Op Margin | Fwd P/E |\n|---|---|---|---|---|---|---|---|\n| NVDA | NVIDIA Corporation | $4.6T | $187.1B | - | 70.1% | 58.8% | - |\n| AVGO | Broadcom Inc. | $1.6T | $63.9B | - | 67.8% | 39.9% | - |\n| GOOGL | Alphabet Inc. | $3.8T | $385.5B | - | 59.2% | 32.2% | - |\n| MSFT | Microsoft Corporatio | $3.6T | $293.8B | - | 68.8% | 46.3% | - |",
+      "takeaways": [
+        "NVDA 市值 $4.6T，在同業中排名第 1/4"
+      ]
+    },
+    "quarterly_history": [],
+    "segment_breakdown": [],
+    "competitive_moat": {
+      "type": [],
+      "durability": "moderate",
+      "description": ""
+    },
+    "related_news": [],
+    "upcoming_earnings": []
+  },
+  "recent_earnings": {
+    "ticker": "NVDA",
+    "earnings_date": "2025-10-26",
+    "fiscal_period": "Q3",
+    "fiscal_year": null,
+    "eps_actual": 1.312,
+    "eps_diluted": null,
+    "revenue_actual": 57006000000,
+    "gross_profit": 41849000000,
+    "operating_income": 36010000000,
+    "net_income": 31910000000,
+    "gross_margin": 73.41,
+    "operating_margin": 63.17,
+    "net_margin": 55.98,
+    "history": [
+      {
+        "ticker": "NVDA",
+        "date": "2025-10-26",
+        "fiscal_period": "Q3",
+        "fiscal_year": null,
+        "eps_actual": 1.312,
+        "eps_diluted": null,
+        "revenue_actual": 57006000000,
+        "gross_profit": 41849000000,
+        "operating_income": 36010000000,
+        "net_income": 31910000000,
+        "gross_margin": 73.41,
+        "operating_margin": 63.17,
+        "net_margin": 55.98
+      },
+      {
+        "ticker": "NVDA",
+        "date": "2025-07-27",
+        "fiscal_period": "Q2",
+        "fiscal_year": null,
+        "eps_actual": 1.084,
+        "eps_diluted": null,
+        "revenue_actual": 46743000000,
+        "gross_profit": 33853000000,
+        "operating_income": 28440000000,
+        "net_income": 26422000000,
+        "gross_margin": 72.42,
+        "operating_margin": 60.84,
+        "net_margin": 56.53
+      },
+      {
+        "ticker": "NVDA",
+        "date": "2025-04-27",
+        "fiscal_period": "Q1",
+        "fiscal_year": null,
+        "eps_actual": 0.768,
+        "eps_diluted": null,
+        "revenue_actual": 44062000000,
+        "gross_profit": 26668000000,
+        "operating_income": 21638000000,
+        "net_income": 18775000000,
+        "gross_margin": 60.52,
+        "operating_margin": 49.11,
+        "net_margin": 42.61
+      },
+      {
+        "ticker": "NVDA",
+        "date": "2025-01-26",
+        "fiscal_period": "Q4",
+        "fiscal_year": null,
+        "eps_actual": 0.902,
+        "eps_diluted": null,
+        "revenue_actual": 39331000000,
+        "gross_profit": 28723000000,
+        "operating_income": 24034000000,
+        "net_income": 22091000000,
+        "gross_margin": 73.03,
+        "operating_margin": 61.11,
+        "net_margin": 56.17
+      }
+    ]
+  },
+  "edition_coherence": {
+    "theme_id": "ai_chips",
+    "theme_tickers": [
+      "NVDA",
+      "QBTS",
+      "RGTI"
+    ],
+    "deep_ticker_in_theme": true,
+    "earnings_ticker_match": true,
+    "coherent": true
+  }
 }
