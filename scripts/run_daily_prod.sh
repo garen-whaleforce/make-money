@@ -26,6 +26,6 @@ export OPENAI_VERIFY_SSL="${OPENAI_VERIFY_SSL:-false}"
 
 LOG_DIR="${ROOT_DIR}/logs"
 mkdir -p "$LOG_DIR"
-LOG_FILE="${LOG_DIR}/daily_$(date +%F).log"
+LOG_FILE="${LOG_DIR}/daily_$(date +%F_%H%M%S).log"
 
 python3 -m src.pipeline.run_daily --mode prod --confirm-high-risk >> "$LOG_FILE" 2>&1

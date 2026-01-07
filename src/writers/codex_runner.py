@@ -266,7 +266,9 @@ class CodexRunner:
             完整 prompt
         """
         research_pack_json = json.dumps(research_pack, indent=2, ensure_ascii=False)
-        return self.prompt_template.replace("{research_pack}", research_pack_json)
+        if "{research_pack}" in self.prompt_template:
+            return self.prompt_template.replace("{research_pack}", research_pack_json)
+        return f"{self.prompt_template.rstrip()}\n\n## Research Pack 資料\n{research_pack_json}\n"
 
     def _get_system_prompt(self) -> str:
         """取得系統提示 - P0-1: 強制純 JSON 輸出"""
