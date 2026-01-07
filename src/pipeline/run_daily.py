@@ -42,12 +42,19 @@ console = Console()
 
 @dataclass
 class EditionPack:
-    """Single source of truth for the day's content"""
+    """Single source of truth for the day's content
+
+    v4.3 Edition Coherence:
+    - primary_theme: 今日主線投資主題（如 ai_chips, quantum）
+    - deep_dive_ticker: 必須是 primary_theme.matched_tickers 之一
+    - recent_earnings: 必須是 deep_dive_ticker 的財報
+    - 三篇文章（Flash/Earnings/Deep）共用同一個主題
+    """
     meta: Dict[str, Any]
     date: str
     edition: str
     primary_event: Optional[Dict] = None
-    primary_theme: Optional[Dict] = None
+    primary_theme: Optional[Dict] = None  # v4.3: 今日主線主題
     news_items: List[Dict] = field(default_factory=list)
     market_data: Dict[str, Dict] = field(default_factory=dict)
     earnings_calendar: List[Dict] = field(default_factory=list)
@@ -55,10 +62,11 @@ class EditionPack:
     peer_data: Dict[str, Dict] = field(default_factory=dict)
     peer_table: Optional[Dict] = None  # Formatted peer comparison table
     valuations: Dict[str, Dict] = field(default_factory=dict)
-    deep_dive_ticker: Optional[str] = None
+    deep_dive_ticker: Optional[str] = None  # v4.3: 必須與 primary_theme 一致
     deep_dive_reason: Optional[str] = None
     deep_dive_data: Optional[Dict] = None  # P1-2: Thicker data pack for deep dive
-    recent_earnings: Optional[Dict] = None  # v4.2: 最近一次財報資料（用於 Earnings 文章）
+    recent_earnings: Optional[Dict] = None  # v4.2: 必須是 deep_dive_ticker 的財報
+    edition_coherence: Optional[Dict] = None  # v4.3: 記錄主題一致性狀態
 
     def to_dict(self) -> Dict:
         return asdict(self)
@@ -409,12 +417,16 @@ def stage_pack(ingest_data: Dict, run_date: str, run_id: str) -> EditionPack:
     scored = scorer.score_events(events)
     primary = scorer.select_primary(scored)
 
-    # Determine theme
+    # Determine theme (v4.3: 使用投資主題而非 event_type)
     primary_theme = None
     if primary:
+        # 優先使用 matched_themes（投資主題如 ai_chips, quantum）
+        theme_id = primary.matched_themes[0] if primary.matched_themes else primary.event_type
         primary_theme = {
-            "id": primary.event_type,
+            "id": theme_id,
             "matched_tickers": primary.matched_tickers,
+            "matched_themes": primary.matched_themes,  # v4.3: 新增完整主題列表
+            "event_type": primary.event_type,  # v4.3: 保留事件類型供參考
         }
 
     # Select deep dive ticker
@@ -595,12 +607,30 @@ def stage_pack(ingest_data: Dict, run_date: str, run_id: str) -> EditionPack:
         except Exception as e:
             console.print(f"  [yellow]⚠ Failed to fetch recent earnings: {e}[/yellow]")
 
+    # v4.3: Build edition coherence check
+    edition_coherence = {
+        "theme_id": primary_theme.get("id") if primary_theme else None,
+        "theme_tickers": primary_theme.get("matched_tickers", []) if primary_theme else [],
+        "deep_ticker_in_theme": deep_ticker in (primary_theme.get("matched_tickers", []) if primary_theme else []),
+        "earnings_ticker_match": recent_earnings.get("ticker") == deep_ticker if recent_earnings else None,
+        "coherent": False,  # Will be set below
+    }
+    # Check if all three posts will be coherent
+    edition_coherence["coherent"] = (
+        edition_coherence["deep_ticker_in_theme"] and
+        edition_coherence["earnings_ticker_match"] is not False
+    )
+    if edition_coherence["coherent"]:
+        console.print(f"  ✓ Edition coherence: {edition_coherence['theme_id']} → {deep_ticker}")
+    else:
+        console.print(f"  [yellow]⚠ Edition coherence check failed: {edition_coherence}[/yellow]")
+
     # Build pack
     pack = EditionPack(
         meta={
             "run_id": run_id,
             "created_at": datetime.now().isoformat(),
-            "version": "2.0",
+            "version": "4.3",  # v4.3: Edition Coherence
         },
         date=run_date,
         edition="postclose",
@@ -616,7 +646,8 @@ def stage_pack(ingest_data: Dict, run_date: str, run_id: str) -> EditionPack:
         deep_dive_ticker=deep_ticker,
         deep_dive_reason=deep_reason,
         deep_dive_data=deep_dive_data,  # P1-2: Thicker data pack for deep dive
-        recent_earnings=recent_earnings,  # v4.2: 最近財報資料
+        recent_earnings=recent_earnings,  # v4.2: 必須是 deep_dive_ticker 的財報
+        edition_coherence=edition_coherence,  # v4.3: 主題一致性
     )
 
     # Add market_snapshot to pack meta

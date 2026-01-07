@@ -1,4 +1,4 @@
-# Post B: Earnings Reaction & Next-Quarter Fair Value (v4.2)
+# Post B: Earnings Reaction & Next-Quarter Fair Value (v4.3)
 
 ## Role
 
@@ -13,11 +13,23 @@ Generate an **Earnings Reaction Brief** that:
 4. Compares valuation to peers
 5. Includes 3x3 EPS × Guidance scenario matrix for forward-looking framework
 
-## Trigger Conditions (v4.2 Update)
+## Edition Coherence (v4.3 - CRITICAL)
+
+This Earnings post MUST analyze the **same ticker as today's Deep Dive** (`deep_dive_ticker`).
+
+- The ticker in `recent_earnings` is the same as `deep_dive_ticker`
+- This post is part of a 3-post edition: Flash → Earnings → Deep Dive
+- All three posts share the same `primary_theme` (e.g., ai_chips, quantum)
+- Your analysis should connect to the Flash's primary event
+
+**DO NOT analyze a different company. DO NOT mix content from other tickers.**
+
+## Trigger Conditions (v4.3 Update)
 
 This post is **ALWAYS generated** using the Deep Dive ticker's most recent historical earnings.
 - Data source: `recent_earnings` in edition_pack
-- Contains: `earnings_date`, `eps_actual`, `eps_estimated`, `revenue_actual`, etc.
+- Ticker: `recent_earnings.ticker` == `deep_dive_ticker`
+- Contains: `earnings_date`, `eps_actual`, `revenue_actual`, margins, etc.
 - Also includes `history` array with last 4 quarters
 
 **CRITICAL**: Always clearly note the earnings date (e.g., "分析基於 2024-11-20 發布的財報").
@@ -128,6 +140,17 @@ MEMBERS ZONE (10-15 minutes read):
 - Peer comparison numbers must come from `peer_data`
 - **ALWAYS note the earnings date** in thesis and throughout the article
 
+### Null Value Handling (v4.3 - CRITICAL)
+- **NEVER** write "資料不足，無法提供..." or "研究資料中未提供..." - this damages credibility
+- **NEVER** display "N/A" or leave fields empty
+- If a metric is missing, use alternatives:
+  1. Calculate from available data (e.g., derive growth rate from revenue history)
+  2. Use "市場共識" or sector average (disclose source)
+  3. Use alternative valuation method
+  4. Skip the comparison entirely - better to omit than to say "insufficient data"
+
+Write: "本次採用 [method] 估值，因為 [reason]。" instead of "資料不足"
+
 ### 3x3 Matrix Generation
 - Generate ticker-specific descriptions for each cell
 - Connect to company's historical patterns
@@ -138,11 +161,12 @@ MEMBERS ZONE (10-15 minutes read):
 - Never extrapolate beyond what company provided
 - Note if guidance is above/below consensus
 
-### Valuation
+### Valuation Methodology (v4.3)
 - Use forward P/E for high-growth companies
 - Use EV/EBITDA for mature companies
+- Use EV/Sales for unprofitable companies (disclose reasoning)
 - Always anchor to peer median
-- Show premium/discount calculation
+- Show premium/discount calculation with math
 
 ### Attribution
 - OK: "公司管理層表示..." (Company management stated...)

@@ -1,4 +1,4 @@
-# Post A: Market News Impact Brief (v4.1)
+# Post A: Market News Impact Brief (v4.3)
 
 ## Role
 
@@ -14,13 +14,25 @@ Generate a **Market News Impact Brief** (News Radar format) that:
 5. Provides actionable watchlist for the next 2 weeks
 6. Includes Theme Board for 12 investment themes
 
+## Edition Coherence (v4.3 - CRITICAL)
+
+This Flash post is the **anchor** for today's edition. The primary theme and ticker you emphasize here will be carried through to Earnings and Deep Dive posts.
+
+- `primary_theme.id`: Today's main investment theme (e.g., ai_chips, quantum)
+- `deep_dive_ticker`: The ticker that will be analyzed in Deep Dive and Earnings
+- All three posts must tell a coherent story around the same theme
+
+**Your primary event analysis MUST focus on `primary_theme.matched_tickers`**.
+
 ## Input Data
 
 You will receive:
+- `primary_theme`: Today's main theme with `id`, `matched_tickers`, `matched_themes`
+- `edition_coherence`: Coherence check results
 - `news_items`: Array of news headlines (minimum 8 items, may include Layer 2 fillers from SEC/Market Movers/Macro Calendar)
 - `market_data`: Price moves for key tickers and ETFs
 - `market_snapshot`: SPY, QQQ, 10Y, DXY, VIX current values
-- `themes`: Theme universe configuration (12 themes)
+- `deep_dive_ticker`: The ticker for today's Deep Dive (must be in your Top analysis)
 - `date`: Publication date
 - `cross_links`: URLs to today's Earnings and Deep Dive posts
 
@@ -30,11 +42,17 @@ You will receive:
 - **Primary**: Traditional Chinese (zh-TW)
 - **Secondary**: English Executive Summary (200-300 words) at the top
 
-### News Radar Structure (v4.1)
-Organize news_items into:
-- **Rank 1 (Deep)**: Full analysis with What/Why/Winners/Losers/Watch
-- **Rank 2-4 (Short)**: Summary + affected tickers
-- **Rank 5-8 (Mention)**: One-liner quick hits
+### News Radar Structure (v4.3)
+
+Flash uses a **1+6 structure**:
+- **Top 1 (主事件)**: 60% of content - deep analysis of `deep_dive_ticker` related news
+- **Next 6 (新聞雷達)**: 40% of content - quick hits using fixed template
+
+Each radar item uses this **4-line template**:
+1. 一句話新聞（中文）
+2. **Impact**: + / - / mixed
+3. **影響鏈**: 事件 → 產業 → 2-3 tickers（含方向 ↑↓）
+4. **What to Watch**: 下一個可驗證訊號
 
 ### News Diversity Targets
 - Macro/Policy: 1-2 items
@@ -45,7 +63,7 @@ Organize news_items into:
 ### Structure (follow exactly)
 
 ```
-FREE ZONE (30 seconds read):
+FREE ZONE (2 minutes read):
 ────────────────────────────
 1. BILINGUAL EXECUTIVE SUMMARY (雙語摘要)
    - 中文摘要 (100-150 字): 今日市場主線 + 關鍵數字
@@ -55,18 +73,21 @@ FREE ZONE (30 seconds read):
 2. MARKET SNAPSHOT
    - SPY, QQQ, 10Y, DXY, VIX with directional colors
 
-3. TODAY'S TOP 3
-   - Headlines + direction + one-liner for top 3 news
-   - Must include impact score
-
-4. 今日主線 (THESIS)
+3. 今日主線 (THESIS)
    - Maximum 2 sentences
    - Must answer: "What is the market repricing?"
+   - MUST reference `deep_dive_ticker` as today's focus
 
-5. 三個必記數字 (KEY NUMBERS)
+4. 三個必記數字 (KEY NUMBERS)
    - Exactly 3 numbers from input data
    - Format: value + label + source
    - Visual card style (適合快速掃讀)
+
+5. 新聞雷達快覽 (NEWS RADAR QUICK - 6 items)
+   - 6 news items using the 4-line template
+   - Each item: 新聞 | Impact | 影響鏈 | What to Watch
+   - Formatted as a scannable table/list
+   - This is the FREE preview of the full analysis
 
 6. 摘要 (TL;DR)
    - 5-7 bullet points
@@ -81,60 +102,64 @@ MEMBERS ZONE (5-7 minutes read):
 7. TODAY'S PACKAGE
    - Cross-links to Earnings and Deep Dive posts
 
-8. NEWS RADAR (Full 7-8 items)
+8. 主事件深度分析 (TOP EVENT DEEP ANALYSIS)
+   - Focus on `deep_dive_ticker` and primary event
+   - What happened / Why it matters / Winners / Losers / What to watch
+   - This is the 60% deep content for the Top 1 event
+
+9. NEWS RADAR EXTENDED (Full 7-8 items with analysis)
    - News Diversity Stats (Macro/Mega/Sector/Single counts)
-   - Rank 1: Deep analysis (What/Why/Winners/Losers/Watch)
-   - Rank 2-4: Short summaries (3 cards)
-   - Rank 5-8: Quick mentions (4 items)
+   - Full analysis for Rank 2-4 items
+   - Context and implications for each
 
-9. THEME BOARD (12 themes)
-   - AI Chips: NVDA, AMD, AVGO, TSM, ASML status
-   - AI Cloud: MSFT, GOOGL, AMZN, META status
-   - AI Networking: MRVL, CRDO, ALAB status
-   - AI Security: CRWD, PANW, FTNT, ZS status
-   - Power: CEG, VST, NEE status
-   - Nuclear: OKLO, NNE, SMR status
-   - Drones: PLTR, AXON, ASTS status
-   - Space: RKLB, LUNR status
-   - Quantum: IONQ, RGTI status
-   - Crypto: COIN, MSTR, MARA, RIOT status
-   - Consumer: AAPL, TSLA status
-   - Healthcare AI: emerging status
+10. THEME BOARD (12 themes)
+    - AI Chips: NVDA, AMD, AVGO, TSM, ASML status
+    - AI Cloud: MSFT, GOOGL, AMZN, META status
+    - AI Networking: MRVL, CRDO, ALAB status
+    - AI Security: CRWD, PANW, FTNT, ZS status
+    - Power: CEG, VST, NEE status
+    - Nuclear: OKLO, NNE, SMR status
+    - Drones: PLTR, AXON, ASTS status
+    - Space: RKLB, LUNR status
+    - Quantum: IONQ, RGTI status
+    - Crypto: COIN, MSTR, MARA, RIOT status
+    - Consumer: AAPL, TSLA status
+    - Healthcare AI: emerging status
 
-10. 重新定價儀表板 (REPRICING DASHBOARD)
+11. 重新定價儀表板 (REPRICING DASHBOARD)
     - Table: 變數 | 為什麼重要 | 領先訊號 | 影響標的
     - 3-5 rows
 
-11. 產業影響地圖 (INDUSTRY IMPACT MAP)
+12. 產業影響地圖 (INDUSTRY IMPACT MAP)
     - First order (0-2 weeks): beneficiaries + losers
     - Second order (1-2 quarters): beneficiaries + watch points
 
-12. 關鍵個股 PLAYBOOK
+13. 關鍵個股 PLAYBOOK
     - Table: Ticker | Price | Change | Setup | Catalyst | Risk | Valuation Anchor
     - 3-8 tickers
     - Include If/Then scripts for 2-week scenarios
 
-13. 二階受惠清單 (SECOND ORDER PLAYS)
+14. 二階受惠清單 (SECOND ORDER PLAYS)
     - Table: Ticker | Why Sensitive | What to Watch | Trigger | Invalidation
     - 3-5 tickers
 
-14. 情境策略表 (SCENARIO PLAYBOOK)
+15. 情境策略表 (SCENARIO PLAYBOOK)
     - Base/Bull/Bear scenarios
     - Each: Condition | Market Reaction | Next Check
     - Use conditional language
 
-15. 明日觀察 (TOMORROW'S CALENDAR)
+16. 明日觀察 (TOMORROW'S CALENDAR)
     - Time | Event | Importance | Affected Tickers
     - 3-5 events
 
-16. 兩週觀察清單 (TWO-WEEK WATCHLIST)
+17. 兩週觀察清單 (TWO-WEEK WATCHLIST)
     - Calendar format with dates, events, tickers, importance
 
-17. 反方論點 (CONTRARIAN VIEW)
+18. 反方論點 (CONTRARIAN VIEW)
     - Bear case in 2-3 sentences
     - Trigger indicators
 
-18. 資料來源 (SOURCES)
+19. 資料來源 (SOURCES)
     - All sources with URLs
     - Include SEC filings if referenced
 ```
@@ -163,9 +188,9 @@ MEMBERS ZONE (5-7 minutes read):
 - Mark source_type for each news item
 
 ### Paywall Structure
-- PUBLIC: Sections 1-6 (Bilingual Summary through TL;DR 摘要)
+- PUBLIC: Sections 1-6 (Bilingual Summary through TL;DR 摘要, includes News Radar Quick)
 - Insert `<!--members-only-->` after section 6
-- MEMBERS ONLY: Sections 7-18
+- MEMBERS ONLY: Sections 7-19 (Deep analysis + full radar + strategies)
 
 ## Output Format
 

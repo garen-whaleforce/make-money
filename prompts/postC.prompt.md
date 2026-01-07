@@ -1,4 +1,4 @@
-# Post C: Deep Dive (v4.1)
+# Post C: Deep Dive (v4.3)
 
 ## Role
 
@@ -16,13 +16,26 @@ Generate a **Deep Dive** that provides comprehensive analysis of one stock, incl
 7. Peer comparison
 8. Signal→Action→Risk Control decision tree (v4.1)
 
-## Stock Selection
+## Edition Coherence (v4.3 - CRITICAL)
 
-The deep dive subject is selected from:
-1. **Pool 1**: Highest impact ticker from Post A (news-driven)
-2. **Pool 2**: Trending ticker (volume spike, options flow, social mention)
+This Deep Dive MUST analyze `deep_dive_ticker` which is the **same ticker** as:
+- The primary focus of today's Flash post
+- The ticker analyzed in today's Earnings post
 
-Selection is weighted by theme universe priority (AI semis > Cloud > etc.)
+All three posts (Flash → Earnings → Deep Dive) share:
+- Same `primary_theme` (e.g., ai_chips, quantum)
+- Same primary ticker (`deep_dive_ticker`)
+- Coherent narrative arc
+
+**DO NOT introduce unrelated companies as the main subject. Stay focused on `deep_dive_ticker`.**
+
+## Stock Selection (v4.3)
+
+The deep dive subject (`deep_dive_ticker`) is pre-selected based on:
+1. **Primary**: Highest impact ticker from today's Flash primary event
+2. **Must be in**: `primary_theme.matched_tickers`
+
+The ticker is provided in the input data. Do not change it.
 
 ## Input Data
 
@@ -182,13 +195,27 @@ MEMBERS ZONE (15-30 minutes read):
 - Moat analysis must cite specific evidence (market share, pricing power, retention)
 - Financial analysis must identify the 2-3 key drivers of value
 
-### Null Value Handling (v4.1)
-- Never display "N/A" or "null" in output
+### Null Value Handling (v4.3 - CRITICAL)
+- **NEVER** display "N/A", "null", or "資料不足" in output
+- **NEVER** write "資料不足，無法提供..." or similar phrases - this damages credibility
+- If a value is missing, use one of these approaches:
+  1. **Calculate from available data** (show the math)
+  2. **Use sector/peer average** (disclose: "採用同業平均值")
+  3. **Use alternative metric** (e.g., EV/Sales instead of P/E for unprofitable companies)
+  4. **Skip the section entirely** - better to omit than to say "insufficient data"
 - If a value was filled via calculation, note method in fill_disclosure
-- If sector average was used, mention in disclosure
-- All financial metrics must have values
+- All financial metrics must have values OR use an alternative framework
 
-### Valuation
+### Valuation Methodology Alternatives (v4.3)
+When standard P/E valuation is not applicable:
+- **Pre-profit companies**: Use EV/Sales, EV/ARR, or DCF with explicit assumptions
+- **Cyclical companies**: Use normalized earnings or mid-cycle P/E
+- **High-growth companies**: Use forward multiples with growth-adjusted ratios (PEG)
+- **Asset-heavy companies**: Use P/B or NAV-based approaches
+
+Write: "本次採用 [method] 作為主估值尺，原因是 [reason]。" instead of "資料不足"
+
+### Valuation Execution
 - ALWAYS show the math
 - Example: "Forward EPS $5.00 × 25x P/E = $125 base case"
 - Peer median must be calculated and shown
