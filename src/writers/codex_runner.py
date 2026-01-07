@@ -123,6 +123,7 @@ class CodexRunner:
         env_model = os.getenv("LITELLM_MODEL") or os.getenv("CODEX_MODEL")
         type_model = self.POST_TYPE_MODELS.get(post_type) if post_type else None
         self.model = env_model or type_model or model
+        self.env_model_override = env_model
         self.max_tokens = max_tokens
         self.temperature = temperature
         self.post_type = post_type
@@ -853,10 +854,13 @@ class CodexRunner:
                 return None
 
             verify_ssl = os.getenv("OPENAI_VERIFY_SSL", "true").lower() != "false"
+            timeout = float(os.getenv("LITELLM_TIMEOUT", "180"))
             client_kwargs = {"api_key": api_key, "base_url": base_url}
-            if not verify_ssl:
+            try:
                 import httpx
-                client_kwargs["http_client"] = httpx.Client(verify=False)
+                client_kwargs["http_client"] = httpx.Client(timeout=timeout, verify=verify_ssl)
+            except Exception:
+                pass
 
             client = OpenAI(**client_kwargs)
 
@@ -899,6 +903,7 @@ class CodexRunner:
                         or "429" in msg
                         or "rate limit" in msg.lower()
                         or "connection error" in msg.lower()
+                        or "timeout" in msg.lower()
                     )
                     if retryable and attempt < max_attempts:
                         logger.warning(f"LiteLLM retry {attempt}/{max_attempts} after error: {msg}")
@@ -1086,7 +1091,9 @@ class CodexRunner:
         # 若指定模型失敗，改用 post_type 的預設模型再試一次
         if not result and self.post_type:
             fallback_model = self.POST_TYPE_MODELS.get(self.post_type)
-            if fallback_model and fallback_model != self.model:
+            if self.env_model_override:
+                logger.warning("Model override set; skipping fallback model")
+            elif fallback_model and fallback_model != self.model:
                 logger.warning(f"Retry with fallback model: {fallback_model}")
                 original_model = self.model
                 self.model = fallback_model
