@@ -175,10 +175,16 @@ jobs:
           fi
 
       - name: Send Slack notification (optional)
-        if: always() && secrets.SLACK_WEBHOOK_URL != ''
+        if: always()
+        continue-on-error: true
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "Slack webhook not configured, skipping notification"
+            exit 0
+          fi
+
           STATUS="${{ job.status }}"
           if [ "$STATUS" = "success" ]; then
             EMOJI="✅"
