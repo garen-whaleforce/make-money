@@ -895,6 +895,7 @@ class CodexRunner:
                         ],
                         max_tokens=max_tokens,
                         temperature=temperature,
+                        timeout=timeout,
                     )
                 except Exception as e:
                     msg = str(e)
