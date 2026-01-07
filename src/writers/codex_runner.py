@@ -6,6 +6,7 @@
 import json
 import os
 import subprocess
+import time
 import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -446,21 +447,49 @@ class CodexRunner:
                 max_tokens = 8192
                 logger.info(f"Model {self.model} max_tokens capped at 8192")
 
-            response = client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": self._get_system_prompt()},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=max_tokens,
-                temperature=temperature,
-            )
+            max_attempts = int(os.getenv("LITELLM_MAX_RETRIES", "3"))
+            retry_delay = float(os.getenv("LITELLM_RETRY_DELAY", "5"))
 
-            # 提取回應文字
-            response_text = response.choices[0].message.content
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    response = client.chat.completions.create(
+                        model=self.model,
+                        messages=[
+                            {"role": "system", "content": self._get_system_prompt()},
+                            {"role": "user", "content": prompt}
+                        ],
+                        max_tokens=max_tokens,
+                        temperature=temperature,
+                    )
+                except Exception as e:
+                    msg = str(e)
+                    retryable = (
+                        "No deployments available" in msg
+                        or "429" in msg
+                        or "rate limit" in msg.lower()
+                        or "connection error" in msg.lower()
+                    )
+                    if retryable and attempt < max_attempts:
+                        logger.warning(f"LiteLLM retry {attempt}/{max_attempts} after error: {msg}")
+                        time.sleep(retry_delay)
+                        continue
+                    logger.error(f"LiteLLM API call failed: {e}")
+                    return None
 
-            # 解析 JSON
-            return self._parse_json_response(response_text)
+                # 提取回應文字
+                if not response or not response.choices or response.choices[0].message is None:
+                    logger.error("LiteLLM API returned empty response")
+                    return None
+
+                response_text = response.choices[0].message.content
+                if response_text is None:
+                    logger.error("LiteLLM API returned empty content")
+                    return None
+
+                # 解析 JSON
+                return self._parse_json_response(response_text)
+
+            return None
 
         except ImportError:
             logger.error("openai SDK not installed. Run: pip install openai")
@@ -622,6 +651,16 @@ class CodexRunner:
 
         # 嘗試呼叫 API
         result = self._call_claude_api(prompt)
+
+        # 若指定模型失敗，改用 post_type 的預設模型再試一次
+        if not result and self.post_type:
+            fallback_model = self.POST_TYPE_MODELS.get(self.post_type)
+            if fallback_model and fallback_model != self.model:
+                logger.warning(f"Retry with fallback model: {fallback_model}")
+                original_model = self.model
+                self.model = fallback_model
+                result = self._call_claude_api(prompt)
+                self.model = original_model
 
         if not result:
             logger.error("Failed to generate article")
