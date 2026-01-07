@@ -422,6 +422,14 @@ class CodexRunner:
             return html
         return f"<h1>{title}</h1>\n{html}"
 
+    def _ensure_primary_ticker_in_html(self, html: str, ticker: str) -> str:
+        """Ensure HTML contains the primary ticker for consistency checks."""
+        if not html or not ticker:
+            return html
+        if ticker in html:
+            return html
+        return f"<p><strong>{ticker}</strong></p>\n{html}"
+
     def _build_title_candidates(self, base_title: str, research_pack: dict, min_count: int) -> list[dict]:
         """Generate minimal title candidates if missing."""
         theme_id = (research_pack.get("primary_theme", {}) or {}).get("id", "")
@@ -1054,6 +1062,8 @@ class CodexRunner:
         # Prefer model-provided HTML; otherwise render from markdown
         html_content = result.get("html") or self._convert_to_html(raw_markdown, result)
         html_content = self._ensure_title_in_html(html_content, result.get("title", ""))
+        primary_ticker = (result.get("tickers_mentioned") or [None])[0]
+        html_content = self._ensure_primary_ticker_in_html(html_content, primary_ticker)
         result["html"] = html_content
 
         # 驗證結果
@@ -1164,6 +1174,12 @@ class CodexRunner:
             result["tickers_mentioned"] = [
                 s.get("ticker") for s in research_pack.get("key_stocks", [])
             ]
+        if self.post_type in {"earnings", "deep"}:
+            primary_ticker = research_pack.get("deep_dive_ticker")
+            if primary_ticker:
+                tickers = result.get("tickers_mentioned", [])
+                tickers = [primary_ticker] + [t for t in tickers if t and t != primary_ticker]
+                result["tickers_mentioned"] = tickers
 
         # Normalize sources with publishers
         result["sources"] = self._normalize_sources(result.get("sources", []), research_pack)
