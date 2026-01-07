@@ -347,7 +347,13 @@ class CodexRunner:
         except Exception:
             return "Unknown"
 
-    def _normalize_sources(self, sources: list, research_pack: dict, min_count: int = 5) -> list[dict]:
+    def _normalize_sources(
+        self,
+        sources: list,
+        research_pack: dict,
+        min_count: int = 5,
+        min_publishers: int = 3,
+    ) -> list[dict]:
         """Ensure sources include publisher + url and meet minimum count."""
         normalized = []
         seen = set()
@@ -376,6 +382,9 @@ class CodexRunner:
             })
             seen.add(key)
 
+        def distinct_publishers() -> int:
+            return len({s.get("publisher", "").lower() for s in normalized if s.get("publisher")})
+
         for source in sources or []:
             if isinstance(source, dict):
                 add_source(source)
@@ -398,19 +407,18 @@ class CodexRunner:
                     "type": "news",
                 })
 
-        if len(normalized) < min_count:
-            news_items = research_pack.get("news_items", [])
-            for item in news_items:
-                if len(normalized) >= min_count:
-                    break
-                if not isinstance(item, dict):
-                    continue
-                add_source({
-                    "name": item.get("headline") or item.get("title") or "",
-                    "publisher": item.get("publisher") or item.get("source") or "",
-                    "url": item.get("url") or "",
-                    "type": item.get("source_type") or "news",
-                })
+        news_items = research_pack.get("news_items", [])
+        for item in news_items:
+            if len(normalized) >= min_count and distinct_publishers() >= min_publishers:
+                break
+            if not isinstance(item, dict):
+                continue
+            add_source({
+                "name": item.get("headline") or item.get("title") or "",
+                "publisher": item.get("publisher") or item.get("source") or "",
+                "url": item.get("url") or "",
+                "type": item.get("source_type") or "news",
+            })
 
         return normalized
 
@@ -421,6 +429,28 @@ class CodexRunner:
         if title in html:
             return html
         return f"<h1>{title}</h1>\n{html}"
+
+    def _ensure_disclosure_in_markdown(self, markdown_text: str) -> str:
+        """Append disclosure if missing from markdown."""
+        if not markdown_text:
+            return markdown_text
+        required = ["非投資建議", "not investment advice", "投資有風險", "for reference only"]
+        lower = markdown_text.lower()
+        if any(r.lower() in lower for r in required):
+            return markdown_text
+        disclosure = "\n\n本報告僅供參考，非投資建議。投資有風險，請審慎評估。\n"
+        return markdown_text.rstrip() + disclosure
+
+    def _ensure_disclosure_in_html(self, html: str) -> str:
+        """Append disclosure if missing from HTML."""
+        if not html:
+            return html
+        required = ["非投資建議", "not investment advice", "投資有風險", "for reference only"]
+        lower = html.lower()
+        if any(r.lower() in lower for r in required):
+            return html
+        disclosure_html = "<p>本報告僅供參考，非投資建議。投資有風險，請審慎評估。</p>"
+        return html + "\n" + disclosure_html
 
     def _ensure_primary_ticker_in_html(self, html: str, ticker: str) -> str:
         """Ensure HTML contains the primary ticker for consistency checks."""
@@ -1073,13 +1103,15 @@ class CodexRunner:
         # Sanitize markdown numbers for traceability
         raw_markdown = result.get("markdown", "") or ""
         sanitized_markdown = self._sanitize_markdown_numbers(raw_markdown, research_pack)
+        sanitized_markdown = self._ensure_disclosure_in_markdown(sanitized_markdown)
         result["markdown"] = sanitized_markdown
 
         # Prefer model-provided HTML; otherwise render from markdown
-        html_content = result.get("html") or self._convert_to_html(raw_markdown, result)
+        html_content = result.get("html") or self._convert_to_html(sanitized_markdown, result)
         html_content = self._ensure_title_in_html(html_content, result.get("title", ""))
         primary_ticker = (result.get("tickers_mentioned") or [None])[0]
         html_content = self._ensure_primary_ticker_in_html(html_content, primary_ticker)
+        html_content = self._ensure_disclosure_in_html(html_content)
         result["html"] = html_content
 
         # 驗證結果
