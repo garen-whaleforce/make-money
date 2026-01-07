@@ -1,0 +1,201 @@
+name: Daily Brief Pipeline
+
+on:
+  # 每天 UTC 11:00 (美東 06:00 ET / 台灣 19:00)
+  schedule:
+    - cron: '0 11 * * *'
+
+  # 允許手動觸發
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run mode'
+        required: true
+        default: 'prod'
+        type: choice
+        options:
+          - test
+          - prod
+      send_newsletter:
+        description: 'Send newsletter email'
+        required: true
+        default: true
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.11'
+  TZ: 'America/New_York'
+
+jobs:
+  generate-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install openai  # For LiteLLM API calls
+
+      - name: Set run mode
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "mode=prod" >> $GITHUB_OUTPUT
+            echo "send_newsletter=true" >> $GITHUB_OUTPUT
+          else
+            echo "mode=${{ inputs.mode }}" >> $GITHUB_OUTPUT
+            echo "send_newsletter=${{ inputs.send_newsletter }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate Daily Brief
+        env:
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+          ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
+          LITELLM_BASE_URL: ${{ secrets.LITELLM_BASE_URL }}
+          LITELLM_API_KEY: ${{ secrets.LITELLM_API_KEY }}
+          CODEX_MODEL: 'gemini-3-flash-preview'
+        run: |
+          echo "🚀 Starting Daily Brief Pipeline..."
+          echo "Mode: ${{ steps.mode.outputs.mode }}"
+          echo "Date: $(date)"
+
+          # Run the pipeline
+          python -m src.pipeline.run_daily \
+            --mode ${{ steps.mode.outputs.mode }} \
+            --confirm-high-risk
+
+      - name: Publish to Ghost
+        if: steps.mode.outputs.mode == 'prod'
+        env:
+          GHOST_API_URL: ${{ secrets.GHOST_API_URL }}
+          GHOST_ADMIN_API_KEY: ${{ secrets.GHOST_ADMIN_API_KEY }}
+          GHOST_NEWSLETTER_SLUG: 'daily-en'
+        run: |
+          echo "📤 Publishing to Ghost..."
+
+          SEND_NEWSLETTER="${{ steps.mode.outputs.send_newsletter }}"
+
+          python << 'EOF'
+          import json
+          import os
+          import sys
+          from pathlib import Path
+          from datetime import date
+
+          # Add src to path
+          sys.path.insert(0, '.')
+
+          from src.publishers.ghost_admin import GhostPublisher
+
+          today = date.today().isoformat()
+          artifacts_dir = Path(f'data/artifacts/{today}')
+
+          if not artifacts_dir.exists():
+              print(f"❌ Artifacts directory not found: {artifacts_dir}")
+              sys.exit(1)
+
+          publisher = GhostPublisher()
+          send_newsletter = os.getenv('SEND_NEWSLETTER', 'true').lower() == 'true'
+
+          results = []
+          for post_type in ['flash', 'earnings', 'deep']:
+              json_path = artifacts_dir / f'post_{post_type}.json'
+              if not json_path.exists():
+                  print(f"⚠️ Skipping {post_type}: file not found")
+                  continue
+
+              with open(json_path) as f:
+                  post_data = json.load(f)
+
+              print(f"📝 Publishing {post_type}...")
+              result = publisher.publish(
+                  post_data,
+                  mode='publish',
+                  send_newsletter=send_newsletter,
+                  email_segment='all',
+                  visibility='members',
+              )
+
+              results.append({
+                  'post_type': post_type,
+                  'success': result.success,
+                  'url': result.url,
+                  'newsletter_sent': result.newsletter_sent,
+              })
+
+              if result.success:
+                  print(f"✅ {post_type}: {result.url}")
+              else:
+                  print(f"❌ {post_type}: {result.error}")
+
+          # Save results
+          with open(artifacts_dir / 'publish_results_github.json', 'w') as f:
+              json.dump(results, f, indent=2)
+
+          print("\n📊 Summary:")
+          for r in results:
+              status = '✅' if r['success'] else '❌'
+              print(f"  {status} {r['post_type']}: {r.get('url', 'N/A')}")
+          EOF
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-brief-${{ github.run_number }}
+          path: |
+            data/artifacts/
+            out/
+          retention-days: 30
+
+      - name: Commit artifacts to repo
+        if: steps.mode.outputs.mode == 'prod'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          git add data/artifacts/ out/
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: Daily Brief artifacts $(date +%Y-%m-%d)
+
+            🤖 Generated by GitHub Actions"
+            git push
+          fi
+
+      - name: Send Slack notification (optional)
+        if: always() && secrets.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          STATUS="${{ job.status }}"
+          if [ "$STATUS" = "success" ]; then
+            EMOJI="✅"
+            COLOR="good"
+          else
+            EMOJI="❌"
+            COLOR="danger"
+          fi
+
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"attachments\": [{
+                \"color\": \"$COLOR\",
+                \"title\": \"$EMOJI Daily Brief Pipeline - $STATUS\",
+                \"text\": \"Date: $(date +%Y-%m-%d)\nMode: ${{ steps.mode.outputs.mode }}\",
+                \"footer\": \"GitHub Actions\",
+                \"ts\": $(date +%s)
+              }]
+            }" \
+            $SLACK_WEBHOOK_URL
