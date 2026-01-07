@@ -549,6 +549,22 @@ class CodexRunner:
     def _ensure_repricing_dashboard(self, existing: list, research_pack: dict) -> list[dict]:
         """Ensure repricing_dashboard has at least 3 items."""
         items = list(existing) if isinstance(existing, list) else []
+        normalized = []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            direct_impact = item.get("direct_impact", "")
+            if isinstance(direct_impact, list):
+                direct_impact = ", ".join(str(v) for v in direct_impact if v is not None)
+            item["direct_impact"] = direct_impact or ""
+            if "variable" in item and not isinstance(item.get("variable"), str):
+                item["variable"] = str(item.get("variable"))
+            if "why_important" in item and not isinstance(item.get("why_important"), str):
+                item["why_important"] = str(item.get("why_important"))
+            if "leading_signal" in item and not isinstance(item.get("leading_signal"), str):
+                item["leading_signal"] = str(item.get("leading_signal"))
+            normalized.append(item)
+        items = normalized
         if len(items) >= 3:
             return items
         tickers = [s.get("ticker") for s in research_pack.get("key_stocks", []) if s.get("ticker")]
