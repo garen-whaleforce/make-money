@@ -1,10 +1,6 @@
 name: Daily Brief Pipeline
 
 on:
-  # 每天 UTC 11:00 (美東 06:00 ET / 台灣 19:00)
-  schedule:
-    - cron: '0 11 * * *'
-
   # 允許手動觸發
   workflow_dispatch:
     inputs:

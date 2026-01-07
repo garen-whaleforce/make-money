@@ -874,11 +874,13 @@ def stage_qa(
         if post is not None:
             posts_dict[post_type] = post.json_data
 
+    effective_run_id = run_id or edition_pack.meta.get("run_id", "")
+
     # P0-6: 執行 Daily Quality Gate
     daily_report = run_daily_quality_gate(
         posts=posts_dict,
         edition_pack=edition_pack.to_dict(),
-        run_id=run_id or edition_pack.run_id,
+        run_id=effective_run_id,
         date=edition_pack.date,
     )
 
@@ -968,7 +970,10 @@ def stage_publish(
 
     console.print(f"  Mode: {mode}, Segment: {segment}, Visibility: {visibility}")
 
+    send_all_newsletters = os.getenv("GHOST_SEND_ALL_NEWSLETTERS", "").lower() == "true"
+
     # Publish order: B, C first (no email), then A (with email on first create)
+    # Set GHOST_SEND_ALL_NEWSLETTERS=true to send for all posts.
     publish_order = ["earnings", "deep", "flash"]
 
     with GhostPublisher() as publisher:
@@ -984,8 +989,11 @@ def stage_publish(
                 results[post_type] = {"skipped": True, "reason": f"Invalid post type: {type(post).__name__}"}
                 continue
 
-            # Only Post A (Flash) gets email on first create
-            send_newsletter = (post_type == "flash" and mode == "prod")
+            if send_all_newsletters:
+                send_newsletter = (mode == "prod")
+            else:
+                # Only Post A (Flash) gets email on first create
+                send_newsletter = (post_type == "flash" and mode == "prod")
 
             console.print(f"  Publishing {post_type} (slug: {post.slug})...")
 
