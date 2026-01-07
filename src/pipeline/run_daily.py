@@ -1136,8 +1136,8 @@ def main(
 
         # Stage 4: QA
         qa_results = stage_qa(generated_posts, edition_pack)
-        result.quality_gates_passed = all(
-            r.get("passed", False) for r in qa_results.values()
+        result.quality_gates_passed = (
+            bool(qa_results.get("overall_passed")) if isinstance(qa_results, dict) else False
         )
 
         # Stage 5: Publish

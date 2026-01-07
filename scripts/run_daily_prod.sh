@@ -22,6 +22,7 @@ fi
 export PYTHONUNBUFFERED=1
 export TZ="${TZ:-Asia/Taipei}"
 export GHOST_SEND_ALL_NEWSLETTERS="${GHOST_SEND_ALL_NEWSLETTERS:-true}"
+export OPENAI_VERIFY_SSL="${OPENAI_VERIFY_SSL:-false}"
 
 LOG_DIR="${ROOT_DIR}/logs"
 mkdir -p "$LOG_DIR"

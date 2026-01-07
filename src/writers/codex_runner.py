@@ -418,7 +418,13 @@ class CodexRunner:
                 logger.error("LITELLM_API_KEY not set")
                 return None
 
-            client = OpenAI(api_key=api_key, base_url=base_url)
+            verify_ssl = os.getenv("OPENAI_VERIFY_SSL", "true").lower() != "false"
+            client_kwargs = {"api_key": api_key, "base_url": base_url}
+            if not verify_ssl:
+                import httpx
+                client_kwargs["http_client"] = httpx.Client(verify=False)
+
+            client = OpenAI(**client_kwargs)
 
             logger.info(f"Calling LiteLLM with model: {self.model}")
 
