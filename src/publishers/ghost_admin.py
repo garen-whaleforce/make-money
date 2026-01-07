@@ -143,7 +143,7 @@ class GhostPublisher:
         self,
         post,  # PostOutput or dict
         status: str = "draft",
-        visibility: str = "public",
+        visibility: str = "members",
     ) -> dict:
         """建構 Ghost 文章資料
 
@@ -334,7 +334,7 @@ class GhostPublisher:
         status: str = "draft",
         send_newsletter: bool = False,
         email_segment: str = "all",
-        visibility: str = "public",
+        visibility: str = "members",
     ) -> PublishResult:
         """建立新文章
 
@@ -407,7 +407,7 @@ class GhostPublisher:
         post,  # PostOutput or dict
         headers: dict,
         email_segment: str = "all",
-        visibility: str = "public",
+        visibility: str = "members",
     ) -> PublishResult:
         """兩步驟發佈文章並發送 newsletter
 
@@ -504,7 +504,7 @@ class GhostPublisher:
         post_id: str,
         post: PostOutput,
         status: str = "draft",
-        visibility: str = "public",
+        visibility: str = "members",
     ) -> PublishResult:
         """更新現有文章
 
@@ -601,7 +601,7 @@ class GhostPublisher:
         mode: str = "draft",
         send_newsletter: bool = False,
         email_segment: str = "all",
-        visibility: str = "public",
+        visibility: str = "members",
     ) -> PublishResult:
         """發佈文章
 
@@ -669,7 +669,7 @@ class GhostPublisher:
         status: str = "published",
         send_newsletter: bool = False,
         email_segment: str = "all",
-        visibility: str = "paid",
+        visibility: str = "members",
     ) -> PublishResult:
         """P0-7: Upsert by slug - 若 slug 存在則更新，不存在則建立
 

@@ -201,6 +201,15 @@ def validate_publish_config(mode: str, newsletter: str, segment: str) -> List[st
     return errors
 
 
+def resolve_visibility(visibility: Optional[str] = None) -> str:
+    """Resolve post visibility from explicit value or environment default."""
+    resolved = (visibility or os.getenv("GHOST_POST_VISIBILITY", "members")).strip().lower()
+    if resolved not in {"public", "members", "paid"}:
+        console.print(f"[yellow]Invalid visibility '{resolved}', defaulting to 'members'[/yellow]")
+        resolved = "members"
+    return resolved
+
+
 def publish_post(
     post: PostOutput,
     mode: str,
@@ -208,7 +217,7 @@ def publish_post(
     segment: str,
     send_email: bool = False,
     confirm_high_risk: bool = False,
-    visibility: str = "paid",  # P0-4: Default to paid for paywall
+    visibility: Optional[str] = None,  # Default to members (free) unless overridden
 ) -> Dict:
     """Publish a single post to Ghost with safety rails
 
@@ -225,6 +234,7 @@ def publish_post(
             - paid: Requires paid membership to unlock
     """
     from ..publishers.ghost_admin import GhostPublisher
+    visibility = resolve_visibility(visibility)
 
     # Support both PostOutput object and duck typing
     slug = getattr(post, 'slug', '')
@@ -939,7 +949,7 @@ def stage_publish(
     posts: Dict[str, Optional[PostOutput]],
     mode: str,
     confirm_high_risk: bool = False,
-    visibility: str = "paid",  # P0-4: Default visibility for paywall
+    visibility: Optional[str] = None,  # Default visibility for free members
 ) -> Dict[str, Dict]:
     """
     Stage 5: Publish to Ghost (P0-7: Upsert by slug)
@@ -954,13 +964,14 @@ def stage_publish(
     - Post B (Earnings): publish only (no email)
     - Post C (Deep Dive): publish only (no email)
 
-    All posts use paywall (visibility=paid) by default.
+    All posts default to members visibility unless overridden.
     """
     from ..publishers.ghost_admin import GhostPublisher
 
     console.print("\n[bold cyan]Stage 5: Publish (P0-7: Upsert by slug)[/bold cyan]")
 
     results = {}
+    visibility = resolve_visibility(visibility)
 
     # Determine newsletter/segment based on mode
     if mode == "test":
