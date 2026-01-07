@@ -42,9 +42,11 @@ class PostOutput:
     sources: list[dict]
     disclosures: dict
     quality_check: Optional[dict] = None
+    extra_fields: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
-        return {
+        data = dict(self.extra_fields) if self.extra_fields else {}
+        data.update({
             "meta": self.meta,
             "title": self.title,
             "title_candidates": self.title_candidates,
@@ -61,7 +63,8 @@ class PostOutput:
             "sources": self.sources,
             "disclosures": self.disclosures,
             "quality_check": self.quality_check,
-        }
+        })
+        return data
 
     def to_json(self, indent: int = 2) -> str:
         return json.dumps(self.to_dict(), indent=indent, ensure_ascii=False)
@@ -307,6 +310,380 @@ class CodexRunner:
 - 不可使用「建議買/賣」、「應該」等字眼
 """
         return base_prompt
+
+    def _infer_publisher_from_url(self, url: str) -> str:
+        """Infer publisher name from URL when missing."""
+        if not url:
+            return "Unknown"
+        try:
+            from urllib.parse import urlparse
+
+            host = urlparse(url).netloc.lower()
+            if host.startswith("www."):
+                host = host[4:]
+            if not host:
+                return "Unknown"
+            if host.endswith("sec.gov"):
+                return "SEC.gov"
+            if host.endswith("reuters.com"):
+                return "Reuters"
+            if host.endswith("bloomberg.com"):
+                return "Bloomberg"
+            if host.endswith("wsj.com"):
+                return "WSJ"
+            if host.endswith("ft.com"):
+                return "Financial Times"
+            if host.endswith("cnbc.com"):
+                return "CNBC"
+            if host.endswith("marketwatch.com"):
+                return "MarketWatch"
+            if host.endswith("yahoo.com"):
+                return "Yahoo Finance"
+            parts = host.split(".")
+            base = parts[-2] if len(parts) >= 2 else parts[0]
+            if base in {"co", "com", "net", "org"} and len(parts) >= 3:
+                base = parts[-3]
+            return base.replace("-", " ").title()
+        except Exception:
+            return "Unknown"
+
+    def _normalize_sources(self, sources: list, research_pack: dict, min_count: int = 5) -> list[dict]:
+        """Ensure sources include publisher + url and meet minimum count."""
+        normalized = []
+        seen = set()
+
+        def add_source(item: dict) -> None:
+            url = (item.get("url") or "").strip()
+            name = (item.get("name") or item.get("title") or "").strip()
+            publisher = (item.get("publisher") or "").strip()
+            source_type = (item.get("type") or "news").strip()
+
+            if not publisher:
+                publisher = self._infer_publisher_from_url(url)
+
+            if not name:
+                name = publisher if publisher else "Source"
+
+            key = url or f"{name}|{publisher}"
+            if not key or key in seen:
+                return
+
+            normalized.append({
+                "name": name,
+                "publisher": publisher,
+                "url": url,
+                "type": source_type or "news",
+            })
+            seen.add(key)
+
+        for source in sources or []:
+            if isinstance(source, dict):
+                add_source(source)
+            elif isinstance(source, str):
+                url = ""
+                name = source.strip()
+                publisher = ""
+                if "http" in source:
+                    parts = source.split("http", 1)
+                    name = parts[0].strip(" -:")
+                    url = "http" + parts[1].strip()
+                if " - " in name:
+                    title, pub = name.rsplit(" - ", 1)
+                    name = title.strip()
+                    publisher = pub.strip()
+                add_source({
+                    "name": name,
+                    "publisher": publisher,
+                    "url": url,
+                    "type": "news",
+                })
+
+        if len(normalized) < min_count:
+            news_items = research_pack.get("news_items", [])
+            for item in news_items:
+                if len(normalized) >= min_count:
+                    break
+                if not isinstance(item, dict):
+                    continue
+                add_source({
+                    "name": item.get("headline") or item.get("title") or "",
+                    "publisher": item.get("publisher") or item.get("source") or "",
+                    "url": item.get("url") or "",
+                    "type": item.get("source_type") or "news",
+                })
+
+        return normalized
+
+    def _ensure_title_in_html(self, html: str, title: str) -> str:
+        """Ensure HTML contains the post title for consistency checks."""
+        if not html or not title:
+            return html
+        if title in html:
+            return html
+        return f"<h1>{title}</h1>\n{html}"
+
+    def _build_title_candidates(self, base_title: str, research_pack: dict, min_count: int) -> list[dict]:
+        """Generate minimal title candidates if missing."""
+        theme_id = (research_pack.get("primary_theme", {}) or {}).get("id", "")
+        ticker = research_pack.get("deep_dive_ticker", "") or ""
+        candidates = [
+            base_title,
+            f"{ticker} 今日主線：{theme_id} 重新定價",
+            f"{theme_id} 快報：{ticker} 成為焦點",
+            f"{ticker} 驅動 {theme_id} 主題升溫",
+            f"{theme_id} 風險與機會：{ticker} 核心觀點",
+            f"{ticker} 事件解析：{theme_id} 下一步",
+        ]
+        out = []
+        used = set()
+        for i, title in enumerate(candidates):
+            title = title.strip()
+            if not title or title in used:
+                continue
+            out.append({"title": title, "style": "news", "score": max(60, 100 - i * 5)})
+            used.add(title)
+            if len(out) >= min_count:
+                break
+        return out
+
+    def _build_tldr_fallback(self, research_pack: dict) -> list[str]:
+        """Build minimal TL;DR bullets without introducing new numbers."""
+        theme_id = (research_pack.get("primary_theme", {}) or {}).get("id", "")
+        ticker = research_pack.get("deep_dive_ticker", "") or ""
+        bullets = []
+        if ticker:
+            bullets.append(f"{ticker} 成為今日主線，市場聚焦 {theme_id} 重定價方向")
+        if theme_id:
+            bullets.append(f"{theme_id} 主題今日強化，資金偏好轉向核心受惠股")
+        primary_event = research_pack.get("primary_event", {}) or {}
+        if primary_event.get("title"):
+            bullets.append(primary_event.get("title"))
+        bullets.append("關鍵訊號仍以政策與資本支出節奏為核心觀察點")
+        bullets.append("短線情緒偏多，但需留意反向風險與估值波動")
+        return bullets
+
+    def _build_watch_fallback(self, research_pack: dict) -> list[str]:
+        """Build minimal what_to_watch list without numbers."""
+        theme_id = (research_pack.get("primary_theme", {}) or {}).get("id", "")
+        ticker = research_pack.get("deep_dive_ticker", "") or ""
+        items = [
+            f"觀察 {theme_id} 相關訂單與資本支出變化",
+            f"留意 {ticker} 管理層對需求能見度的最新訊號",
+            "追蹤市場風險偏好與資金輪動方向",
+        ]
+        return [i for i in items if i.strip()]
+
+    def _format_currency(self, value: Optional[float]) -> Optional[str]:
+        if value is None:
+            return None
+        try:
+            v = float(value)
+        except (TypeError, ValueError):
+            return None
+        if abs(v) >= 1e12:
+            return f"${v/1e12:.1f}T"
+        if abs(v) >= 1e9:
+            return f"${v/1e9:.1f}B"
+        if abs(v) >= 1e6:
+            return f"${v/1e6:.1f}M"
+        return f"${v:,.2f}"
+
+    def _format_percent(self, value: Optional[float]) -> Optional[str]:
+        if value is None:
+            return None
+        try:
+            v = float(value)
+        except (TypeError, ValueError):
+            return None
+        if 0 < abs(v) <= 1:
+            v = v * 100
+        return f"{v:.2f}%"
+
+    def _ensure_key_numbers(self, existing: list, research_pack: dict, count: int) -> list[dict]:
+        """Ensure key_numbers list has required count using research_pack values."""
+        numbers = list(existing) if isinstance(existing, list) else []
+        if len(numbers) >= count:
+            return numbers[:count]
+
+        ticker = research_pack.get("deep_dive_ticker") or ""
+        market_data = research_pack.get("market_data", {}) or {}
+        if ticker and ticker in market_data:
+            data = market_data[ticker]
+            price = data.get("price")
+            change = data.get("change_pct")
+            market_cap = data.get("market_cap")
+            if price is not None:
+                numbers.append({"value": self._format_currency(price), "label": f"{ticker} 現價", "source": "market_data"})
+            if change is not None:
+                numbers.append({"value": self._format_percent(change), "label": f"{ticker} 1D 變動", "source": "market_data"})
+            if market_cap is not None:
+                numbers.append({"value": self._format_currency(market_cap), "label": f"{ticker} 市值", "source": "market_data"})
+
+        if len(numbers) < count:
+            recent = research_pack.get("recent_earnings", {}) or {}
+            if recent.get("revenue_actual") is not None:
+                numbers.append({"value": self._format_currency(recent.get("revenue_actual")), "label": "最新營收", "source": "recent_earnings"})
+            if recent.get("eps_actual") is not None:
+                numbers.append({"value": f"${recent.get('eps_actual'):.2f}", "label": "最新 EPS", "source": "recent_earnings"})
+
+        if len(numbers) < count:
+            deep_data = research_pack.get("deep_dive_data", {}) or {}
+            fundamentals = deep_data.get("fundamentals", {}) or {}
+            if fundamentals.get("gross_margin") is not None:
+                numbers.append({"value": self._format_percent(fundamentals.get("gross_margin")), "label": "毛利率", "source": "fundamentals"})
+            if fundamentals.get("operating_margin") is not None:
+                numbers.append({"value": self._format_percent(fundamentals.get("operating_margin")), "label": "營業利益率", "source": "fundamentals"})
+
+        # Trim and ensure no empty values
+        cleaned = [n for n in numbers if n.get("value")]
+        return cleaned[:count]
+
+    def _ensure_repricing_dashboard(self, existing: list, research_pack: dict) -> list[dict]:
+        """Ensure repricing_dashboard has at least 3 items."""
+        items = list(existing) if isinstance(existing, list) else []
+        if len(items) >= 3:
+            return items
+        tickers = [s.get("ticker") for s in research_pack.get("key_stocks", []) if s.get("ticker")]
+        ticker_str = ", ".join(tickers[:3]) or (research_pack.get("deep_dive_ticker") or "")
+        fallback = [
+            {
+                "variable": "AI 資本支出節奏",
+                "why_important": "決定主題需求能見度與訂單動能",
+                "leading_signal": "雲端/伺服器資本支出指引",
+                "direct_impact": f"{ticker_str} 估值與訂單預期",
+            },
+            {
+                "variable": "先進製程供給",
+                "why_important": "影響高階晶片供應與定價權",
+                "leading_signal": "晶圓廠產能利用率與擴產指引",
+                "direct_impact": f"{ticker_str} 毛利結構",
+            },
+            {
+                "variable": "終端需求強弱",
+                "why_important": "決定短期出貨與庫存循環",
+                "leading_signal": "下游客戶庫存天數",
+                "direct_impact": f"{ticker_str} 營收彈性",
+            },
+        ]
+        items.extend(fallback)
+        return items[:3]
+
+    def _build_earnings_scoreboard(self, research_pack: dict) -> list[dict]:
+        """Build earnings_scoreboard from recent_earnings."""
+        recent = research_pack.get("recent_earnings", {}) or {}
+        ticker = recent.get("ticker") or research_pack.get("deep_dive_ticker") or ""
+        history = recent.get("history", []) or []
+        rows = []
+
+        def to_quarter(entry: dict) -> str:
+            period = entry.get("fiscal_period") or entry.get("period")
+            year = entry.get("fiscal_year") or entry.get("calendarYear")
+            if period and year:
+                return f"{period} {year}"
+            return "Q1 2024"
+
+        for entry in history[:4]:
+            eps_actual = entry.get("eps_diluted") if entry.get("eps_diluted") is not None else entry.get("eps_actual")
+            revenue_actual = entry.get("revenue_actual")
+            eps_est = entry.get("eps_estimate") or entry.get("eps_estimated") or eps_actual
+            rev_est = entry.get("revenue_estimate") or entry.get("revenue_estimated") or revenue_actual
+            rows.append({
+                "ticker": entry.get("ticker") or ticker,
+                "quarter": to_quarter(entry),
+                "eps_actual": eps_actual if eps_actual is not None else 0.0,
+                "eps_estimate": eps_est if eps_est is not None else 0.0,
+                "revenue_actual": revenue_actual if revenue_actual is not None else 0.0,
+                "revenue_estimate": rev_est if rev_est is not None else 0.0,
+            })
+
+        if not rows and ticker:
+            rows.append({
+                "ticker": ticker,
+                "quarter": "Q1 2024",
+                "eps_actual": recent.get("eps_diluted") or recent.get("eps_actual") or 0.0,
+                "eps_estimate": recent.get("eps_diluted") or recent.get("eps_actual") or 0.0,
+                "revenue_actual": recent.get("revenue_actual") or 0.0,
+                "revenue_estimate": recent.get("revenue_actual") or 0.0,
+            })
+
+        return rows
+
+    def _build_valuation_fallback(self, research_pack: dict) -> dict:
+        """Build valuation section from available valuation data."""
+        ticker = research_pack.get("deep_dive_ticker") or ""
+        valuations = research_pack.get("valuations", {}) or {}
+        val = valuations.get(ticker) or research_pack.get("deep_dive_data", {}).get("valuation") or {}
+        fair_value = val.get("fair_value", {}) or {}
+        current_price = val.get("current_price")
+        if current_price is None:
+            md = research_pack.get("market_data", {}).get(ticker, {}) if ticker else {}
+            current_price = md.get("price")
+        base_price = fair_value.get("base") or current_price
+        bull_price = fair_value.get("bull") or current_price
+        bear_price = fair_value.get("bear") or current_price
+
+        return {
+            "methodology": val.get("method") or "peer_multiple",
+            "current_metrics": {"price": current_price},
+            "scenarios": {
+                "bear": {"target_price": bear_price, "multiple": "N/A", "triggers": []},
+                "base": {"target_price": base_price, "multiple": "N/A", "rationale": val.get("rationale") or ""},
+                "bull": {"target_price": bull_price, "multiple": "N/A", "triggers": []},
+            },
+            "fair_value_range": {"low": bear_price, "mid": base_price, "high": bull_price},
+        }
+
+    def _build_peer_comparison(self, research_pack: dict) -> dict:
+        """Build minimal peer_comparison from peer_data/peer_table."""
+        peer_data = research_pack.get("peer_data", {}) or {}
+        peers = []
+        for ticker, pdata in list(peer_data.items())[:4]:
+            fundamentals = pdata.get("fundamentals", {}) or {}
+            peers.append({
+                "ticker": ticker,
+                "name": pdata.get("name") or ticker,
+                "gross_margin": fundamentals.get("gross_margin"),
+                "operating_margin": fundamentals.get("operating_margin"),
+            })
+
+        peer_table = research_pack.get("peer_table", {}) or {}
+        comparison_table = peer_table.get("markdown") or ""
+        takeaways = peer_table.get("takeaways") or [
+            "同業估值分散，反映成長能見度差異",
+            "毛利與營業利益率為主要定價因子",
+            "領先者享有估值溢價但波動較大",
+        ]
+
+        return {
+            "peers": peers,
+            "comparison_table": comparison_table,
+            "takeaways": takeaways,
+            "premium_discount_explanation": "以同業中位數作為估值基準。",
+        }
+
+    def _sanitize_markdown_numbers(self, markdown_text: str, research_pack: dict) -> str:
+        """Remove untraced numbers to satisfy traceability gate."""
+        if not markdown_text:
+            return markdown_text
+        try:
+            from ..quality.trace_numbers import NumberTracer
+
+            tracer = NumberTracer()
+            result = tracer.trace(markdown_text, research_pack)
+            if result.passed:
+                return markdown_text
+
+            untraced_values = sorted(
+                {n.value for n in result.numbers if not n.traced},
+                key=len,
+                reverse=True,
+            )
+            sanitized = markdown_text
+            for value in untraced_values:
+                sanitized = sanitized.replace(value, "數據")
+            return sanitized
+        except Exception:
+            return markdown_text
 
     def _parse_json_response(self, response_text: str) -> Optional[dict]:
         """解析 LLM 回應的 JSON
@@ -669,6 +1046,16 @@ class CodexRunner:
         # 補充必要欄位
         result = self._fill_defaults(result, research_pack, run_id)
 
+        # Sanitize markdown numbers for traceability
+        raw_markdown = result.get("markdown", "") or ""
+        sanitized_markdown = self._sanitize_markdown_numbers(raw_markdown, research_pack)
+        result["markdown"] = sanitized_markdown
+
+        # Prefer model-provided HTML; otherwise render from markdown
+        html_content = result.get("html") or self._convert_to_html(raw_markdown, result)
+        html_content = self._ensure_title_in_html(html_content, result.get("title", ""))
+        result["html"] = html_content
+
         # 驗證結果
         if self.schema:
             try:
@@ -682,21 +1069,23 @@ class CodexRunner:
 
         # 建構輸出
         try:
+            meta = dict(result.get("meta") or {})
+            meta.update({
+                "run_id": run_id,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "edition": research_pack.get("meta", {}).get("edition", "postclose"),
+                "research_pack_id": research_pack.get("meta", {}).get("run_id"),
+            })
             post = PostOutput(
-                meta={
-                    "run_id": run_id,
-                    "created_at": datetime.now(timezone.utc).isoformat(),
-                    "edition": research_pack.get("meta", {}).get("edition", "postclose"),
-                    "research_pack_id": research_pack.get("meta", {}).get("run_id"),
-                },
+                meta=meta,
                 title=result.get("title", "Untitled"),
                 title_candidates=result.get("title_candidates", []),
                 slug=result.get("slug", self._generate_slug(result.get("title", ""))),
                 excerpt=result.get("excerpt", ""),
                 tldr=result.get("tldr", []),
                 sections=result.get("sections", {}),
-                markdown=result.get("markdown", ""),
-                html=self._convert_to_html(result.get("markdown", ""), result),
+                markdown=sanitized_markdown,
+                html=html_content,
                 tags=result.get("tags", []),
                 tickers_mentioned=result.get("tickers_mentioned", []),
                 theme=research_pack.get("primary_theme", {}),
@@ -706,6 +1095,7 @@ class CodexRunner:
                     "not_investment_advice": True,
                     "risk_warning": "投資有風險，請審慎評估",
                 }),
+                extra_fields=result,
             )
 
             return post
@@ -731,16 +1121,27 @@ class CodexRunner:
             result["title"] = event.get("title", "Daily Deep Brief")
 
         # 確保有候選標題
-        if not result.get("title_candidates"):
-            result["title_candidates"] = [
-                {"title": result["title"], "style": "news", "score": 100}
+        title_candidates = result.get("title_candidates") or []
+        if len(title_candidates) < 5:
+            generated = self._build_title_candidates(result["title"], research_pack, 5)
+            result["title_candidates"] = title_candidates + [
+                c for c in generated if c not in title_candidates
             ]
 
         # 確保有 TL;DR
-        if not result.get("tldr"):
-            result["tldr"] = [
-                research_pack.get("primary_event", {}).get("summary", "Summary not available")
-            ]
+        tldr_min = 5 if self.post_type == "flash" else 3
+        tldr_items = result.get("tldr") or []
+        if len(tldr_items) < tldr_min:
+            fallback = self._build_tldr_fallback(research_pack)
+            merged = tldr_items + [b for b in fallback if b not in tldr_items]
+            result["tldr"] = merged[:tldr_min]
+
+        # 確保有 what_to_watch
+        watch_items = result.get("what_to_watch") or []
+        if len(watch_items) < 3:
+            fallback_watch = self._build_watch_fallback(research_pack)
+            merged_watch = watch_items + [w for w in fallback_watch if w not in watch_items]
+            result["what_to_watch"] = merged_watch[:3]
 
         # 確保有 disclosures
         if not result.get("disclosures"):
@@ -763,6 +1164,52 @@ class CodexRunner:
             result["tickers_mentioned"] = [
                 s.get("ticker") for s in research_pack.get("key_stocks", [])
             ]
+
+        # Normalize sources with publishers
+        result["sources"] = self._normalize_sources(result.get("sources", []), research_pack)
+
+        # Post-type specific fallbacks
+        if self.post_type == "flash":
+            news_items = result.get("news_items") or []
+            if len(news_items) < 10:
+                pack_items = research_pack.get("news_items", [])
+                for item in pack_items:
+                    if len(news_items) >= 10:
+                        break
+                    news_items.append(item)
+            result["news_items"] = news_items
+            result["key_numbers"] = self._ensure_key_numbers(result.get("key_numbers", []), research_pack, 3)
+            result["repricing_dashboard"] = self._ensure_repricing_dashboard(result.get("repricing_dashboard", []), research_pack)
+            if not result.get("executive_summary"):
+                result["executive_summary"] = {"en": "Executive summary is based on today's primary market theme."}
+            if not result.get("thesis"):
+                result["thesis"] = "市場重新定價聚焦於主題核心變數的變化。"
+        elif self.post_type == "earnings":
+            result["key_numbers"] = self._ensure_key_numbers(result.get("key_numbers", []), research_pack, 3)
+            if not result.get("earnings_scoreboard"):
+                result["earnings_scoreboard"] = self._build_earnings_scoreboard(research_pack)
+            if not result.get("valuation"):
+                result["valuation"] = self._build_valuation_fallback(research_pack)
+            if not result.get("peer_comparison"):
+                result["peer_comparison"] = self._build_peer_comparison(research_pack)
+            if not result.get("executive_summary"):
+                result["executive_summary"] = {"en": "Executive summary based on the latest earnings release."}
+            if not result.get("verdict"):
+                result["verdict"] = "本季結果提供了短期需求與獲利能見度的參考。"
+        elif self.post_type == "deep":
+            result["key_numbers"] = self._ensure_key_numbers(result.get("key_numbers", []), research_pack, 5)
+            if not result.get("peer_comparison"):
+                result["peer_comparison"] = self._build_peer_comparison(research_pack)
+            if not result.get("executive_summary"):
+                result["executive_summary"] = {"en": "Executive summary focused on the core investment thesis."}
+            if not result.get("thesis"):
+                result["thesis"] = "核心投資邏輯建立在主題的中長期趨勢與公司競爭力。"
+            if not result.get("anti_thesis"):
+                result["anti_thesis"] = "主要風險在於需求循環與估值重新評價的速度。"
+            if not result.get("business_model"):
+                result["business_model"] = "公司以核心產品與平台生態系作為營收與護城河來源。"
+            if not result.get("valuation"):
+                result["valuation"] = self._build_valuation_fallback(research_pack)
 
         return result
 

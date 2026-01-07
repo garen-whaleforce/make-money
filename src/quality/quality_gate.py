@@ -115,9 +115,10 @@ class QualityGate:
             news_items = post.get("news_items", []) or research_pack.get("news_items", [])
             for item in news_items:
                 if isinstance(item, dict):
+                    publisher = item.get("publisher") or item.get("source")
                     sources.append({
-                        "name": item.get("title", ""),
-                        "publisher": item.get("publisher"),
+                        "name": item.get("headline") or item.get("title", ""),
+                        "publisher": publisher,
                         "url": item.get("url"),
                         "type": "news",
                     })
@@ -133,7 +134,7 @@ class QualityGate:
             # 2. {title: "... - Publisher"}
             # 3. "Title - Publisher: URL" (字串格式)
             if isinstance(source, dict):
-                publisher = source.get("publisher")
+                publisher = source.get("publisher") or source.get("source")
                 if not publisher:
                     # 從 title 中提取 publisher（格式："Title - Publisher"）
                     title = source.get("title", "")
