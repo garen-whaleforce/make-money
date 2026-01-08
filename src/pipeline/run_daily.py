@@ -1476,6 +1476,61 @@ def stage_archive(
     return archive_dir
 
 
+def stage_minio_archive(run_date: str, out_dir: str = "out") -> Optional[Dict]:
+    """
+    Stage 7: Archive to MinIO (cloud backup)
+
+    目錄結構:
+    daily-brief/
+    └── {year}/{month}/{day}/
+        ├── edition_pack.json
+        ├── post_flash.json
+        ├── post_flash.html
+        ├── post_earnings.json
+        ├── post_earnings.html
+        ├── post_deep.json
+        ├── post_deep.html
+        ├── quality_report.json
+        └── feature_images/
+            └── *.png
+    """
+    # Check if MinIO archiving is enabled
+    if os.getenv("ENABLE_MINIO_ARCHIVE", "true").lower() != "true":
+        console.print("\n[bold cyan]Stage 7: MinIO Archive[/bold cyan] [dim](disabled)[/dim]")
+        return None
+
+    console.print("\n[bold cyan]Stage 7: MinIO Archive[/bold cyan]")
+
+    try:
+        from ..publishers.minio_archiver import MinIOArchiver
+
+        archiver = MinIOArchiver()
+        result = archiver.archive_daily_run(run_date, out_dir)
+
+        if result.success:
+            console.print(
+                f"  ✓ Uploaded {result.files_uploaded} files "
+                f"({result.total_bytes / 1024:.1f} KB) to {result.bucket}/{result.prefix}"
+            )
+            return {
+                "success": True,
+                "files_uploaded": result.files_uploaded,
+                "total_bytes": result.total_bytes,
+                "bucket": result.bucket,
+                "prefix": result.prefix,
+            }
+        else:
+            console.print(f"  [yellow]⚠ MinIO archive failed: {result.error}[/yellow]")
+            return {"success": False, "error": result.error}
+
+    except ImportError as e:
+        console.print(f"  [yellow]⚠ boto3 not installed, skipping MinIO archive[/yellow]")
+        return {"success": False, "error": "boto3 not installed"}
+    except Exception as e:
+        console.print(f"  [red]✗ MinIO archive error: {e}[/red]")
+        return {"success": False, "error": str(e)}
+
+
 # =============================================================================
 # Main Pipeline
 # =============================================================================
@@ -1648,8 +1703,13 @@ def main(
         else:
             console.print("\n[yellow]Publish skipped (--skip-publish)[/yellow]")
 
-        # Stage 6: Archive
+        # Stage 6: Archive (local)
         archive_path = stage_archive(result, generated_posts, en_posts=en_posts)
+
+        # Stage 7: MinIO Archive (cloud backup)
+        minio_result = stage_minio_archive(run_date)
+        if minio_result:
+            result.publish_results["minio_archive"] = minio_result
 
     except Exception as e:
         console.print(f"\n[red]Pipeline failed: {e}[/red]")
