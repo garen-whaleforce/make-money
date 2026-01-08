@@ -71,6 +71,11 @@ class EditionPack:
     def to_dict(self) -> Dict:
         return asdict(self)
 
+    @property
+    def run_id(self) -> Optional[str]:
+        """Convenience accessor for meta.run_id."""
+        return (self.meta or {}).get("run_id")
+
     def save(self, path: str = "out/edition_pack.json") -> Path:
         p = Path(path)
         p.parent.mkdir(parents=True, exist_ok=True)
@@ -105,6 +110,95 @@ class DailyPipelineResult:
     errors: List[str] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
     duration_seconds: float = 0.0
+
+
+# =============================================================================
+# Checkpoint Functions (斷點續跑)
+# =============================================================================
+
+CHECKPOINT_PATH = Path("out/checkpoint.json")
+
+
+def _init_checkpoint(run_id: str, run_date: str) -> Dict:
+    """Initialize a new checkpoint file"""
+    ckpt = {
+        "run_id": run_id,
+        "date": run_date,
+        "started_at": datetime.now().isoformat(),
+        "stages": {},
+    }
+    CHECKPOINT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(CHECKPOINT_PATH, "w", encoding="utf-8") as f:
+        json.dump(ckpt, f, indent=2, ensure_ascii=False)
+    return ckpt
+
+
+def _load_checkpoint(run_date: str) -> Optional[Dict]:
+    """Load checkpoint if it exists and matches the current date"""
+    if not CHECKPOINT_PATH.exists():
+        return None
+    try:
+        with open(CHECKPOINT_PATH, "r", encoding="utf-8") as f:
+            ckpt = json.load(f)
+        # Only use checkpoint from same day
+        if ckpt.get("date") != run_date:
+            console.print(f"  [yellow]Checkpoint from {ckpt.get('date')}, ignoring[/yellow]")
+            return None
+        return ckpt
+    except Exception as e:
+        console.print(f"  [yellow]Failed to load checkpoint: {e}[/yellow]")
+        return None
+
+
+def _update_checkpoint(stage: str, completed: bool = True, error: str = None) -> None:
+    """Update checkpoint with stage status"""
+    try:
+        if CHECKPOINT_PATH.exists():
+            with open(CHECKPOINT_PATH, "r", encoding="utf-8") as f:
+                ckpt = json.load(f)
+        else:
+            ckpt = {"stages": {}}
+
+        ckpt["stages"][stage] = {
+            "completed": completed,
+            "timestamp": datetime.now().isoformat(),
+        }
+        if error:
+            ckpt["stages"][stage]["error"] = error
+
+        with open(CHECKPOINT_PATH, "w", encoding="utf-8") as f:
+            json.dump(ckpt, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        console.print(f"  [yellow]Failed to update checkpoint: {e}[/yellow]")
+
+
+def _is_stage_completed(ckpt: Optional[Dict], stage: str) -> bool:
+    """Check if a stage is marked as completed in checkpoint"""
+    if not ckpt:
+        return False
+    return ckpt.get("stages", {}).get(stage, {}).get("completed", False)
+
+
+def _load_existing_post(post_type: str) -> Optional[PostOutput]:
+    """Load an existing post from out/ directory"""
+    json_path = Path(f"out/post_{post_type}.json")
+    if not json_path.exists():
+        return None
+
+    try:
+        with open(json_path, "r", encoding="utf-8") as f:
+            post_dict = json.load(f)
+
+        return PostOutput(
+            post_type=post_type,
+            title=post_dict.get("title", ""),
+            slug=post_dict.get("slug", ""),
+            json_data=post_dict,
+            html_content=post_dict.get("html", ""),
+        )
+    except Exception as e:
+        console.print(f"  [yellow]Failed to load {post_type}: {e}[/yellow]")
+        return None
 
 
 # =============================================================================
@@ -350,9 +444,9 @@ def stage_ingest(run_date: str, theme: Optional[str] = None) -> Dict:
         data["market_snapshot"] = enricher.get_market_snapshot()
         console.print("  ✓ Collected market snapshot")
 
-    # P0-3: 升級到 10-12 條新聞 (Flash News Radar 需要更多素材)
-    MIN_NEWS_ITEMS = 10
-    TARGET_NEWS_ITEMS = 12
+    # P0-5: 至少 7-8 條新聞 (Flash News Radar 最小結構)
+    MIN_NEWS_ITEMS = 8
+    TARGET_NEWS_ITEMS = 8
     if len(data["news_items"]) < MIN_NEWS_ITEMS:
         console.print(f"  [yellow]⚠ Only {len(data['news_items'])} news items, need {MIN_NEWS_ITEMS}-{TARGET_NEWS_ITEMS}[/yellow]")
         console.print("  Collecting Layer 2 Radar Fillers...")
@@ -709,7 +803,8 @@ def _should_generate_earnings(edition_pack: EditionPack, max_days_old: int = 90)
 def stage_write(
     edition_pack: EditionPack,
     run_id: str,
-    post_types: List[str] = None
+    post_types: List[str] = None,
+    checkpoint: Optional[Dict] = None,  # Checkpoint for resume support
 ) -> Dict[str, Optional[PostOutput]]:
     """
     Stage 3: Generate posts using skills (P0-1: 使用三篇專用 prompts + schemas)
@@ -762,69 +857,102 @@ def stage_write(
 
     posts = {}
 
-    for post_type in post_types:
-        console.print(f"  Generating {post_type}...")
+    # Resume: Load completed posts from checkpoint
+    for pt in post_types:
+        stage_name = f"write_{pt}"
+        if _is_stage_completed(checkpoint, stage_name):
+            existing = _load_existing_post(pt)
+            if existing:
+                posts[pt] = existing
+                console.print(f"  ✓ {pt}: loaded from checkpoint (skipped)")
+            else:
+                console.print(f"  [yellow]⚠ {pt}: checkpoint says completed but file not found[/yellow]")
 
+    # Filter to only posts that need generation
+    posts_to_generate = [pt for pt in post_types if pt not in posts]
+    if not posts_to_generate:
+        console.print("  ✓ All posts loaded from checkpoint")
+        return posts
+
+    console.print(f"  Generating: {', '.join(posts_to_generate)}")
+
+    def _generate_one(pt: str) -> tuple[str, Optional[PostOutput]]:
+        console.print(f"  Generating {pt}...")
         try:
-            # P0-1: Create post-type specific writer with corresponding prompt and schema
-            writer = CodexRunner(post_type=post_type)
+            writer = CodexRunner(post_type=pt)
             console.print(f"    Using prompt: {writer.prompt_path}")
             console.print(f"    Using schema: {writer.schema_path}")
 
-            # Determine slug parameters
-            ticker = None
-
-            if post_type in ["earnings", "deep"]:
-                ticker = edition_pack.deep_dive_ticker
+            ticker = edition_pack.deep_dive_ticker if pt in ["earnings", "deep"] else None
 
             slug = generate_slug(
-                post_type=post_type,
+                post_type=pt,
                 topic=topic,
                 ticker=ticker,
                 run_date=edition_pack.date
             )
 
-            # Validate slug
-            if not validate_slug(slug, post_type):
+            if not validate_slug(slug, pt):
                 raise ValueError(f"Invalid slug format: {slug}")
 
-            # P0-1: Generate content using post-type specific prompt
-            # Use pack_dict which includes cross_links
             post = writer.generate(
-                pack_dict,  # Contains cross_links
+                pack_dict,
                 run_id=run_id,
             )
 
-            if post:
-                # Override slug with our generated one
-                post_dict = post.to_dict()
-                post_dict["slug"] = slug
-                post_dict["meta"]["post_type"] = post_type
+            if not post:
+                console.print(f"    [yellow]⚠ Failed to generate {pt}[/yellow]")
+                return pt, None
 
-                # Inject cross-links into post data
-                post_dict = inject_cross_links(post_dict, cross_links, post_type)
+            post_dict = post.to_dict()
+            post_dict["slug"] = slug
+            post_dict["meta"]["post_type"] = pt
+            post_dict["meta"]["market_snapshot"] = edition_pack.meta.get("market_snapshot")
+            if edition_pack.market_data:
+                post_dict["market_data"] = edition_pack.market_data
+            post_dict["meta"]["lang"] = "zh"
+            _ensure_lang_tag(post_dict, "zh")
+            site_url = _resolve_site_url()
+            if site_url:
+                post_dict["canonical_url"] = f"{site_url}/{slug}/"
 
-                posts[post_type] = PostOutput(
-                    post_type=post_type,
-                    title=post_dict.get("title", ""),
-                    slug=slug,
-                    json_data=post_dict,
-                    html_content=post_dict.get("html", ""),
-                )
+            post_dict = inject_cross_links(post_dict, cross_links, pt)
 
-                # P0-1: Save individual post files to out/ immediately
-                _save_post_output(post_dict, post_type)
+            output = PostOutput(
+                post_type=pt,
+                title=post_dict.get("title", ""),
+                slug=slug,
+                json_data=post_dict,
+                html_content=post_dict.get("html", ""),
+            )
 
-                console.print(f"    ✓ {post_type}: {slug}")
-            else:
-                console.print(f"    [yellow]⚠ Failed to generate {post_type}[/yellow]")
-                posts[post_type] = None
+            _save_post_output(post_dict, pt)
+            # Update checkpoint after successful save
+            _update_checkpoint(f"write_{pt}", completed=True)
+            console.print(f"    ✓ {pt}: {slug}")
+            return pt, output
 
         except Exception as e:
-            console.print(f"    [red]✗ Error generating {post_type}: {e}[/red]")
+            console.print(f"    [red]✗ Error generating {pt}: {e}[/red]")
+            # Update checkpoint with error
+            _update_checkpoint(f"write_{pt}", completed=False, error=str(e))
             import traceback
             traceback.print_exc()
-            posts[post_type] = None
+            return pt, None
+
+    use_parallel = os.getenv("PARALLEL_WRITE", "true").lower() == "true"
+    if use_parallel and len(posts_to_generate) > 1:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        with ThreadPoolExecutor(max_workers=min(3, len(posts_to_generate))) as executor:
+            futures = {executor.submit(_generate_one, pt): pt for pt in posts_to_generate}
+            for future in as_completed(futures):
+                pt, output = future.result()
+                posts[pt] = output
+    else:
+        for pt in posts_to_generate:
+            _, output = _generate_one(pt)
+            posts[pt] = output
 
     return posts
 
@@ -859,6 +987,123 @@ def _save_post_output(post_dict: Dict, post_type: str) -> None:
     html_path = out_dir / f"post_{post_type}.html"
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(html_content)
+
+
+def _resolve_site_url() -> str:
+    site_url = os.getenv("GHOST_SITE_URL") or os.getenv("GHOST_API_URL") or ""
+    return site_url.rstrip("/")
+
+
+def _ensure_lang_tag(post_dict: Dict, lang: str) -> None:
+    tags = post_dict.get("tags") or []
+    lang_tag = f"lang-{lang}"
+    if lang_tag not in tags:
+        tags.append(lang_tag)
+    post_dict["tags"] = tags
+
+
+def stage_translate_posts(
+    posts: Dict[str, Optional[PostOutput]],
+    lang: str = "en",
+) -> Dict[str, Optional[PostOutput]]:
+    """Create translated posts for publishing."""
+    from ..writers.translation import TranslationRunner
+
+    console.print("\n[bold cyan]Stage 3.5: Translate Posts[/bold cyan]")
+    translated_posts: Dict[str, Optional[PostOutput]] = {}
+    runner = TranslationRunner()
+    site_url = _resolve_site_url()
+
+    for post_type, post in posts.items():
+        if post is None:
+            continue
+
+        post_dict = post.json_data
+        translated = runner.translate(post_dict)
+        if not translated:
+            console.print(f"  [yellow]⚠ {post_type}: translation failed[/yellow]")
+            translated_posts[post_type] = None
+            continue
+
+        slug = post.slug
+        if not slug.endswith(f"-{lang}"):
+            slug = f"{slug}-{lang}"
+        translated["slug"] = slug
+        translated.setdefault("meta", {})
+        translated["meta"]["lang"] = lang
+        translated["meta"]["source_lang"] = "zh"
+        translated["title_en"] = translated.get("title") or translated.get("title_en")
+        _ensure_lang_tag(translated, lang)
+        if site_url:
+            translated["canonical_url"] = f"{site_url}/{slug}/"
+
+        if post_dict.get("feature_image_path"):
+            translated["feature_image_path"] = post_dict.get("feature_image_path")
+            translated["feature_image_alt"] = post_dict.get("feature_image_alt")
+
+        translated_posts[post_type] = PostOutput(
+            post_type=f"{post_type}_{lang}",
+            title=translated.get("title", ""),
+            slug=slug,
+            json_data=translated,
+            html_content=translated.get("html", ""),
+        )
+
+        console.print(f"  ✓ {post_type}: {slug}")
+
+    return translated_posts
+
+
+def stage_enhance_posts(
+    posts: Dict[str, Optional[PostOutput]],
+    research_pack_path: str = "out/research_pack.json",
+) -> Dict[str, Optional[PostOutput]]:
+    """Enhance flash/earnings posts with a second editing pass."""
+    if os.getenv("ENABLE_ENHANCE", "true").lower() != "true":
+        return posts
+
+    try:
+        from scripts.enhance_post import enhance_post
+    except Exception:
+        console.print("[yellow]⚠ enhance_post import failed, skipping enhance[/yellow]")
+        return posts
+
+    console.print("\n[bold cyan]Stage 3.3: Enhance Posts[/bold cyan]")
+
+    for post_type, post in posts.items():
+        if post is None or post_type not in {"flash", "earnings"}:
+            continue
+
+        draft_path = f"out/post_{post_type}.json"
+        output_path = f"out/post_{post_type}_enhanced.json"
+
+        console.print(f"  Enhancing {post_type}...")
+        success = enhance_post(
+            research_pack_path=research_pack_path,
+            draft_path=draft_path,
+            output_path=output_path,
+            use_litellm=True,
+            model=os.getenv("CODEX_MODEL") or os.getenv("LITELLM_MODEL"),
+            skip_quality_gates=False,
+        )
+
+        if not success:
+            console.print(f"  [yellow]⚠ {post_type}: enhance failed, keeping draft[/yellow]")
+            continue
+
+        try:
+            with open(output_path, "r", encoding="utf-8") as f:
+                enhanced = json.load(f)
+            post.json_data = enhanced
+            post.title = enhanced.get("title", post.title)
+            post.slug = enhanced.get("slug", post.slug)
+            post.html_content = enhanced.get("html", post.html_content)
+            _save_post_output(enhanced, post_type)
+            console.print(f"  ✓ {post_type}: enhanced")
+        except Exception as e:
+            console.print(f"  [yellow]⚠ {post_type}: failed to load enhanced ({e})[/yellow]")
+
+    return posts
 
 
 def stage_qa(
@@ -945,11 +1190,101 @@ def stage_qa(
     }
 
 
+def stage_feature_images(
+    posts: Dict[str, Optional[PostOutput]],
+    output_dir: str = "out/feature_images",
+) -> Dict[str, Dict]:
+    """Stage 4.5: Generate feature images for posts."""
+    from ..writers.feature_images import generate_feature_image
+
+    console.print("\n[bold cyan]Stage 4.5: Feature Images[/bold cyan]")
+    results: Dict[str, Dict] = {}
+
+    for post_type, post in posts.items():
+        if post is None:
+            continue
+
+        post_dict = post.json_data
+        result = generate_feature_image(post_type, post_dict, output_dir=output_dir)
+        if not result:
+            console.print(f"  [yellow]⚠ {post_type}: feature image skipped[/yellow]")
+            continue
+
+        post_dict["feature_image_path"] = str(result.path)
+        post_dict["feature_image_alt"] = result.alt_text
+        meta = post_dict.get("meta", {})
+        meta["feature_image_kind"] = result.kind
+        post_dict["meta"] = meta
+
+        results[post_type] = {
+            "path": str(result.path),
+            "alt": result.alt_text,
+            "kind": result.kind,
+        }
+
+        console.print(f"  ✓ {post_type}: {result.path}")
+
+    return results
+
+
+def stage_run_report(
+    posts: Dict[str, Optional[PostOutput]],
+    run_id: str,
+    run_date: str,
+    output_dir: str = "data/run_reports",
+) -> Path:
+    """Stage 4.8: Save run report stats and compare with golden snapshot if present."""
+    import re
+
+    console.print("\n[bold cyan]Stage 4.8: Run Report[/bold cyan]")
+    stats = {"run_id": run_id, "date": run_date, "posts": {}}
+
+    for post_type, post in posts.items():
+        if post is None:
+            continue
+        data = post.json_data
+        markdown = data.get("markdown", "") or ""
+        html = data.get("html", "") or ""
+        stats["posts"][post_type] = {
+            "word_count": len(markdown.split()),
+            "char_count": len(markdown),
+            "tldr_count": len(data.get("tldr") or []),
+            "sources_count": len(data.get("sources") or []),
+            "html_length": len(html),
+            "table_count": len(re.findall(r"<table", html, flags=re.IGNORECASE)),
+            "heading_count": len(re.findall(r"<h[2-4]", html, flags=re.IGNORECASE)),
+        }
+
+    output_path = Path(output_dir) / f"run_report_{run_id[:8]}.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(stats, f, indent=2, ensure_ascii=False)
+
+    golden_path = Path("qa/golden_snapshot.json")
+    if golden_path.exists():
+        try:
+            with open(golden_path, "r", encoding="utf-8") as f:
+                golden = json.load(f)
+            for post_type, metrics in stats["posts"].items():
+                baseline = (golden.get("posts") or {}).get(post_type, {})
+                if not baseline:
+                    continue
+                word_delta = metrics["word_count"] - baseline.get("word_count", metrics["word_count"])
+                if abs(word_delta) > baseline.get("word_count", metrics["word_count"]) * 0.3:
+                    console.print(f"  [yellow]⚠ {post_type}: word_count drift {word_delta}[/yellow]")
+        except Exception:
+            console.print("[yellow]⚠ Golden snapshot compare failed[/yellow]")
+
+    console.print(f"  ✓ Run report saved to {output_path}")
+    return output_path
+
+
 def stage_publish(
     posts: Dict[str, Optional[PostOutput]],
     mode: str,
     confirm_high_risk: bool = False,
     visibility: Optional[str] = None,  # Default visibility for free members
+    en_posts: Optional[Dict[str, Optional[PostOutput]]] = None,
 ) -> Dict[str, Dict]:
     """
     Stage 5: Publish to Ghost (P0-7: Upsert by slug)
@@ -1008,6 +1343,17 @@ def stage_publish(
 
             console.print(f"  Publishing {post_type} (slug: {post.slug})...")
 
+            # Upload feature image if present
+            feature_path = post.json_data.get("feature_image_path")
+            if feature_path and os.getenv("GHOST_FEATURE_IMAGE_UPLOAD", "true").lower() != "false":
+                image_url = publisher.upload_image(Path(feature_path))
+                if image_url:
+                    post.json_data["feature_image"] = image_url
+                    if post.json_data.get("feature_image_alt"):
+                        post.json_data["feature_image_alt"] = post.json_data.get("feature_image_alt")
+                else:
+                    console.print(f"    [yellow]⚠ Feature image upload failed for {post_type}[/yellow]")
+
             # P0-7: Use upsert_by_slug
             result = publisher.upsert_by_slug(
                 post=post.json_data,
@@ -1027,12 +1373,41 @@ def stage_publish(
             else:
                 console.print(f"    [red]✗ {result.error}[/red]")
 
+        # Publish English variants (no newsletter)
+        if en_posts:
+            console.print("\n  Publishing English variants...")
+            for post_type, post in en_posts.items():
+                if post is None:
+                    continue
+                console.print(f"  Publishing {post.post_type} (slug: {post.slug})...")
+
+                feature_path = post.json_data.get("feature_image_path")
+                if feature_path and os.getenv("GHOST_FEATURE_IMAGE_UPLOAD", "true").lower() != "false":
+                    image_url = publisher.upload_image(Path(feature_path))
+                    if image_url:
+                        post.json_data["feature_image"] = image_url
+
+                result = publisher.upsert_by_slug(
+                    post=post.json_data,
+                    status="published" if mode == "prod" else "draft",
+                    send_newsletter=False,
+                    email_segment=segment,
+                    visibility=visibility,
+                )
+                results[f"{post.post_type}"] = result.to_dict()
+
+                if result.success:
+                    console.print(f"    [green]✓ {result.url}[/green]")
+                else:
+                    console.print(f"    [red]✗ {result.error}[/red]")
+
     return results
 
 
 def stage_archive(
     result: DailyPipelineResult,
-    posts: Dict[str, Optional[PostOutput]]
+    posts: Dict[str, Optional[PostOutput]],
+    en_posts: Optional[Dict[str, Optional[PostOutput]]] = None,
 ) -> Path:
     """
     Stage 6: Archive all artifacts
@@ -1054,6 +1429,33 @@ def stage_archive(
             html_path = archive_dir / f"post_{post_type}.html"
             with open(html_path, "w", encoding="utf-8") as f:
                 f.write(post.html_content)
+
+            feature_path = post.json_data.get("feature_image_path")
+            if feature_path and Path(feature_path).exists():
+                dest = archive_dir / Path(feature_path).name
+                try:
+                    dest.write_bytes(Path(feature_path).read_bytes())
+                except Exception:
+                    pass
+
+    if en_posts:
+        for post_type, post in en_posts.items():
+            if post:
+                json_path = archive_dir / f"post_{post.post_type}.json"
+                with open(json_path, "w", encoding="utf-8") as f:
+                    json.dump(post.json_data, f, indent=2, ensure_ascii=False)
+
+                html_path = archive_dir / f"post_{post.post_type}.html"
+                with open(html_path, "w", encoding="utf-8") as f:
+                    f.write(post.html_content)
+
+                feature_path = post.json_data.get("feature_image_path")
+                if feature_path and Path(feature_path).exists():
+                    dest = archive_dir / Path(feature_path).name
+                    try:
+                        dest.write_bytes(Path(feature_path).read_bytes())
+                    except Exception:
+                        pass
 
     # Save pipeline result
     result_path = archive_dir / "pipeline_result.json"
@@ -1087,13 +1489,15 @@ def stage_archive(
 @click.option("--confirm-high-risk", is_flag=True, help="Confirm high-risk segment")
 @click.option("--posts", "-p", multiple=True, type=click.Choice(["flash", "earnings", "deep"]),
               help="Specific posts to generate (default: all)")
+@click.option("--resume", "-r", is_flag=True, help="Resume from last checkpoint (skip completed stages)")
 def main(
     mode: str,
     run_date: Optional[str],
     theme: Optional[str],
     skip_publish: bool,
     confirm_high_risk: bool,
-    posts: tuple
+    posts: tuple,
+    resume: bool,
 ):
     """
     Run the daily 3-post pipeline.
@@ -1107,14 +1511,27 @@ def main(
     from ..utils.time import get_run_id
 
     start_time = time.time()
-    run_id = get_run_id()
     run_date = run_date or date.today().isoformat()
+
+    # Handle checkpoint/resume
+    checkpoint = None
+    if resume:
+        checkpoint = _load_checkpoint(run_date)
+        if checkpoint:
+            run_id = checkpoint.get("run_id", get_run_id())
+            console.print(f"[cyan]RESUME MODE - Loading checkpoint from {checkpoint.get('started_at')}[/cyan]\n")
+        else:
+            console.print("[yellow]No checkpoint found - starting fresh[/yellow]\n")
+            run_id = get_run_id()
+    else:
+        run_id = get_run_id()
 
     console.print(Panel.fit(
         f"[bold]Daily Brief Pipeline v2[/bold]\n"
         f"Run ID: {run_id[:12]}...\n"
         f"Date: {run_date}\n"
         f"Mode: {mode}\n"
+        f"Resume: {resume}\n"
         f"Posts: {', '.join(posts) if posts else 'all'}",
         border_style="blue",
     ))
@@ -1132,24 +1549,89 @@ def main(
         mode=mode,
     )
 
+    # Initialize or update checkpoint
+    if not checkpoint:
+        checkpoint = _init_checkpoint(run_id, run_date)
+
     try:
         # Stage 1: Ingest
-        ingest_data = stage_ingest(run_date, theme)
+        if _is_stage_completed(checkpoint, "ingest") and resume:
+            console.print("\n[bold cyan]Stage 1: Ingest[/bold cyan] [dim](skipped - checkpoint)[/dim]")
+            # Load from edition_pack
+            if Path("out/edition_pack.json").exists():
+                with open("out/edition_pack.json", "r") as f:
+                    pack_dict = json.load(f)
+                ingest_data = {
+                    "news_items": pack_dict.get("news_items", []),
+                    "market_data": pack_dict.get("market_data", {}),
+                    "earnings_calendar": pack_dict.get("earnings_calendar", []),
+                    "companies": {},  # Will be rebuilt in pack stage
+                }
+            else:
+                console.print("  [yellow]⚠ edition_pack.json not found, re-ingesting[/yellow]")
+                ingest_data = stage_ingest(run_date, theme)
+                _update_checkpoint("ingest", completed=True)
+        else:
+            ingest_data = stage_ingest(run_date, theme)
+            _update_checkpoint("ingest", completed=True)
 
         # Stage 2: Pack
-        edition_pack = stage_pack(ingest_data, run_date, run_id)
+        if _is_stage_completed(checkpoint, "pack") and resume:
+            console.print("\n[bold cyan]Stage 2: Pack[/bold cyan] [dim](skipped - checkpoint)[/dim]")
+            # Load edition_pack from file
+            with open("out/edition_pack.json", "r") as f:
+                pack_dict = json.load(f)
+            edition_pack = EditionPack(
+                meta=pack_dict.get("meta", {}),
+                date=pack_dict.get("date", run_date),
+                edition=pack_dict.get("edition", "postclose"),
+                primary_event=pack_dict.get("primary_event"),
+                primary_theme=pack_dict.get("primary_theme"),
+                news_items=pack_dict.get("news_items", []),
+                market_data=pack_dict.get("market_data", {}),
+                earnings_calendar=pack_dict.get("earnings_calendar", []),
+                key_stocks=pack_dict.get("key_stocks", []),
+                peer_data=pack_dict.get("peer_data", {}),
+                peer_table=pack_dict.get("peer_table"),
+                valuations=pack_dict.get("valuations", {}),
+                deep_dive_ticker=pack_dict.get("deep_dive_ticker"),
+                deep_dive_reason=pack_dict.get("deep_dive_reason"),
+                deep_dive_data=pack_dict.get("deep_dive_data"),
+                recent_earnings=pack_dict.get("recent_earnings"),
+                edition_coherence=pack_dict.get("edition_coherence"),
+            )
+            console.print(f"  ✓ Loaded edition_pack from checkpoint")
+        else:
+            edition_pack = stage_pack(ingest_data, run_date, run_id)
+            _update_checkpoint("pack", completed=True)
+
         result.edition_pack_path = str(Path("out/edition_pack.json"))
 
-        # Stage 3: Write
+        # Stage 3: Write (with checkpoint support)
         post_types = list(posts) if posts else None
-        generated_posts = stage_write(edition_pack, run_id, post_types)
+        generated_posts = stage_write(edition_pack, run_id, post_types, checkpoint=checkpoint if resume else None)
         result.posts = generated_posts
+
+        # Stage 3.3: Enhance
+        generated_posts = stage_enhance_posts(generated_posts)
+        result.posts = generated_posts
+
+        # Stage 3.4: Feature Images
+        stage_feature_images(generated_posts)
+
+        # Stage 3.5: Translate (EN posts)
+        en_posts = {}
+        if os.getenv("ENABLE_EN_POSTS", "true").lower() == "true":
+            en_posts = stage_translate_posts(generated_posts)
 
         # Stage 4: QA
         qa_results = stage_qa(generated_posts, edition_pack)
         result.quality_gates_passed = (
             bool(qa_results.get("overall_passed")) if isinstance(qa_results, dict) else False
         )
+
+        # Stage 4.8: Run report
+        stage_run_report(generated_posts, run_id, run_date)
 
         # Stage 5: Publish
         if not skip_publish:
@@ -1160,13 +1642,14 @@ def main(
                     generated_posts,
                     mode=mode,
                     confirm_high_risk=confirm_high_risk,
+                    en_posts=en_posts,
                 )
                 result.publish_results = publish_results
         else:
             console.print("\n[yellow]Publish skipped (--skip-publish)[/yellow]")
 
         # Stage 6: Archive
-        archive_path = stage_archive(result, generated_posts)
+        archive_path = stage_archive(result, generated_posts, en_posts=en_posts)
 
     except Exception as e:
         console.print(f"\n[red]Pipeline failed: {e}[/red]")
