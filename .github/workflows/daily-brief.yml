@@ -3,7 +3,7 @@ name: Daily Brief Pipeline
 on:
   # 每天台灣時間 06:00 (22:00 UTC 前一天) 自動觸發
   schedule:
-    - cron: '0 22 * * 0-4'  # 週日到週四 22:00 UTC = 週一到週五 06:00 台灣時間
+    - cron: '0 22 * * *'  # 每天 22:00 UTC = 隔天 06:00 台灣時間
 
   # 允許手動觸發
   workflow_dispatch:
