@@ -1,0 +1,241 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Fact Pack Schema",
+  "description": "Single source of truth for all factual data. LLM must ONLY cite data from this pack.",
+  "type": "object",
+  "required": ["meta", "market_snapshot", "tickers"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Metadata about the fact pack",
+      "required": ["date", "generated_at", "data_sources"],
+      "properties": {
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Publication date (YYYY-MM-DD)"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this fact pack was generated"
+        },
+        "data_sources": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "List of data sources used (e.g., 'FMP', 'SEC EDGAR')"
+        }
+      }
+    },
+    "market_snapshot": {
+      "type": "object",
+      "description": "Market-wide data points",
+      "properties": {
+        "spy": {
+          "$ref": "#/definitions/index_data"
+        },
+        "qqq": {
+          "$ref": "#/definitions/index_data"
+        },
+        "us10y": {
+          "type": "object",
+          "properties": {
+            "value": {"type": "number", "description": "10Y Treasury yield (%)"},
+            "change_bps": {"type": "number", "description": "Change in basis points"},
+            "as_of": {"type": "string"}
+          }
+        },
+        "dxy": {
+          "$ref": "#/definitions/index_data"
+        },
+        "vix": {
+          "type": "object",
+          "properties": {
+            "value": {"type": "number"},
+            "change_pct": {"type": "number"},
+            "as_of": {"type": "string"}
+          }
+        }
+      }
+    },
+    "tickers": {
+      "type": "object",
+      "description": "Per-ticker factual data",
+      "additionalProperties": {
+        "$ref": "#/definitions/ticker_facts"
+      }
+    },
+    "earnings": {
+      "type": "object",
+      "description": "Earnings data keyed by ticker",
+      "additionalProperties": {
+        "$ref": "#/definitions/earnings_facts"
+      }
+    },
+    "analyst_actions": {
+      "type": "array",
+      "description": "Analyst rating/price target changes (only include if source is verified)",
+      "items": {
+        "$ref": "#/definitions/analyst_action"
+      }
+    }
+  },
+  "definitions": {
+    "index_data": {
+      "type": "object",
+      "properties": {
+        "price": {"type": "number"},
+        "change_pct": {"type": "number", "description": "Percentage change (e.g., -0.57 for -0.57%)"},
+        "as_of": {"type": "string", "description": "Timestamp (e.g., '2026-01-08 16:00 ET')"}
+      },
+      "required": ["price", "change_pct", "as_of"]
+    },
+    "ticker_facts": {
+      "type": "object",
+      "description": "Factual data for a single ticker",
+      "properties": {
+        "ticker": {"type": "string"},
+        "company_name": {"type": "string"},
+        "price": {
+          "type": "object",
+          "properties": {
+            "value": {"type": "number"},
+            "change_pct": {"type": "number"},
+            "change_dollars": {"type": "number"},
+            "as_of": {"type": "string"}
+          },
+          "required": ["value", "change_pct", "as_of"]
+        },
+        "market_cap": {
+          "type": "object",
+          "properties": {
+            "value": {"type": "number", "description": "Market cap in USD"},
+            "formatted": {"type": "string", "description": "Formatted (e.g., '$3.2T')"},
+            "as_of": {"type": "string"}
+          }
+        },
+        "valuation": {
+          "type": "object",
+          "properties": {
+            "pe_ttm": {"type": ["number", "null"]},
+            "pe_forward": {"type": ["number", "null"]},
+            "ps_ttm": {"type": ["number", "null"]},
+            "ev_sales": {"type": ["number", "null"]},
+            "as_of": {"type": "string"}
+          }
+        },
+        "financials_ttm": {
+          "type": "object",
+          "description": "Trailing 12 months financials",
+          "properties": {
+            "revenue": {"type": "number"},
+            "revenue_formatted": {"type": "string"},
+            "eps": {"type": "number"},
+            "gross_margin_pct": {"type": "number"},
+            "operating_margin_pct": {"type": "number"},
+            "net_margin_pct": {"type": "number"},
+            "as_of": {"type": "string", "description": "TTM period end date"}
+          }
+        }
+      },
+      "required": ["ticker", "price"]
+    },
+    "earnings_facts": {
+      "type": "object",
+      "description": "Earnings data for a specific quarter",
+      "properties": {
+        "ticker": {"type": "string"},
+        "fiscal_period": {"type": "string", "description": "e.g., 'Q3 FY26'"},
+        "fiscal_period_end": {"type": "string", "format": "date"},
+        "announcement_date": {"type": ["string", "null"], "format": "date"},
+        "revenue": {
+          "type": "object",
+          "properties": {
+            "value": {"type": "number"},
+            "formatted": {"type": "string"},
+            "yoy_pct": {"type": ["number", "null"], "description": "Pre-calculated YoY growth %"},
+            "qoq_pct": {"type": ["number", "null"]}
+          },
+          "required": ["value", "formatted"]
+        },
+        "eps": {
+          "type": "object",
+          "properties": {
+            "value": {"type": "number"},
+            "yoy_pct": {"type": ["number", "null"]},
+            "beat_miss_pct": {"type": ["number", "null"], "description": "vs consensus"}
+          },
+          "required": ["value"]
+        },
+        "segments": {
+          "type": "array",
+          "description": "Business segment breakdown",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "revenue": {"type": "number"},
+              "revenue_formatted": {"type": "string"},
+              "yoy_pct": {"type": ["number", "null"]},
+              "pct_of_total": {"type": "number"}
+            }
+          }
+        },
+        "margins": {
+          "type": "object",
+          "properties": {
+            "gross_pct": {"type": "number"},
+            "operating_pct": {"type": "number"},
+            "net_pct": {"type": "number"}
+          }
+        },
+        "guidance": {
+          "type": "object",
+          "description": "Forward guidance if provided",
+          "properties": {
+            "next_quarter_revenue_low": {"type": "number"},
+            "next_quarter_revenue_high": {"type": "number"},
+            "next_quarter_eps_low": {"type": "number"},
+            "next_quarter_eps_high": {"type": "number"}
+          }
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "name": {"type": "string", "description": "e.g., 'NVIDIA Q3 FY26 Press Release'"},
+            "url": {"type": "string", "format": "uri"}
+          },
+          "required": ["name"]
+        }
+      },
+      "required": ["ticker", "fiscal_period", "revenue", "eps"]
+    },
+    "analyst_action": {
+      "type": "object",
+      "description": "Analyst rating/price target change",
+      "properties": {
+        "ticker": {"type": "string"},
+        "firm": {"type": "string"},
+        "action_type": {
+          "type": "string",
+          "enum": ["upgrade", "downgrade", "initiate", "reiterate", "price_target_change"]
+        },
+        "new_rating": {"type": ["string", "null"]},
+        "new_price_target": {"type": ["number", "null"]},
+        "old_price_target": {
+          "type": ["number", "null"],
+          "description": "ONLY include if source explicitly provides this"
+        },
+        "date": {"type": "string", "format": "date"},
+        "source": {
+          "type": "object",
+          "properties": {
+            "name": {"type": "string"},
+            "url": {"type": ["string", "null"]}
+          }
+        }
+      },
+      "required": ["ticker", "firm", "action_type", "date"]
+    }
+  }
+}

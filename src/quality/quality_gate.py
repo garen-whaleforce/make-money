@@ -356,6 +356,116 @@ class QualityGate:
             },
         )
 
+    def _check_slug_content_consistency(self, post: dict, research_pack: dict) -> GateResult:
+        """檢查 Slug 與內容主題一致性 (P0-3)
+
+        P0-3 規則：
+        - URL slug 中的 ticker/主題必須與文章內容的主題一致
+        - 例如：nvda-deep-dive 的內容不能是 TSLA 分析
+        - 這會嚴重損害 SEO、內部連結、用戶信任
+
+        常見失敗場景：
+        - slug 包含 NVDA 但文章分析 TSLA
+        - slug 用了舊主題但內容被 LLM 改成其他主題
+        """
+        errors = []
+        warnings = []
+
+        slug = post.get("slug", "")
+        title = post.get("title", "")
+        content = post.get("html", "") or post.get("markdown", "")
+
+        if not slug:
+            warnings.append("Slug is empty")
+            return GateResult(
+                name="slug_content_consistency",
+                passed=True,
+                message="Skipped (no slug)",
+                details={"warnings": warnings},
+            )
+
+        # 從 slug 提取可能的 ticker
+        slug_upper = slug.upper()
+        KNOWN_TICKERS = [
+            "NVDA", "AMD", "AVGO", "TSM", "ASML", "MRVL", "CRDO", "ALAB",  # AI 半導體
+            "MSFT", "GOOGL", "AMZN", "META", "AAPL",  # 科技巨頭
+            "TSLA", "COIN", "MSTR", "PLTR", "CRWD",  # 高知名度
+            "IONQ", "RGTI", "QBTS",  # 量子
+            "OKLO", "NNE", "SMR", "CEG", "VST",  # 核能/電力
+            "RKLB", "LUNR", "ASTS",  # 太空
+        ]
+
+        slug_tickers = [t for t in KNOWN_TICKERS if t in slug_upper]
+
+        # 從 title 提取 ticker
+        title_upper = title.upper() if title else ""
+        title_tickers = [t for t in KNOWN_TICKERS if t in title_upper]
+
+        # 從內容提取主要 ticker（出現次數最多的）
+        content_upper = content.upper() if content else ""
+        content_ticker_counts = {}
+        for t in KNOWN_TICKERS:
+            count = content_upper.count(t)
+            if count > 0:
+                content_ticker_counts[t] = count
+
+        # 找出內容中最常出現的 ticker
+        content_primary_ticker = None
+        if content_ticker_counts:
+            content_primary_ticker = max(content_ticker_counts.items(), key=lambda x: x[1])[0]
+
+        # 檢查一致性
+        # Case 1: Slug 有 ticker，但內容主要討論的是不同 ticker
+        if slug_tickers and content_primary_ticker:
+            if content_primary_ticker not in slug_tickers:
+                # 確認是否真的不一致（內容主 ticker 出現次數要顯著高於 slug ticker）
+                slug_ticker_count = content_ticker_counts.get(slug_tickers[0], 0)
+                content_primary_count = content_ticker_counts.get(content_primary_ticker, 0)
+
+                # 如果內容主 ticker 出現次數是 slug ticker 的 2 倍以上，視為嚴重不一致
+                if content_primary_count > slug_ticker_count * 2 and content_primary_count > 10:
+                    errors.append(
+                        f"[P0-CRITICAL] Slug/Content 主題不一致！"
+                        f"Slug 指向 {slug_tickers[0]}，但內容主要討論 {content_primary_ticker} "
+                        f"({content_primary_ticker}: {content_primary_count}次 vs {slug_tickers[0]}: {slug_ticker_count}次)"
+                    )
+
+        # Case 2: Title 和 Slug 不一致
+        if slug_tickers and title_tickers:
+            if not any(t in title_tickers for t in slug_tickers):
+                warnings.append(
+                    f"Slug ticker ({slug_tickers}) 與 Title ticker ({title_tickers}) 可能不一致"
+                )
+
+        # Case 3: Deep Dive 類型特別檢查
+        post_type = post.get("meta", {}).get("post_type", "")
+        if post_type == "deep" and slug_tickers:
+            expected_ticker = slug_tickers[0]
+            # Deep Dive 應該大量討論指定的 ticker
+            expected_count = content_ticker_counts.get(expected_ticker, 0)
+            if expected_count < 20:
+                warnings.append(
+                    f"Deep Dive 類型但 {expected_ticker} 只出現 {expected_count} 次，"
+                    f"可能內容不夠聚焦或主題錯誤"
+                )
+
+        passed = len(errors) == 0
+
+        return GateResult(
+            name="slug_content_consistency",
+            passed=passed,
+            message="; ".join(errors) if errors else "OK",
+            details={
+                "slug": slug,
+                "slug_tickers": slug_tickers,
+                "title_tickers": title_tickers,
+                "content_primary_ticker": content_primary_ticker,
+                "content_ticker_counts": dict(sorted(content_ticker_counts.items(), key=lambda x: -x[1])[:5]),
+                "errors": errors,
+                "warnings": warnings,
+            },
+        )
+
     def _check_data_completeness(self, post: dict, research_pack: dict) -> GateResult:
         """檢查資料完整性（A2: 防止 null 欄位輸出）
 
@@ -370,7 +480,15 @@ class QualityGate:
         # Earnings 專用檢查
         if post_type == "earnings":
             scoreboard = post.get("earnings_scoreboard", [])
+            # Handle both list and dict formats
+            if isinstance(scoreboard, dict):
+                scoreboard = [scoreboard]  # Wrap single dict in list
+            elif not isinstance(scoreboard, list):
+                scoreboard = []
+
             for i, entry in enumerate(scoreboard):
+                if not isinstance(entry, dict):
+                    continue  # Skip non-dict entries
                 # 必填欄位
                 required_fields = ["ticker", "quarter", "eps_estimate", "revenue_estimate"]
                 for field in required_fields:
@@ -557,6 +675,362 @@ class QualityGate:
                 "key_stock_tickers": list(key_stock_tickers),
                 "tldr_tickers": list(tldr_tickers),
                 "orphan_tickers": list(orphan_repricing_tickers) if orphan_repricing_tickers else [],
+                "warnings": warnings,
+            },
+        )
+
+    def _check_percent_sanity(self, post: dict, research_pack: dict) -> GateResult:
+        """檢查百分比數值合理性 (P0-1)
+
+        Rule: 若 |change_pct| > 35 且 market_cap > 50B，hard fail
+        這種情況通常表示百分比被重複乘以100。
+
+        Mega-cap股票 (市值 > $50B) 單日漲跌超過 35% 極為罕見，
+        如果出現這種數字很可能是資料處理錯誤。
+        """
+        errors = []
+        warnings = []
+        suspicious_tickers = []
+
+        MEGA_CAP_THRESHOLD = 50e9  # $50B
+        EXTREME_CHANGE_THRESHOLD = 35  # 35%
+
+        market_data = research_pack.get("market_data", {})
+
+        for ticker, data in market_data.items():
+            change_pct = data.get("change_pct")
+            market_cap = data.get("market_cap")
+
+            if change_pct is None or market_cap is None:
+                continue
+
+            # Check for mega-cap with extreme change
+            if market_cap > MEGA_CAP_THRESHOLD and abs(change_pct) > EXTREME_CHANGE_THRESHOLD:
+                suspicious_tickers.append({
+                    "ticker": ticker,
+                    "change_pct": change_pct,
+                    "market_cap": market_cap,
+                })
+                errors.append(
+                    f"{ticker}: |{change_pct:.2f}%| > {EXTREME_CHANGE_THRESHOLD}% "
+                    f"for mega-cap (${market_cap/1e9:.1f}B) - likely percent scale bug"
+                )
+
+            # Warn for any ticker with >50% change
+            elif abs(change_pct) > 50:
+                warnings.append(f"{ticker}: {change_pct:+.2f}% change seems unusual")
+
+        passed = len(errors) == 0
+
+        return GateResult(
+            name="percent_sanity",
+            passed=passed,
+            message="; ".join(errors) if errors else "OK",
+            details={
+                "suspicious_tickers": suspicious_tickers,
+                "warnings": warnings,
+            },
+        )
+
+    def _check_duplicate_ticker_consistency(self, post: dict, research_pack: dict) -> GateResult:
+        """檢查重複 ticker 數值一致性 (P0-3)
+
+        Same ticker appearing in multiple places should show consistent values.
+        Example: NVDA appearing in both repricing_variables and key_stocks
+        should show the same change_pct value.
+        """
+        errors = []
+        warnings = []
+        inconsistencies = []
+
+        # Collect all ticker mentions with their values
+        ticker_values = {}  # {ticker: [(source, field, value), ...]}
+
+        post_type = post.get("meta", {}).get("post_type", "")
+
+        # Source 1: market_data from research_pack
+        market_data = research_pack.get("market_data", {})
+        for ticker, data in market_data.items():
+            if ticker not in ticker_values:
+                ticker_values[ticker] = []
+            if data.get("change_pct") is not None:
+                ticker_values[ticker].append(
+                    ("market_data", "change_pct", data["change_pct"])
+                )
+            if data.get("price") is not None:
+                ticker_values[ticker].append(
+                    ("market_data", "price", data["price"])
+                )
+
+        # Source 2: repricing_variables (Flash posts)
+        if post_type == "flash":
+            repricing = post.get("repricing_variables", [])
+            if isinstance(repricing, list):
+                for item in repricing:
+                    ticker = item.get("ticker")
+                    if not ticker:
+                        continue
+                    if ticker not in ticker_values:
+                        ticker_values[ticker] = []
+                    if item.get("change_pct") is not None:
+                        ticker_values[ticker].append(
+                            ("repricing_variables", "change_pct", item["change_pct"])
+                        )
+
+            # Source 3: key_stocks (Flash posts)
+            key_stocks = post.get("key_stocks", [])
+            if isinstance(key_stocks, list):
+                for item in key_stocks:
+                    ticker = item.get("ticker")
+                    if not ticker:
+                        continue
+                    if ticker not in ticker_values:
+                        ticker_values[ticker] = []
+                    if item.get("change_pct") is not None:
+                        ticker_values[ticker].append(
+                            ("key_stocks", "change_pct", item["change_pct"])
+                        )
+
+        # Source 4: earnings_scoreboard (Earnings posts)
+        if post_type == "earnings":
+            scoreboard = post.get("earnings_scoreboard", [])
+            if isinstance(scoreboard, dict):
+                scoreboard = [scoreboard]
+            if isinstance(scoreboard, list):
+                for item in scoreboard:
+                    ticker = item.get("ticker")
+                    if not ticker:
+                        continue
+                    if ticker not in ticker_values:
+                        ticker_values[ticker] = []
+                    if item.get("eps_actual") is not None:
+                        ticker_values[ticker].append(
+                            ("earnings_scoreboard", "eps_actual", item["eps_actual"])
+                        )
+
+        # Check consistency for each ticker
+        TOLERANCE = 0.01  # Allow 0.01% difference for rounding
+
+        for ticker, values in ticker_values.items():
+            # Group by field
+            by_field = {}
+            for source, field, value in values:
+                if field not in by_field:
+                    by_field[field] = []
+                by_field[field].append((source, value))
+
+            # Check each field for consistency
+            for field, field_values in by_field.items():
+                if len(field_values) < 2:
+                    continue
+
+                # Get all unique values
+                unique_values = set(v for _, v in field_values)
+                if len(unique_values) > 1:
+                    # Check if within tolerance
+                    values_list = [v for _, v in field_values]
+                    min_val = min(values_list)
+                    max_val = max(values_list)
+
+                    if max_val - min_val > TOLERANCE:
+                        sources = [s for s, _ in field_values]
+                        inconsistencies.append({
+                            "ticker": ticker,
+                            "field": field,
+                            "sources": sources,
+                            "values": values_list,
+                        })
+                        errors.append(
+                            f"{ticker}.{field} inconsistent across {sources}: {values_list}"
+                        )
+
+        passed = len(errors) == 0
+
+        return GateResult(
+            name="duplicate_ticker_consistency",
+            passed=passed,
+            message="; ".join(errors[:3]) if errors else "OK",  # Limit error message length
+            details={
+                "inconsistencies": inconsistencies,
+                "warnings": warnings,
+            },
+        )
+
+    def _check_placeholder_content(self, post: dict, research_pack: dict) -> GateResult:
+        """檢查佔位符內容 (P0-1)
+
+        Hard fail if placeholder text is found in output.
+        These indicate incomplete or failed data filling.
+
+        P0-1 規則：
+        - 預覽區（paywall 之前）有任何佔位符 → hard fail（絕對不能上線）
+        - 預覽區會出現在 Email / SEO snippet / 社群卡片，可信度最關鍵
+        - 付費區有佔位符 → soft fail（可以 draft，但不能寄 newsletter）
+        """
+        errors = []
+        warnings = []
+        placeholder_locations = []
+        preview_placeholder_locations = []  # 預覽區專用
+
+        # Placeholder patterns to detect (case-insensitive where applicable)
+        # P0-1: 加強偵測模式，包含數字前後的佔位符
+        PLACEHOLDER_PATTERNS = [
+            # Chinese placeholders - 核心（最常見）
+            r"數據",  # "data" - placeholder for unfilled data
+            r"\+數據",  # "+數據" - positive change placeholder
+            r"-數據",  # "-數據" - negative change placeholder
+            r"YoY\s*\+?數據",  # "YoY +數據"
+            r"QoQ\s*\+?數據",  # "QoQ +數據"
+            r"待確認",  # "to be confirmed"
+            r"待補充",  # "to be added"
+            r"資料缺失",  # "data missing"
+            r"尚未公布",  # "not yet announced"
+            r"無資料",  # "no data"
+            # English placeholders
+            r"\bTBD\b",  # "to be determined"
+            r"\bTBA\b",  # "to be announced"
+            r"\bN/A\b(?!\s*\()",  # N/A not followed by explanation
+            r"\bXXX\b",  # generic placeholder
+            r"\$XXX",  # price placeholder
+            r"\[.*?待.*?\]",  # [待...] style placeholders
+            r"\{.*?\}",  # {variable} style unfilled templates
+            # Numeric placeholders
+            r">\s*數據",  # ">數據" comparison
+            r"<\s*數據",  # "<數據" comparison
+            r"\d+-數據",  # "22-數據" range
+            r"數據-\d+",  # "數據-30" range
+            # Suspicious patterns
+            r"\bnull\b",  # literal null in output (word boundary)
+            r"\bundefined\b",  # literal undefined
+            r"\bNone\b",  # literal None (Python)
+        ]
+
+        # 關鍵佔位符 - 必須 hard fail
+        CRITICAL_PATTERNS = ["數據", "TBD", "TBA", "null", "undefined", "None", "{"]
+
+        def extract_preview_content(html_content: str) -> str:
+            """提取 paywall 之前的預覽內容（Email/SEO/社群可見）"""
+            if not html_content:
+                return ""
+            # Ghost paywall 標記
+            paywall_markers = [
+                "<!--members-only-->",
+                "<!-- members-only -->",
+                "<!--kg-card-begin: members-only-->",
+            ]
+            for marker in paywall_markers:
+                if marker in html_content:
+                    return html_content.split(marker)[0]
+            # 沒有 paywall 標記，整篇都是預覽
+            return html_content
+
+        def check_content_for_placeholders(content: str, area_name: str, is_preview: bool = False):
+            """檢查內容中的佔位符"""
+            if not content or not isinstance(content, str):
+                return
+            for pattern in PLACEHOLDER_PATTERNS:
+                matches = re.findall(pattern, content, re.IGNORECASE)
+                if matches:
+                    for match in matches[:5]:  # 最多記錄 5 個
+                        loc = {
+                            "location": area_name,
+                            "pattern": pattern,
+                            "match": match[:50],
+                            "is_preview": is_preview,
+                        }
+                        placeholder_locations.append(loc)
+                        if is_preview:
+                            preview_placeholder_locations.append(loc)
+
+        # ========== 1. 檢查結構化欄位（都算預覽區） ==========
+        title = post.get("title", "")
+        excerpt = post.get("excerpt", "")
+        newsletter_subject = post.get("newsletter_subject", "")
+        executive_summary = post.get("executive_summary", "")
+        tldr = post.get("tldr", [])
+
+        # 這些都是高優先級預覽欄位
+        check_content_for_placeholders(title, "title", is_preview=True)
+        check_content_for_placeholders(excerpt, "excerpt", is_preview=True)
+        check_content_for_placeholders(newsletter_subject, "newsletter_subject", is_preview=True)
+        check_content_for_placeholders(executive_summary, "executive_summary", is_preview=True)
+
+        # TL;DR 也是預覽區的一部分
+        if isinstance(tldr, list):
+            for i, item in enumerate(tldr):
+                if isinstance(item, str):
+                    check_content_for_placeholders(item, f"tldr[{i}]", is_preview=True)
+                elif isinstance(item, dict):
+                    check_content_for_placeholders(str(item.get("text", "")), f"tldr[{i}]", is_preview=True)
+
+        # ========== 2. 檢查 HTML 內容 ==========
+        html = post.get("html", "")
+        if html and isinstance(html, str):
+            # 分離預覽區和付費區
+            preview_html = extract_preview_content(html)
+            members_only_html = html[len(preview_html):] if len(html) > len(preview_html) else ""
+
+            # 預覽區 - hard fail
+            check_content_for_placeholders(preview_html, "html_preview", is_preview=True)
+
+            # 付費區 - soft fail
+            check_content_for_placeholders(members_only_html, "html_members_only", is_preview=False)
+
+        # ========== 3. 檢查 Markdown（備用） ==========
+        markdown = post.get("markdown", "")
+        if markdown and isinstance(markdown, str):
+            check_content_for_placeholders(markdown, "markdown", is_preview=False)
+
+        # ========== 4. 判定結果 ==========
+
+        # 檢查預覽區是否有關鍵佔位符
+        preview_critical = [
+            loc for loc in preview_placeholder_locations
+            if any(p in loc["pattern"] or p in loc["match"] for p in CRITICAL_PATTERNS)
+        ]
+
+        # 檢查全文是否有關鍵佔位符
+        all_critical = [
+            loc for loc in placeholder_locations
+            if any(p in loc["pattern"] or p in loc["match"] for p in CRITICAL_PATTERNS)
+        ]
+
+        # P0: 預覽區有佔位符 → 絕對 hard fail
+        if preview_critical:
+            # 格式化位置清單（避免 f-string 中的反斜線）
+            locations_str = [
+                f"{loc['location']}: '{loc['match']}'" for loc in preview_critical[:5]
+            ]
+            errors.append(
+                f"[P0-CRITICAL] 預覽區發現 {len(preview_critical)} 個佔位符 - "
+                f"這會直接顯示在 Email/SEO/社群分享中！"
+                f"位置: {locations_str}"
+            )
+
+        # P1: 付費區有佔位符 → soft fail（可以 draft，但警告）
+        members_only_critical = [loc for loc in all_critical if not loc.get("is_preview", False)]
+        if members_only_critical and not preview_critical:
+            warnings.append(
+                f"付費區發現 {len(members_only_critical)} 個佔位符 - "
+                f"建議修復後再發布: {[loc['match'] for loc in members_only_critical[:3]]}"
+            )
+
+        # 其他非關鍵佔位符
+        non_critical = len(placeholder_locations) - len(all_critical)
+        if non_critical > 0:
+            warnings.append(f"發現 {non_critical} 個其他疑似佔位符")
+
+        passed = len(errors) == 0
+
+        return GateResult(
+            name="placeholder_content",
+            passed=passed,
+            message="; ".join(errors) if errors else "OK",
+            details={
+                "preview_placeholders": len(preview_critical),
+                "members_only_placeholders": len(members_only_critical) if 'members_only_critical' in dir() else 0,
+                "total_placeholders": len(placeholder_locations),
+                "placeholder_locations": placeholder_locations[:15],  # 增加詳細輸出
                 "warnings": warnings,
             },
         )
@@ -828,7 +1302,43 @@ class QualityGate:
         if flash_result.details.get("warnings"):
             report.warnings.extend(flash_result.details["warnings"])
 
-        # Gate 10: Source URLs Gate (B1 - 可驗證來源 URL)
+        # Gate 10: Percent Sanity Gate (P0-1 - mega-cap percent validation)
+        percent_result = self._check_percent_sanity(post, research_pack)
+        report.gates.append(percent_result)
+        if not percent_result.passed:
+            report.overall_passed = False
+            report.errors.append(f"[percent_sanity] {percent_result.message}")
+        if percent_result.details.get("warnings"):
+            report.warnings.extend(percent_result.details["warnings"])
+
+        # Gate 11: Placeholder Content Gate (P0-2 - detect unfilled placeholders)
+        placeholder_result = self._check_placeholder_content(post, research_pack)
+        report.gates.append(placeholder_result)
+        if not placeholder_result.passed:
+            report.overall_passed = False
+            report.errors.append(f"[placeholder_content] {placeholder_result.message}")
+        if placeholder_result.details.get("warnings"):
+            report.warnings.extend(placeholder_result.details["warnings"])
+
+        # Gate 12: Duplicate Ticker Consistency Gate (P0-3)
+        dup_ticker_result = self._check_duplicate_ticker_consistency(post, research_pack)
+        report.gates.append(dup_ticker_result)
+        if not dup_ticker_result.passed:
+            report.overall_passed = False
+            report.errors.append(f"[duplicate_ticker_consistency] {dup_ticker_result.message}")
+        if dup_ticker_result.details.get("warnings"):
+            report.warnings.extend(dup_ticker_result.details["warnings"])
+
+        # Gate 13: Slug/Content Consistency Gate (P0-3b - SEO/URL 一致性)
+        slug_content_result = self._check_slug_content_consistency(post, research_pack)
+        report.gates.append(slug_content_result)
+        if not slug_content_result.passed:
+            report.overall_passed = False
+            report.errors.append(f"[slug_content_consistency] {slug_content_result.message}")
+        if slug_content_result.details.get("warnings"):
+            report.warnings.extend(slug_content_result.details["warnings"])
+
+        # Gate 14: Source URLs Gate (B1 - 可驗證來源 URL)
         source_url_result = self._check_source_urls(post, research_pack)
         report.gates.append(source_url_result)
         if not source_url_result.passed:
@@ -837,7 +1347,7 @@ class QualityGate:
         if source_url_result.details.get("warnings"):
             report.warnings.extend(source_url_result.details["warnings"])
 
-        # Gate 11: 發佈參數檢查
+        # Gate 14: 發佈參數檢查
         if mode == "publish":
             pub_result = self._check_publishing(mode, newsletter_slug, email_segment)
             report.gates.append(pub_result)
@@ -928,7 +1438,7 @@ class DailyQualityReport:
 # 各篇文章的最低硬規格
 POST_MIN_SPECS = {
     "flash": {
-        "min_news_items": 10,  # P0-3: 升級到 10-12 條
+        "min_news_items": 8,  # P0-5: 至少 7-8 條
         "min_key_numbers": 3,
         "min_tldr_items": 5,
         "min_html_length": 5000,  # 最少 5000 字元
@@ -1249,6 +1759,266 @@ def main():
 
     # 儲存報告
     gate.save_report(report)
+
+
+# =============================================================================
+# P0-1: 獨立佔位符檢查函數（供 codex_runner 使用）
+# =============================================================================
+
+# 佔位符模式（全域定義，供多處使用）
+PLACEHOLDER_PATTERNS = [
+    # Chinese placeholders - 核心（最常見）
+    r"數據",  # "data" - placeholder for unfilled data
+    r"\+數據",  # "+數據" - positive change placeholder
+    r"-數據",  # "-數據" - negative change placeholder
+    r"YoY\s*\+?數據",  # "YoY +數據"
+    r"QoQ\s*\+?數據",  # "QoQ +數據"
+    r"待確認",  # "to be confirmed"
+    r"待補充",  # "to be added"
+    r"資料缺失",  # "data missing"
+    r"尚未公布",  # "not yet announced"
+    r"無資料",  # "no data"
+    # English placeholders
+    r"\bTBD\b",  # "to be determined"
+    r"\bTBA\b",  # "to be announced"
+    r"\bN/A\b(?!\s*\()",  # N/A not followed by explanation
+    r"\bXXX\b",  # generic placeholder
+    r"\$XXX",  # price placeholder
+    # Numeric placeholders
+    r">\s*數據",  # ">數據" comparison
+    r"<\s*數據",  # "<數據" comparison
+    r"\d+-數據",  # "22-數據" range
+    r"數據-\d+",  # "數據-30" range
+]
+
+
+def check_placeholders(content: str) -> tuple[bool, list[str]]:
+    """P0-1: 檢查內容是否包含佔位符
+
+    這是一個輕量級的檢查函數，可在 LLM 生成後立即調用。
+
+    Args:
+        content: 要檢查的文字內容 (markdown 或 html)
+
+    Returns:
+        (passed, errors): passed=True 表示沒有佔位符
+    """
+    if not content:
+        return True, []
+
+    errors = []
+
+    for pattern in PLACEHOLDER_PATTERNS:
+        matches = re.findall(pattern, content, re.IGNORECASE)
+        if matches:
+            # 取得匹配的上下文
+            for match in matches[:3]:
+                # 找出匹配位置的上下文
+                idx = content.find(match)
+                if idx >= 0:
+                    start = max(0, idx - 20)
+                    end = min(len(content), idx + len(match) + 20)
+                    context = content[start:end].replace("\n", " ")
+                    errors.append(f"佔位符 '{match}' 出現在: ...{context}...")
+
+    passed = len(errors) == 0
+    return passed, errors
+
+
+def check_cross_post_consistency(posts: dict) -> tuple[bool, list[str]]:
+    """P0-2: 檢查三篇文章的數值一致性
+
+    確保同一 ticker 在不同文章中顯示一致的數值。
+
+    Args:
+        posts: {post_type: post_dict} 三篇文章的 dict
+
+    Returns:
+        (passed, errors): passed=True 表示數值一致
+    """
+    errors = []
+
+    # 收集所有 ticker 的關鍵數值
+    ticker_values = {}  # {ticker: {field: [(post_type, value), ...]}}
+
+    for post_type, post in posts.items():
+        if not post:
+            continue
+
+        # 從 ticker_profile 收集
+        profile = post.get("ticker_profile", {})
+        ticker = profile.get("ticker") or post.get("meta", {}).get("deep_dive_ticker")
+        if ticker:
+            if ticker not in ticker_values:
+                ticker_values[ticker] = {}
+
+            # TTM P/E
+            pe_ttm = profile.get("pe_ttm") or profile.get("ttm_pe")
+            if pe_ttm is not None:
+                if "pe_ttm" not in ticker_values[ticker]:
+                    ticker_values[ticker]["pe_ttm"] = []
+                ticker_values[ticker]["pe_ttm"].append((post_type, pe_ttm))
+
+            # Price
+            price = profile.get("price") or profile.get("last_price")
+            if price is not None:
+                if "price" not in ticker_values[ticker]:
+                    ticker_values[ticker]["price"] = []
+                ticker_values[ticker]["price"].append((post_type, price))
+
+            # Market Cap
+            market_cap = profile.get("market_cap")
+            if market_cap is not None:
+                if "market_cap" not in ticker_values[ticker]:
+                    ticker_values[ticker]["market_cap"] = []
+                ticker_values[ticker]["market_cap"].append((post_type, market_cap))
+
+    # 檢查數值一致性
+    for ticker, fields in ticker_values.items():
+        for field, values in fields.items():
+            if len(values) < 2:
+                continue
+
+            # 提取數值
+            numeric_values = []
+            for post_type, val in values:
+                if isinstance(val, (int, float)):
+                    numeric_values.append((post_type, float(val)))
+                elif isinstance(val, str):
+                    # 嘗試解析字串
+                    try:
+                        cleaned = val.replace(",", "").replace("$", "").replace("x", "").replace("%", "")
+                        numeric_values.append((post_type, float(cleaned)))
+                    except ValueError:
+                        pass
+
+            if len(numeric_values) < 2:
+                continue
+
+            # 檢查差異
+            vals = [v for _, v in numeric_values]
+            max_val = max(vals)
+            min_val = min(vals)
+
+            # 允許 5% 的誤差
+            if max_val > 0 and (max_val - min_val) / max_val > 0.05:
+                sources = [pt for pt, _ in numeric_values]
+                errors.append(
+                    f"{ticker}.{field} 不一致: "
+                    f"{', '.join(f'{pt}={v}' for pt, v in numeric_values)}"
+                )
+
+    passed = len(errors) == 0
+    return passed, errors
+
+
+def check_valuation_completeness(post: dict) -> tuple[bool, list[str]]:
+    """P0-4: 檢查估值區塊完整性
+
+    如果文章有估值章節，則不能有 N/A 或 target=現價。
+
+    Args:
+        post: 文章 dict
+
+    Returns:
+        (passed, errors)
+    """
+    errors = []
+    post_type = post.get("meta", {}).get("post_type", "")
+
+    # 只對 earnings 和 deep 檢查
+    if post_type not in ("earnings", "deep"):
+        return True, []
+
+    valuation = post.get("valuation", {})
+    if not valuation:
+        # 沒有估值區塊就不檢查
+        return True, []
+
+    # 檢查 multiple
+    multiple = valuation.get("multiple")
+    if multiple in (None, "N/A", "n/a", ""):
+        errors.append("估值區塊的 multiple 為空或 N/A")
+
+    # 檢查 scenarios
+    scenarios = valuation.get("scenarios", {})
+    current_price = valuation.get("current_price") or post.get("ticker_profile", {}).get("price")
+
+    for case in ["bear", "base", "bull"]:
+        scenario = scenarios.get(case, {})
+        target = scenario.get("target_price")
+
+        if target in (None, "N/A", "n/a", ""):
+            errors.append(f"估值 {case} case 的 target_price 為空或 N/A")
+        elif current_price:
+            # 檢查 target 是否等於現價
+            try:
+                target_num = float(str(target).replace("$", "").replace(",", ""))
+                current_num = float(str(current_price).replace("$", "").replace(",", ""))
+                if abs(target_num - current_num) < 0.01:
+                    errors.append(f"估值 {case} case 的 target_price ({target}) 等於現價 ({current_price})")
+            except (ValueError, TypeError):
+                pass
+
+    passed = len(errors) == 0
+    return passed, errors
+
+
+def check_earnings_scoreboard(post: dict) -> tuple[bool, list[str]]:
+    """P0-3: 檢查 earnings_scoreboard 季度重複問題
+
+    確保 scoreboard 中每個季度都是唯一的（不能有重複的 Q1 2024）。
+
+    Args:
+        post: 文章 dict
+
+    Returns:
+        (passed, errors)
+    """
+    errors = []
+    post_type = post.get("meta", {}).get("post_type", "")
+
+    # 只對 earnings 類型檢查
+    if post_type != "earnings":
+        return True, []
+
+    scoreboard = post.get("earnings_scoreboard", [])
+    if not scoreboard:
+        return True, []
+
+    # 收集所有季度
+    quarters_seen = {}
+    for i, entry in enumerate(scoreboard):
+        quarter = entry.get("quarter", "")
+        ticker = entry.get("ticker", "")
+
+        if not quarter:
+            errors.append(f"earnings_scoreboard[{i}] 的 quarter 欄位為空")
+            continue
+
+        # 組合 ticker + quarter 作為唯一鍵（同一 ticker 不能有重複季度）
+        key = f"{ticker}:{quarter}"
+        if key in quarters_seen:
+            errors.append(
+                f"earnings_scoreboard 有重複季度: {ticker} 的 {quarter} "
+                f"出現在 index {quarters_seen[key]} 和 {i}"
+            )
+        else:
+            quarters_seen[key] = i
+
+    # 額外檢查：季度格式是否正確 (Q1-Q4 + 4位數年份)
+    import re
+    quarter_pattern = re.compile(r"^Q[1-4]\s+(FY)?\d{4}$")
+    for i, entry in enumerate(scoreboard):
+        quarter = entry.get("quarter", "")
+        if quarter and not quarter_pattern.match(quarter):
+            errors.append(
+                f"earnings_scoreboard[{i}] 的 quarter 格式不正確: '{quarter}' "
+                f"(應為 'Q1 2024' 或 'Q1 FY2024')"
+            )
+
+    passed = len(errors) == 0
+    return passed, errors
 
 
 if __name__ == "__main__":

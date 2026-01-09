@@ -480,31 +480,46 @@ class FMPEnricher(BaseEnricher):
         return [e for e in all_earnings if e.get("ticker") in universe_set]
 
     def get_recent_earnings(self, ticker: str, limit: int = 4) -> list[dict]:
-        """取得最近的財報數據（歷史實際數據）
+        """取得最近的財報數據（歷史實際數據）+ YoY 計算
 
         使用 income-statement 取得實際財務數據，而非 earnings calendar。
         這樣可以取得歷史已發布的財報，而不是未來預期。
+
+        P0-2 改進：自動計算 YoY（同比）增長率
+        - 取得 8 季數據以便計算 YoY
+        - 每個季度與去年同期比較
+        - 避免 LLM 自行推算導致錯誤
 
         Args:
             ticker: 股票代碼
             limit: 取幾筆（預設 4 = 最近 4 季）
 
         Returns:
-            財報數據列表，包含 EPS、revenue、日期等
+            財報數據列表，包含 EPS、revenue、YoY 增長率等
         """
-        # 使用 income-statement 取得實際財報數據
-        cache_key = f"fmp:income_stmt:{ticker}:{limit}"
+        # 取得 8 季數據以便計算 YoY（去年同期）
+        fetch_limit = max(limit + 4, 8)
+        cache_key = f"fmp:income_stmt:{ticker}:{fetch_limit}"
         income_data = self._cached_request(
             cache_key,
             "income-statement",
-            {"symbol": ticker, "limit": limit, "period": "quarter"}
+            {"symbol": ticker, "limit": fetch_limit, "period": "quarter"}
         )
 
         if not income_data or not isinstance(income_data, list):
             return []
 
-        results = []
+        # 建立季度索引用於 YoY 查找
+        # Key: (fiscal_period, fiscal_year) -> revenue, eps, etc.
+        quarter_data = {}
         for item in income_data:
+            period = item.get("period")  # Q1, Q2, Q3, Q4
+            year = item.get("calendarYear")
+            if period and year:
+                quarter_data[(period, year)] = item
+
+        results = []
+        for item in income_data[:limit]:  # 只返回最近 limit 筆
             # 計算 EPS (使用 weighted average shares)
             net_income = item.get("netIncome")
             shares = item.get("weightedAverageShsOut") or item.get("weightedAverageShsOutDil")
@@ -512,20 +527,70 @@ class FMPEnricher(BaseEnricher):
             if net_income is not None and shares and shares > 0:
                 eps = net_income / shares
 
+            revenue = item.get("revenue")
+            gross_profit = item.get("grossProfit")
+            operating_income = item.get("operatingIncome")
+
+            # ========== P0-2: 計算 YoY 增長率 ==========
+            period = item.get("period")
+            year = item.get("calendarYear")
+            revenue_yoy = None
+            eps_yoy = None
+            net_income_yoy = None
+            gross_profit_yoy = None
+
+            if period and year:
+                try:
+                    prev_year = str(int(year) - 1)
+                    prev_quarter = quarter_data.get((period, prev_year))
+                    if prev_quarter:
+                        # Revenue YoY
+                        prev_revenue = prev_quarter.get("revenue")
+                        if revenue and prev_revenue and prev_revenue > 0:
+                            revenue_yoy = round(((revenue - prev_revenue) / prev_revenue) * 100, 1)
+
+                        # EPS YoY (使用計算出的 EPS)
+                        prev_net = prev_quarter.get("netIncome")
+                        prev_shares = prev_quarter.get("weightedAverageShsOut") or prev_quarter.get("weightedAverageShsOutDil")
+                        if prev_net and prev_shares and prev_shares > 0:
+                            prev_eps = prev_net / prev_shares
+                            if eps and prev_eps and prev_eps > 0:
+                                eps_yoy = round(((eps - prev_eps) / abs(prev_eps)) * 100, 1)
+
+                        # Net Income YoY
+                        if net_income and prev_net and prev_net > 0:
+                            net_income_yoy = round(((net_income - prev_net) / prev_net) * 100, 1)
+
+                        # Gross Profit YoY
+                        prev_gp = prev_quarter.get("grossProfit")
+                        if gross_profit and prev_gp and prev_gp > 0:
+                            gross_profit_yoy = round(((gross_profit - prev_gp) / prev_gp) * 100, 1)
+                except (ValueError, TypeError):
+                    pass  # 年份轉換失敗，跳過 YoY 計算
+
             results.append({
                 "ticker": ticker,
-                "date": item.get("date"),  # 財報發布日期 (e.g., "2024-10-30")
-                "fiscal_period": item.get("period"),  # e.g., "Q3"
-                "fiscal_year": item.get("calendarYear"),
+                # IMPORTANT: Date field semantics (P0-4)
+                # - date: 財報結算日 (fiscal period end), e.g., "2024-09-30" for Q3 2024
+                # - announcement_date: 財報發布日 (filing date), e.g., "2024-10-30"
+                "date": item.get("date"),  # 財報結算日 (fiscal_period_end)
+                "announcement_date": item.get("fillingDate"),  # 財報發布日 (when SEC filing was submitted)
+                "fiscal_period": period,  # e.g., "Q3"
+                "fiscal_year": year,
                 "eps_actual": round(eps, 3) if eps else None,
                 "eps_diluted": item.get("epsdiluted"),
-                "revenue_actual": item.get("revenue"),
-                "gross_profit": item.get("grossProfit"),
-                "operating_income": item.get("operatingIncome"),
+                "revenue_actual": revenue,
+                "gross_profit": gross_profit,
+                "operating_income": operating_income,
                 "net_income": net_income,
-                "gross_margin": self._calc_margin(item.get("grossProfit"), item.get("revenue")),
-                "operating_margin": self._calc_margin(item.get("operatingIncome"), item.get("revenue")),
-                "net_margin": self._calc_margin(net_income, item.get("revenue")),
+                "gross_margin": self._calc_margin(gross_profit, revenue),
+                "operating_margin": self._calc_margin(operating_income, revenue),
+                "net_margin": self._calc_margin(net_income, revenue),
+                # P0-2: YoY 增長率（已預先計算，避免 LLM 推算錯誤）
+                "revenue_yoy_percent": revenue_yoy,
+                "eps_yoy_percent": eps_yoy,
+                "net_income_yoy_percent": net_income_yoy,
+                "gross_profit_yoy_percent": gross_profit_yoy,
             })
 
         return results

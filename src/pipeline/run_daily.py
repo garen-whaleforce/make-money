@@ -690,7 +690,13 @@ def stage_pack(ingest_data: Dict, run_date: str, run_id: str) -> EditionPack:
                     latest = earnings_history[0]
                     recent_earnings = {
                         "ticker": deep_ticker,
-                        "earnings_date": latest.get("date"),
+                        # P0-4: Earnings date semantics
+                        # - fiscal_period_end: 財報結算日 (e.g., 2024-09-30 for Q3 2024)
+                        # - announcement_date: 財報發布日 (e.g., 2024-10-30)
+                        # - earnings_date: DEPRECATED, use announcement_date for freshness check
+                        "fiscal_period_end": latest.get("date"),  # When the quarter ended
+                        "announcement_date": latest.get("announcement_date"),  # When report was filed
+                        "earnings_date": latest.get("announcement_date") or latest.get("date"),  # Backwards compat
                         "fiscal_period": latest.get("fiscal_period"),
                         "fiscal_year": latest.get("fiscal_year"),
                         "eps_actual": latest.get("eps_actual"),
@@ -759,9 +765,18 @@ def stage_pack(ingest_data: Dict, run_date: str, run_id: str) -> EditionPack:
     if ingest_data.get("market_snapshot"):
         pack.meta["market_snapshot"] = ingest_data["market_snapshot"]
 
-    # Save
+    # Save edition_pack
     pack_path = pack.save()
     console.print(f"  ✓ Edition pack saved to {pack_path}")
+
+    # P1-1: Generate Fact Pack (single source of truth for all factual data)
+    try:
+        from .fact_pack import build_fact_pack, save_fact_pack
+        fact_pack = build_fact_pack(pack.to_dict(), run_date)
+        fact_pack_path = save_fact_pack(fact_pack)
+        console.print(f"  ✓ Fact pack saved to {fact_pack_path}")
+    except Exception as e:
+        console.print(f"  [yellow]⚠ Fact pack generation failed: {e}[/yellow]")
 
     return pack
 
@@ -783,15 +798,21 @@ def _should_generate_earnings(edition_pack: EditionPack, max_days_old: int = 90)
     if not edition_pack.recent_earnings:
         return False, "no_earnings_data"
 
-    earnings_date = edition_pack.recent_earnings.get("earnings_date")
-    if not earnings_date:
-        return False, "no_earnings_date"
+    # P0-4: Use announcement_date for freshness check
+    # announcement_date = when report was filed (more accurate for freshness)
+    # fiscal_period_end = when quarter ended (used for display)
+    announcement_date = edition_pack.recent_earnings.get("announcement_date")
+    if not announcement_date:
+        # Fallback to deprecated earnings_date for backwards compatibility
+        announcement_date = edition_pack.recent_earnings.get("earnings_date")
+    if not announcement_date:
+        return False, "no_announcement_date"
 
-    # 檢查財報是否太舊
+    # 檢查財報是否太舊 (以發布日為準)
     try:
         from datetime import datetime
-        earnings_dt = datetime.fromisoformat(earnings_date.replace("Z", "+00:00"))
-        days_old = (datetime.now(earnings_dt.tzinfo or None) - earnings_dt).days if earnings_dt.tzinfo else (datetime.now() - datetime.fromisoformat(earnings_date)).days
+        announce_dt = datetime.fromisoformat(announcement_date.replace("Z", "+00:00"))
+        days_old = (datetime.now(announce_dt.tzinfo or None) - announce_dt).days if announce_dt.tzinfo else (datetime.now() - datetime.fromisoformat(announcement_date)).days
         if days_old > max_days_old:
             return False, f"earnings_too_old_{days_old}d"
     except Exception:
@@ -1355,10 +1376,12 @@ def stage_publish(
                     console.print(f"    [yellow]⚠ Feature image upload failed for {post_type}[/yellow]")
 
             # P0-7: Use upsert_by_slug
+            # 支援 GHOST_POST_STATUS 環境變數覆蓋 (draft/published)
+            post_status = os.getenv("GHOST_POST_STATUS", "published" if mode == "prod" else "draft")
             result = publisher.upsert_by_slug(
                 post=post.json_data,
-                status="published" if mode == "prod" else "draft",
-                send_newsletter=send_newsletter,
+                status=post_status,
+                send_newsletter=send_newsletter if post_status == "published" else False,
                 email_segment=segment,
                 visibility=visibility,
             )
@@ -1389,7 +1412,7 @@ def stage_publish(
 
                 result = publisher.upsert_by_slug(
                     post=post.json_data,
-                    status="published" if mode == "prod" else "draft",
+                    status=post_status,
                     send_newsletter=False,
                     email_segment=segment,
                     visibility=visibility,

@@ -89,16 +89,23 @@ class CodexRunner:
         },
     }
 
-    # P0 優化：各文章類型的推薦模型（成本/品質平衡）
+    # P0-1: 各文章類型的推薦模型（預設統一 claude-sonnet-4.5）
     POST_TYPE_MODELS = {
-        "flash": "gemini-3-flash-preview",    # 制式內容，用 Flash 節省成本
-        "earnings": "gemini-3-flash-preview", # 結構化輸出，Flash 足夠
-        "deep": "gemini-3-pro-preview",       # 深度分析，需要更強模型
+        "flash": "claude-sonnet-4.5",
+        "earnings": "claude-sonnet-4.5",
+        "deep": "claude-sonnet-4.5",
+    }
+
+    # P0-2: 各文章類型的 token/temperature 預設
+    POST_TYPE_LIMITS = {
+        "flash": {"max_tokens": 12000, "temperature": 0.6},
+        "earnings": {"max_tokens": 14000, "temperature": 0.55},
+        "deep": {"max_tokens": 24000, "temperature": 0.5},
     }
 
     def __init__(
         self,
-        model: str = "claude-sonnet-4-20250514",
+        model: str = "claude-sonnet-4.5",
         prompt_path: str = "prompts/daily_brief.prompt.txt",
         schema_path: str = "schemas/post.schema.json",
         max_tokens: int = 32000,
@@ -124,8 +131,12 @@ class CodexRunner:
         type_model = self.POST_TYPE_MODELS.get(post_type) if post_type else None
         self.model = env_model or type_model or model
         self.env_model_override = env_model
-        self.max_tokens = max_tokens
-        self.temperature = temperature
+
+        type_limits = self.POST_TYPE_LIMITS.get(post_type or "", {})
+        base_max_tokens = type_limits.get("max_tokens", max_tokens)
+        base_temperature = type_limits.get("temperature", temperature)
+        self.max_tokens = self._get_env_int("CODEX_MAX_TOKENS", base_max_tokens)
+        self.temperature = self._get_env_float("CODEX_TEMPERATURE", base_temperature)
         self.post_type = post_type
 
         # Select prompt and schema based on post_type
@@ -222,6 +233,28 @@ class CodexRunner:
 
         return ''.join(result)
 
+    def _get_env_int(self, name: str, default: int) -> int:
+        """讀取整數環境變數，失敗則回退到預設值。"""
+        raw = os.getenv(name)
+        if raw is None or raw == "":
+            return default
+        try:
+            return int(raw)
+        except ValueError:
+            logger.warning(f"Invalid {name}={raw}, fallback to {default}")
+            return default
+
+    def _get_env_float(self, name: str, default: float) -> float:
+        """讀取浮點環境變數，失敗則回退到預設值。"""
+        raw = os.getenv(name)
+        if raw is None or raw == "":
+            return default
+        try:
+            return float(raw)
+        except ValueError:
+            logger.warning(f"Invalid {name}={raw}, fallback to {default}")
+            return default
+
     def _fix_invalid_escapes_regex(self, json_text: str) -> str:
         """用正則表達式修復無效的 escape 序列
 
@@ -271,9 +304,59 @@ class CodexRunner:
             完整 prompt
         """
         research_pack_json = json.dumps(research_pack, indent=2, ensure_ascii=False)
+
+        # P1-1: 載入 Fact Pack（如果存在）
+        fact_pack_section = ""
+        try:
+            from pathlib import Path
+            fact_pack_path = Path("out/fact_pack.json")
+            if fact_pack_path.exists():
+                with open(fact_pack_path, "r", encoding="utf-8") as f:
+                    fact_pack = json.load(f)
+                fact_pack_json = json.dumps(fact_pack, indent=2, ensure_ascii=False)
+                fact_pack_section = f"""
+
+## Fact Pack 資料 (P1-1: 唯一數據來源)
+
+**CRITICAL**: 所有數字必須從以下 fact_pack 中引用，不可自行計算或推測。
+如果 fact_pack 中沒有某個數據，請改寫句子避免使用該數字，絕對不要寫「數據」或「TBD」。
+
+{fact_pack_json}
+"""
+        except Exception:
+            pass  # fact_pack 不存在或無法讀取，繼續使用 research_pack
+
         if "{research_pack}" in self.prompt_template:
-            return self.prompt_template.replace("{research_pack}", research_pack_json)
-        return f"{self.prompt_template.rstrip()}\n\n## Research Pack 資料\n{research_pack_json}\n"
+            prompt = self.prompt_template.replace("{research_pack}", research_pack_json)
+            return prompt + fact_pack_section
+        return f"{self.prompt_template.rstrip()}\n\n## Research Pack 資料\n{research_pack_json}\n{fact_pack_section}"
+
+    def _build_minimal_prompt(self, research_pack: dict) -> str:
+        """最小化保底 prompt：只要求必要欄位的純 JSON。"""
+        research_pack_json = json.dumps(research_pack, indent=2, ensure_ascii=False)
+        return f"""
+你是一位專業美股研究分析師。請只輸出 JSON object，不能有任何文字或 code block。
+
+## 必填欄位
+- title
+- title_en
+- slug
+- excerpt
+- tags
+- meta
+- executive_summary (至少包含 en)
+- markdown
+- html
+- sources
+- tldr
+- what_to_watch
+- disclosures
+
+如果無法完整產生內容，請使用空字串或空陣列/物件，但不要缺欄位。
+
+## Research Pack 資料
+{research_pack_json}
+"""
 
     def _get_system_prompt(self) -> str:
         """取得系統提示 - P0-1: 強制純 JSON 輸出"""
@@ -292,6 +375,7 @@ class CodexRunner:
 - excerpt: 摘要 (250-400字)
 - tags: 標籤列表
 - meta: 文章元資料
+- executive_summary: 雙語摘要 (至少包含 en)
 - sources: 來源列表（必須有 URL）
 - markdown: 完整 Markdown 內容
 - html: Ghost CMS HTML 內容（含 inline styles）
@@ -424,12 +508,20 @@ class CodexRunner:
         return normalized
 
     def _ensure_title_in_html(self, html: str, title: str) -> str:
-        """Ensure HTML contains the post title for consistency checks."""
-        if not html or not title:
+        """移除 HTML 中的 <h1> 標題，因為 Ghost 會自動顯示文章標題。
+
+        避免標題重複顯示（Ghost title + HTML h1）。
+        """
+        if not html:
             return html
-        if title in html:
-            return html
-        return f"<h1>{title}</h1>\n{html}"
+
+        import re
+
+        # 移除開頭的 <h1> 標題（Ghost 會自動顯示）
+        # 匹配模式: <h1>...</h1> 或 <h1 id="...">...</h1>
+        html = re.sub(r'^\s*<h1[^>]*>.*?</h1>\s*', '', html, count=1, flags=re.DOTALL)
+
+        return html.strip()
 
     def _ensure_disclosure_in_markdown(self, markdown_text: str) -> str:
         """Append disclosure if missing from markdown."""
@@ -485,6 +577,22 @@ class CodexRunner:
                 break
         return out
 
+    def _build_title_en(self, result: dict, research_pack: dict) -> str:
+        """Build a minimal English title if missing."""
+        title = (result.get("title") or "").strip()
+        if title and title.isascii():
+            return title
+        theme = research_pack.get("primary_theme", {}) or {}
+        theme_en = (theme.get("name_en") or theme.get("id") or "").replace("_", " ").title()
+        ticker = research_pack.get("deep_dive_ticker", "") or ""
+        if ticker and theme_en:
+            return f"{ticker} {theme_en} Brief"
+        if ticker:
+            return f"{ticker} Daily Brief"
+        if theme_en:
+            return f"{theme_en} Daily Brief"
+        return "Daily Deep Brief"
+
     def _build_tldr_fallback(self, research_pack: dict) -> list[str]:
         """Build minimal TL;DR bullets without introducing new numbers."""
         theme_id = (research_pack.get("primary_theme", {}) or {}).get("id", "")
@@ -527,15 +635,35 @@ class CodexRunner:
             return f"${v/1e6:.1f}M"
         return f"${v:,.2f}"
 
-    def _format_percent(self, value: Optional[float]) -> Optional[str]:
+    def _format_percent(self, value: Optional[float], is_fraction: bool = True) -> Optional[str]:
+        """Format a value as percentage.
+
+        IMPORTANT - Percent Field Semantics:
+        - is_fraction=True (default): Value is a fraction (0.678 = 67.8%), multiply by 100
+          Use for: gross_margin, operating_margin, net_margin
+        - is_fraction=False: Value is already in percent form (0.99 = 0.99%), DO NOT multiply
+          Use for: change_pct_1d, change_ytd (from FMP changePercentage)
+
+        Args:
+            value: The numeric value
+            is_fraction: If True, multiply by 100. If False, use as-is.
+
+        Returns:
+            Formatted percentage string like "67.80%" or "+0.99%"
+        """
         if value is None:
             return None
         try:
             v = float(value)
         except (TypeError, ValueError):
             return None
-        if 0 < abs(v) <= 1:
+
+        if is_fraction:
             v = v * 100
+
+        # Add + prefix for positive non-fraction values (like price changes)
+        if not is_fraction and v > 0:
+            return f"+{v:.2f}%"
         return f"{v:.2f}%"
 
     def _ensure_key_numbers(self, existing: list, research_pack: dict, count: int) -> list[dict]:
@@ -554,7 +682,8 @@ class CodexRunner:
             if price is not None:
                 numbers.append({"value": self._format_currency(price), "label": f"{ticker} 現價", "source": "market_data"})
             if change is not None:
-                numbers.append({"value": self._format_percent(change), "label": f"{ticker} 1D 變動", "source": "market_data"})
+                # change_pct is already in percent form (0.99 = 0.99%), do NOT multiply by 100
+                numbers.append({"value": self._format_percent(change, is_fraction=False), "label": f"{ticker} 1D 變動", "source": "market_data"})
             if market_cap is not None:
                 numbers.append({"value": self._format_currency(market_cap), "label": f"{ticker} 市值", "source": "market_data"})
 
@@ -740,6 +869,54 @@ class CodexRunner:
         except Exception:
             return markdown_text
 
+    def _strip_html_to_text(self, html_text: str) -> str:
+        """Strip HTML tags for fallback markdown."""
+        if not html_text:
+            return ""
+        import re
+        import html as html_lib
+
+        text = re.sub(r"<[^>]+>", " ", html_text)
+        text = html_lib.unescape(text)
+        return " ".join(text.split())
+
+    def _missing_required_fields(self, result: dict) -> list[str]:
+        """Check required fields for retry logic."""
+        required = [
+            "title",
+            "title_en",
+            "executive_summary",
+            "markdown",
+            "html",
+            "sources",
+            "tags",
+            "slug",
+        ]
+        missing = []
+        for field in required:
+            value = result.get(field)
+            if field == "executive_summary":
+                if not isinstance(value, dict) or not value.get("en"):
+                    missing.append(field)
+            elif field in {"sources", "tags"}:
+                if not isinstance(value, list) or not value:
+                    missing.append(field)
+            elif value is None or value == "" or value == {} or value == []:
+                missing.append(field)
+        return missing
+
+    def _looks_truncated(self, markdown_text: str, html_text: str) -> bool:
+        """Heuristic checks for truncated outputs."""
+        if markdown_text and markdown_text.count("```") % 2 != 0:
+            return True
+        if html_text:
+            stripped = html_text.strip()
+            if stripped.endswith("<") or stripped.endswith("</"):
+                return True
+            if stripped.count("<") - stripped.count(">") > 10:
+                return True
+        return False
+
     def _parse_json_response(self, response_text: str) -> Optional[dict]:
         """解析 LLM 回應的 JSON
 
@@ -830,7 +1007,12 @@ class CodexRunner:
 
                 return None
 
-    def _call_litellm_api(self, prompt: str) -> Optional[dict]:
+    def _call_litellm_api(
+        self,
+        prompt: str,
+        max_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+    ) -> Optional[dict]:
         """使用 LiteLLM Proxy (OpenAI-compatible) 呼叫各種 LLM
 
         支援 Gemini, GPT, Claude 等模型。
@@ -867,13 +1049,13 @@ class CodexRunner:
             logger.info(f"Calling LiteLLM with model: {self.model}")
 
             # 某些模型 (如 gpt-5) 只支援 temperature=1
-            temperature = self.temperature
+            temperature = self.temperature if temperature is None else temperature
             if "gpt-5" in self.model.lower():
                 temperature = 1.0
                 logger.info(f"Model {self.model} only supports temperature=1, adjusted")
 
             # 根據模型調整 max_tokens (不同模型有不同上限)
-            max_tokens = self.max_tokens
+            max_tokens = self.max_tokens if max_tokens is None else max_tokens
             model_lower = self.model.lower()
             if "gpt-4o" in model_lower and max_tokens > 16384:
                 max_tokens = 16384
@@ -935,7 +1117,12 @@ class CodexRunner:
             logger.error(f"LiteLLM API call failed: {e}")
             return None
 
-    def _call_claude_api(self, prompt: str) -> Optional[dict]:
+    def _call_claude_api(
+        self,
+        prompt: str,
+        max_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+    ) -> Optional[dict]:
         """直接呼叫 Claude API (使用 anthropic SDK)
 
         Args:
@@ -960,7 +1147,7 @@ class CodexRunner:
 
         if use_litellm:
             logger.info(f"Using LiteLLM Proxy for model: {self.model}")
-            return self._call_litellm_api(prompt)
+            return self._call_litellm_api(prompt, max_tokens=max_tokens, temperature=temperature)
 
         try:
             import anthropic
@@ -974,17 +1161,20 @@ class CodexRunner:
             else:
                 client = anthropic.Anthropic(api_key=api_key)
 
-            logger.info(f"Calling Claude API with model: {self.model}, max_tokens: {self.max_tokens}")
+            max_tokens = self.max_tokens if max_tokens is None else max_tokens
+            temperature = self.temperature if temperature is None else temperature
+            logger.info(f"Calling Claude API with model: {self.model}, max_tokens: {max_tokens}")
 
             # 使用 streaming 來處理長時間請求 (避免 10 分鐘超時)
             response_text = ""
             with client.messages.stream(
                 model=self.model,
-                max_tokens=self.max_tokens,
+                max_tokens=max_tokens,
                 messages=[
                     {"role": "user", "content": prompt}
                 ],
                 system=self._get_system_prompt(),
+                temperature=temperature,
             ) as stream:
                 for text in stream.text_stream:
                     response_text += text
@@ -1066,50 +1256,21 @@ class CodexRunner:
             if "output_file" in locals() and os.path.exists(output_file):
                 os.unlink(output_file)
 
-    def generate(
+    def _build_post_output(
         self,
+        result: dict,
         research_pack: dict,
-        run_id: Optional[str] = None,
+        run_id: str,
     ) -> Optional[PostOutput]:
-        """生成文章
-
-        Args:
-            research_pack: 研究包資料
-            run_id: 執行 ID
-
-        Returns:
-            PostOutput 實例或 None
-        """
-        run_id = run_id or research_pack.get("meta", {}).get("run_id") or get_run_id()
-
-        # 建構 prompt
-        prompt = self._build_prompt(research_pack)
-        logger.info(f"Prompt length: {len(prompt)} chars")
-
-        # 嘗試呼叫 API
-        result = self._call_claude_api(prompt)
-
-        # 若指定模型失敗，改用 post_type 的預設模型再試一次
-        if not result and self.post_type:
-            fallback_model = self.POST_TYPE_MODELS.get(self.post_type)
-            if self.env_model_override:
-                logger.warning("Model override set; skipping fallback model")
-            elif fallback_model and fallback_model != self.model:
-                logger.warning(f"Retry with fallback model: {fallback_model}")
-                original_model = self.model
-                self.model = fallback_model
-                result = self._call_claude_api(prompt)
-                self.model = original_model
-
-        if not result:
-            logger.error("Failed to generate article")
-            return None
-
+        """Normalize fields, validate structure, and build PostOutput."""
         # 補充必要欄位
         result = self._fill_defaults(result, research_pack, run_id)
 
         # Sanitize markdown numbers for traceability
         raw_markdown = result.get("markdown", "") or ""
+        if not raw_markdown and result.get("html"):
+            raw_markdown = self._strip_html_to_text(result.get("html", ""))
+            result["markdown"] = raw_markdown
         sanitized_markdown = self._sanitize_markdown_numbers(raw_markdown, research_pack)
         sanitized_markdown = self._ensure_disclosure_in_markdown(sanitized_markdown)
         result["markdown"] = sanitized_markdown
@@ -1121,6 +1282,15 @@ class CodexRunner:
         html_content = self._ensure_primary_ticker_in_html(html_content, primary_ticker)
         html_content = self._ensure_disclosure_in_html(html_content)
         result["html"] = html_content
+
+        missing = self._missing_required_fields(result)
+        if missing:
+            logger.warning(f"Missing required fields after repair: {missing}")
+            return None
+
+        if self._looks_truncated(sanitized_markdown, html_content):
+            logger.warning("Output appears truncated; retrying generation")
+            return None
 
         # 驗證結果
         if self.schema:
@@ -1170,6 +1340,91 @@ class CodexRunner:
             logger.error(f"Failed to build PostOutput: {e}")
             return None
 
+    def generate(
+        self,
+        research_pack: dict,
+        run_id: Optional[str] = None,
+    ) -> Optional[PostOutput]:
+        """生成文章
+
+        Args:
+            research_pack: 研究包資料
+            run_id: 執行 ID
+
+        Returns:
+            PostOutput 實例或 None
+        """
+        run_id = run_id or research_pack.get("meta", {}).get("run_id") or get_run_id()
+
+        # 建構 prompt
+        prompt = self._build_prompt(research_pack)
+        logger.info(f"Prompt length: {len(prompt)} chars")
+
+        strict_suffix = (
+            "\n\nCRITICAL: Output JSON only. Do not wrap in code fences. "
+            "Ensure all required fields are present."
+        )
+
+        base_max_tokens = self.max_tokens
+        base_temperature = self.temperature
+
+        attempts = [
+            {
+                "name": "base",
+                "prompt": prompt,
+                "temperature": base_temperature,
+                "max_tokens": base_max_tokens,
+            },
+            {
+                "name": "strict_json",
+                "prompt": prompt + strict_suffix,
+                "temperature": max(base_temperature - 0.15, 0.1),
+                "max_tokens": int(base_max_tokens * 1.1),
+            },
+            {
+                "name": "minimal_json",
+                "prompt": self._build_minimal_prompt(research_pack),
+                "temperature": max(base_temperature - 0.25, 0.1),
+                "max_tokens": int(base_max_tokens * 1.2),
+            },
+        ]
+
+        def attempt_generate() -> Optional[PostOutput]:
+            for attempt in attempts:
+                logger.info(f"Generation attempt: {attempt['name']}")
+                result = self._call_claude_api(
+                    attempt["prompt"],
+                    max_tokens=attempt["max_tokens"],
+                    temperature=attempt["temperature"],
+                )
+                if not result:
+                    logger.warning("LLM returned empty result")
+                    continue
+                post = self._build_post_output(result, research_pack, run_id)
+                if post:
+                    return post
+            return None
+
+        post = attempt_generate()
+
+        # 若指定模型失敗，改用 post_type 的預設模型再試一次
+        if not post and self.post_type:
+            fallback_model = self.POST_TYPE_MODELS.get(self.post_type)
+            if self.env_model_override:
+                logger.warning("Model override set; skipping fallback model")
+            elif fallback_model and fallback_model != self.model:
+                logger.warning(f"Retry with fallback model: {fallback_model}")
+                original_model = self.model
+                self.model = fallback_model
+                post = attempt_generate()
+                self.model = original_model
+
+        if not post:
+            logger.error("Failed to generate article")
+            return None
+
+        return post
+
     def _fill_defaults(self, result: dict, research_pack: dict, run_id: str) -> dict:
         """填充預設值
 
@@ -1186,6 +1441,10 @@ class CodexRunner:
             event = research_pack.get("primary_event", {})
             result["title"] = event.get("title", "Daily Deep Brief")
 
+        # 確保有英文標題
+        if not result.get("title_en"):
+            result["title_en"] = self._build_title_en(result, research_pack)
+
         # 確保有候選標題
         title_candidates = result.get("title_candidates") or []
         if len(title_candidates) < 5:
@@ -1193,6 +1452,18 @@ class CodexRunner:
             result["title_candidates"] = title_candidates + [
                 c for c in generated if c not in title_candidates
             ]
+
+        # 確保有 excerpt
+        if not result.get("excerpt"):
+            summary = result.get("executive_summary")
+            excerpt_text = ""
+            if isinstance(summary, dict):
+                excerpt_text = summary.get("chinese") or summary.get("zh") or summary.get("en") or ""
+            elif isinstance(summary, str):
+                excerpt_text = summary
+            if not excerpt_text:
+                excerpt_text = (result.get("markdown") or "").strip()
+            result["excerpt"] = excerpt_text.replace("\n", " ").strip()[:350]
 
         # 確保有 TL;DR
         tldr_min = 5 if self.post_type == "flash" else 3
@@ -1240,13 +1511,17 @@ class CodexRunner:
         # Normalize sources with publishers
         result["sources"] = self._normalize_sources(result.get("sources", []), research_pack)
 
+        # 確保有 slug
+        if not result.get("slug"):
+            result["slug"] = self._generate_slug(result.get("title", ""))
+
         # Post-type specific fallbacks
         if self.post_type == "flash":
             news_items = result.get("news_items") or []
-            if len(news_items) < 10:
+            if len(news_items) < 8:
                 pack_items = research_pack.get("news_items", [])
                 for item in pack_items:
-                    if len(news_items) >= 10:
+                    if len(news_items) >= 8:
                         break
                     news_items.append(item)
             result["news_items"] = news_items
@@ -1282,6 +1557,13 @@ class CodexRunner:
                 result["business_model"] = "公司以核心產品與平台生態系作為營收與護城河來源。"
             if not result.get("valuation"):
                 result["valuation"] = self._build_valuation_fallback(research_pack)
+
+        # 確保 executive_summary 至少有英文摘要
+        exec_summary = result.get("executive_summary")
+        if not isinstance(exec_summary, dict):
+            result["executive_summary"] = {"en": "Executive summary based on today's primary market theme."}
+        elif not exec_summary.get("en"):
+            exec_summary["en"] = "Executive summary based on today's primary market theme."
 
         return result
 
@@ -1337,43 +1619,20 @@ class CodexRunner:
         if not post_data:
             return html
 
-        # 使用元件系統增強 HTML
+        # 注意: LLM 輸出的 HTML 已經包含 key_numbers 和 sources
+        # 這裡只做基礎轉換，不再重複添加元件
+        # 如果需要添加來源頁尾，檢查 HTML 是否已有
         try:
             from .html_components import (
-                render_card_box,
                 render_source_footer,
-                render_paywall_divider,
-                CardItem,
                 SourceItem,
             )
 
-            enhanced_parts = []
-
-            # 1. 如果有 key_numbers，在開頭加入卡片
-            key_numbers = post_data.get("key_numbers", [])
-            if key_numbers and len(key_numbers) >= 3:
-                cards = [
-                    CardItem(
-                        value=str(kn.get("value", "")),
-                        label=kn.get("label", ""),
-                        sublabel=kn.get("source"),
-                    )
-                    for kn in key_numbers[:3]
-                ]
-                enhanced_parts.append(render_card_box(cards, title="三個必記數字"))
-
-            # 2. 主要內容
-            enhanced_parts.append(html)
-
-            # 3. 檢查是否需要插入 paywall
-            if "<!--members-only-->" not in html:
-                # 在適當位置插入 paywall
-                # 這裡只是示範，實際位置應該由 LLM 輸出控制
-                pass
-
-            # 4. 如果有 sources，加入來源頁尾
+            # 只在 HTML 沒有來源區塊時才添加
             sources = post_data.get("sources", [])
-            if sources:
+            has_sources_section = "資料來源" in html or "Sources" in html or "sources" in html.lower()
+
+            if sources and not has_sources_section:
                 source_items = [
                     SourceItem(
                         name=s.get("name", "Unknown"),
@@ -1382,9 +1641,9 @@ class CodexRunner:
                     )
                     for s in sources[:10]
                 ]
-                enhanced_parts.append(render_source_footer(source_items))
+                html = html + "\n" + render_source_footer(source_items)
 
-            return "\n".join(enhanced_parts)
+            return html
 
         except ImportError:
             logger.warning("html_components not available, using basic HTML")

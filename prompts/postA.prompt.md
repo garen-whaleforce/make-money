@@ -35,6 +35,33 @@ You will receive:
 - `deep_dive_ticker`: The ticker for today's Deep Dive (must be in your Top analysis)
 - `date`: Publication date
 - `cross_links`: URLs to today's Earnings and Deep Dive posts
+- **`fact_pack`**: (P1-1) Single source of truth for all factual data
+
+## P1-1: Fact Pack Rules (CRITICAL)
+
+**ALL numerical data MUST come from `fact_pack`.** This includes:
+
+1. **Prices & Changes**: Use `fact_pack.tickers[TICKER].price.value` and `fact_pack.tickers[TICKER].price.change_pct`
+2. **Market Snapshot**: Use `fact_pack.market_snapshot.spy`, `.qqq`, `.us10y`, `.dxy`, `.vix`
+3. **Valuation Multiples**: Use `fact_pack.tickers[TICKER].valuation.pe_ttm`, `.pe_forward`, etc.
+4. **Earnings Data**: Use `fact_pack.earnings[TICKER]` for revenue, EPS, YoY growth rates
+
+**If a data point is NOT in fact_pack:**
+- Write the sentence without that specific number
+- DO NOT guess or calculate the number yourself
+- DO NOT use placeholder text like "數據" or "TBD"
+
+**Example - CORRECT**:
+```
+fact_pack.tickers.NVDA.price.change_pct = -2.15
+Output: "NVDA 下跌 -2.15%"
+```
+
+**Example - WRONG**:
+```
+fact_pack.tickers.NVDA.price.change_pct = null
+Output: "NVDA 下跌 -數據"  // WRONG - should omit or rephrase
+```
 
 ## Output Requirements
 
@@ -80,8 +107,9 @@ FREE ZONE (2 minutes read):
 
 4. 三個必記數字 (KEY NUMBERS)
    - Exactly 3 numbers from input data
-   - Format: value + label + source
+   - Format: value + label + source + as_of timestamp
    - Visual card style (適合快速掃讀)
+   - **MUST include `as_of`**: e.g., "2026-01-08 收盤" for prices, "TTM Q4 FY25" for earnings
 
 5. 新聞雷達快覽 (NEWS RADAR QUICK - 6 items)
    - 6 news items using the 4-line template
@@ -209,8 +237,43 @@ Also return HTML content suitable for Ghost CMS with inline styles.
 
 Before outputting, verify ALL of the following:
 
+### P0-1: NO PLACEHOLDER TEXT (HARD FAIL)
+**ABSOLUTELY FORBIDDEN** - If any of these appear, the post will be REJECTED:
+- 「數據」「+數據」「-數據」「待確認」「待補充」
+- 「TBD」「TBA」「N/A」「XXX」「$XXX」
+- Any form of placeholder indicating missing data
+
+**If data is not available**:
+- For market snapshot values: Use the values from `market_snapshot` in research_pack
+- For price changes: Calculate from `market_data[ticker].change_pct` (already in decimal, multiply by 100)
+- For ratios: Use values from `market_data` or omit the field entirely
+- NEVER write "數據" - either use actual data or restructure the sentence
+
+### P0-4: ANALYST PRICE TARGET RULES (HARD FAIL)
+
+When citing analyst price target changes:
+
+1. **ONLY cite the new target price** - DO NOT make up "previous" target prices
+2. **Use conditional language**: "分析師將目標價設為 $X" (not "從 $Y 下修至 $X")
+3. **If source specifies both old and new**: Then you may cite the change (e.g., "from $444 to $439")
+4. **DO NOT calculate percentage change** unless source explicitly provides it
+
+**Example - CORRECT**:
+```
+Truist 將 TSLA 目標價設為 $439，維持 Hold 評級
+```
+
+**Example - WRONG (DO NOT DO THIS)**:
+```
+Truist 將 TSLA 目標價從 $470 下修至 $439（-7%）  // WRONG - $470 前值是猜測的
+```
+
+**Why this matters**: Previous price targets are not always publicly available. Guessing the "previous" value leads to wrong percentage changes and damages credibility.
+
+### Standard Quality Checks
+
 1. **Number Traceability**: Every price, percentage, date comes from `research_pack`
-2. **No Investment Bank Citations**: Never cite Morgan Stanley, Goldman, JPMorgan, etc.
+2. **No Investment Bank Citations**: Never cite Morgan Stanley, Goldman, JPMorgan, etc. (only cite SEC filings as source)
 3. **Field Completeness**:
    - `key_numbers` has exactly 3 items
    - `repricing_dashboard` has at least 3 variables
@@ -219,6 +282,6 @@ Before outputting, verify ALL of the following:
    - Tickers in `repricing_dashboard.direct_impact` appear in `key_stocks` or `news_items`
    - Same ticker shows consistent change_pct throughout the post
 5. **Language Rules**: Use conditional language ("若...則..."), never "建議買/賣"
-6. **Paywall Structure**: Insert `<!--members-only-->` after section 6
+6. **Paywall Structure**: Insert `<!--members-only-->` after TL;DR section (section 6)
 
 Set `meta.quality_gates_passed: true` only if ALL checks pass.

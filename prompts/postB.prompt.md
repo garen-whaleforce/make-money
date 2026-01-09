@@ -47,12 +47,36 @@ You will receive (from `edition_pack`):
   - `revenue_actual`: Actual revenue
   - `revenue_estimated`: Consensus revenue estimate
   - `revenue_surprise`: Surprise percentage
-  - `history`: Array of last 4 quarters' earnings data
+  - **`revenue_yoy_percent`**: Pre-calculated YoY growth rate (P0-2)
+  - **`eps_yoy_percent`**: Pre-calculated EPS YoY growth rate (P0-2)
+  - `history`: Array of last 4 quarters' earnings data (each with YoY metrics)
 - `deep_dive_ticker`: The ticker being analyzed
 - `deep_dive_data`: Company fundamentals, valuation, peer comparison
 - `peer_data`: Comparable company metrics
 - `market_data`: Current prices and changes
 - `cross_links`: URLs to today's Flash and Deep Dive posts
+
+## P0-2: YoY Growth Rate Rules (CRITICAL)
+
+**NEVER calculate YoY growth rates yourself. ALWAYS use the pre-calculated values provided:**
+
+1. For Revenue YoY: Use `revenue_yoy_percent` directly (e.g., "+62%")
+2. For EPS YoY: Use `eps_yoy_percent` directly
+3. If the field is null, write "YoY 數據未提供" instead of guessing
+
+**Why this matters**: LLM-calculated YoY often uses wrong base periods, leading to catastrophically wrong numbers (e.g., showing +122% when official is +62%). The pre-calculated values compare same quarter year-over-year using actual historical data.
+
+**Example - CORRECT**:
+```
+recent_earnings.revenue_yoy_percent = 62.0
+Output: "營收年增 +62% YoY"
+```
+
+**Example - WRONG (DO NOT DO THIS)**:
+```
+Calculating: (current_rev - some_other_quarter_rev) / some_other_quarter_rev
+Output: "營收年增 +122% YoY"  // WRONG - used wrong base period
+```
 
 ## Output Requirements
 
@@ -87,7 +111,8 @@ FREE ZONE (2 minutes read):
 
 5. 三個必記數字 (KEY NUMBERS)
    - Exactly 3 numbers
-   - Format: value + label + significance
+   - Format: value + label + significance + as_of timestamp
+   - **MUST include `as_of`**: e.g., "2026-01-08 收盤" for prices, "Q4 FY25" for earnings metrics
 
 ────────────────────────────
 PAYWALL: <!--members-only-->
@@ -196,11 +221,37 @@ Also return HTML content suitable for Ghost CMS.
 
 Before outputting, verify ALL of the following:
 
+### P0-1: NO PLACEHOLDER TEXT (HARD FAIL)
+**ABSOLUTELY FORBIDDEN** - If any of these appear, the post will be REJECTED:
+- 「數據」「+數據」「-數據」「待確認」「待補充」
+- 「TBD」「TBA」「N/A」「XXX」「$XXX」
+- Any form of placeholder indicating missing data
+
+**If data is not available**:
+- For EPS/Revenue: Use values from `recent_earnings` or `history` array
+- For valuation multiples: Calculate from `market_data[ticker].price / eps`
+- For growth rates: Calculate from `history` array
+- NEVER write "數據" - either use actual data or restructure the sentence
+
+### P0-4: VALUATION COMPLETENESS
+- `valuation.multiple` MUST have a specific value (e.g., "25x Forward P/E"), NOT "N/A"
+- `valuation.scenarios.bear/base/bull` MUST have different target_price values
+- target_price CANNOT equal current_price (must be different for each scenario)
+- Bear < Base < Bull (logical ordering)
+
+### P0-5: EARNINGS SCOREBOARD
+- Each quarter entry must have unique `quarter` value (e.g., "Q4 FY25", "Q3 FY25")
+- NO duplicate quarters in the scoreboard
+- Use data from `recent_earnings.history` to populate correctly
+- All required fields must be populated with actual numbers
+
+### Standard Quality Checks
+
 1. **Number Traceability**: Every EPS, revenue, price comes from `recent_earnings`
 2. **No Investment Bank Citations**: Never cite Morgan Stanley, Goldman, JPMorgan, etc.
 3. **Field Completeness**:
    - `earnings_scoreboard` entries have non-null `eps_estimate` and `revenue_estimate`
-   - `valuation.scenarios` has `base`, `bull`, and `bear` cases
+   - `valuation.scenarios` has `base`, `bull`, and `bear` cases with DIFFERENT prices
    - All sources have provider names
 4. **Data Consistency**:
    - EPS surprise % = (actual - estimate) / estimate × 100
