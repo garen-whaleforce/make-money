@@ -1,6 +1,10 @@
 name: Daily Brief Pipeline
 
 on:
+  # 每天台灣時間 06:00 (22:00 UTC 前一天) 自動觸發
+  schedule:
+    - cron: '0 22 * * 0-4'  # 週日到週四 22:00 UTC = 週一到週五 06:00 台灣時間
+
   # 允許手動觸發
   workflow_dispatch:
     inputs:
@@ -59,16 +63,18 @@ jobs:
           ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
           LITELLM_BASE_URL: ${{ secrets.LITELLM_BASE_URL }}
           LITELLM_API_KEY: ${{ secrets.LITELLM_API_KEY }}
-          CODEX_MODEL: 'gemini-3-flash-preview'
+          CODEX_MODEL: 'claude-sonnet-4.5'
         run: |
           echo "🚀 Starting Daily Brief Pipeline..."
           echo "Mode: ${{ steps.mode.outputs.mode }}"
           echo "Date: $(date)"
 
-          # Run the pipeline
+          # Run the pipeline with LLM review
           python -m src.pipeline.run_daily \
             --mode ${{ steps.mode.outputs.mode }} \
-            --confirm-high-risk
+            --confirm-high-risk \
+            --enable-review \
+            --review-iterations 3
 
       - name: Publish to Ghost
         if: steps.mode.outputs.mode == 'prod'

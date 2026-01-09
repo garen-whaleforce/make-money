@@ -769,6 +769,16 @@ def stage_pack(ingest_data: Dict, run_date: str, run_id: str) -> EditionPack:
     pack_path = pack.save()
     console.print(f"  ✓ Edition pack saved to {pack_path}")
 
+    # P0-4: 同時輸出 research_pack.json（確保 Enhance 等後續步驟拿到最新一致的資料）
+    try:
+        research_pack_path = Path("out/research_pack.json")
+        pack_dict = pack.to_dict()
+        with open(research_pack_path, "w", encoding="utf-8") as f:
+            json.dump(pack_dict, f, indent=2, ensure_ascii=False)
+        console.print(f"  ✓ Research pack saved to {research_pack_path}")
+    except Exception as e:
+        console.print(f"  [yellow]⚠ Research pack save failed: {e}[/yellow]")
+
     # P1-1: Generate Fact Pack (single source of truth for all factual data)
     try:
         from .fact_pack import build_fact_pack, save_fact_pack
@@ -962,20 +972,99 @@ def stage_write(
             return pt, None
 
     use_parallel = os.getenv("PARALLEL_WRITE", "true").lower() == "true"
-    if use_parallel and len(posts_to_generate) > 1:
+    # P0-3: 可控並發數，預設 2（避免撞 rate limit）
+    write_concurrency = int(os.getenv("WRITE_CONCURRENCY", "2"))
+
+    if use_parallel and len(posts_to_generate) > 1 and write_concurrency > 1:
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
-        with ThreadPoolExecutor(max_workers=min(3, len(posts_to_generate))) as executor:
+        # P0-3: 使用可配置的並發數，不再固定 3
+        max_workers = min(write_concurrency, len(posts_to_generate))
+        console.print(f"  [dim]並發數: {max_workers}（WRITE_CONCURRENCY={write_concurrency}）[/dim]")
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {executor.submit(_generate_one, pt): pt for pt in posts_to_generate}
             for future in as_completed(futures):
                 pt, output = future.result()
                 posts[pt] = output
     else:
+        # 順序執行（更穩定，適合有 rate limit 的情況）
         for pt in posts_to_generate:
             _, output = _generate_one(pt)
             posts[pt] = output
 
+    # P0-5: 單篇失敗自動 retry（縮小 pack + 降溫 + 降 tokens）
+    failed_posts = [pt for pt, output in posts.items() if output is None]
+    if failed_posts:
+        console.print(f"\n  [yellow]P0-5: {len(failed_posts)} 篇失敗，啟動自動救援...[/yellow]")
+
+        # 設定救援參數
+        os.environ["CODEX_TEMPERATURE"] = "0.3"  # 更低溫度
+        os.environ["CODEX_MAX_TOKENS"] = "5000"  # 更低 token
+
+        for pt in failed_posts:
+            console.print(f"    Retrying {pt} with reduced parameters...")
+            try:
+                # 使用縮小的 pack（只保留必要欄位）
+                minimal_pack = _build_minimal_research_pack(edition_pack.to_dict(), pt)
+
+                runner = CodexRunner(post_type=pt)
+                output = runner.generate(minimal_pack, run_id)
+
+                if output:
+                    console.print(f"    ✓ {pt}: 救援成功")
+                    _save_post_output(output.to_dict(), pt)
+                    posts[pt] = output
+                else:
+                    console.print(f"    ✗ {pt}: 救援失敗")
+            except Exception as e:
+                console.print(f"    ✗ {pt}: 救援異常 - {e}")
+
+        # 恢復環境變數
+        if "CODEX_TEMPERATURE" in os.environ:
+            del os.environ["CODEX_TEMPERATURE"]
+        if "CODEX_MAX_TOKENS" in os.environ:
+            del os.environ["CODEX_MAX_TOKENS"]
+
     return posts
+
+
+def _build_minimal_research_pack(full_pack: Dict, post_type: str) -> Dict:
+    """P0-5: 建立精簡版 research pack 供失敗重試使用
+
+    只保留該文章類型必要的欄位，減少 prompt 長度。
+    """
+    minimal = {
+        "meta": full_pack.get("meta", {}),
+        "date": full_pack.get("date"),
+        "primary_theme": full_pack.get("primary_theme"),
+        "deep_dive_ticker": full_pack.get("deep_dive_ticker"),
+        "market_data": {},  # 只保留關鍵 ticker
+    }
+
+    # 根據文章類型決定保留哪些資料
+    if post_type == "flash":
+        # Flash 需要：news_items（前 8 條）、market_snapshot、key_stocks
+        minimal["news_items"] = (full_pack.get("news_items") or [])[:8]
+        minimal["key_stocks"] = (full_pack.get("key_stocks") or [])[:5]
+        minimal["market_snapshot"] = full_pack.get("meta", {}).get("market_snapshot", {})
+    elif post_type == "earnings":
+        # Earnings 需要：recent_earnings、peer_table、該 ticker 的 market_data
+        minimal["recent_earnings"] = full_pack.get("recent_earnings")
+        minimal["peer_table"] = full_pack.get("peer_table")
+        ticker = full_pack.get("deep_dive_ticker")
+        if ticker and ticker in (full_pack.get("market_data") or {}):
+            minimal["market_data"][ticker] = full_pack["market_data"][ticker]
+    elif post_type == "deep":
+        # Deep 需要：deep_dive_data、peer_data、valuations
+        minimal["deep_dive_data"] = full_pack.get("deep_dive_data")
+        minimal["peer_data"] = full_pack.get("peer_data")
+        minimal["valuations"] = full_pack.get("valuations")
+        ticker = full_pack.get("deep_dive_ticker")
+        if ticker and ticker in (full_pack.get("market_data") or {}):
+            minimal["market_data"][ticker] = full_pack["market_data"][ticker]
+
+    return minimal
 
 
 def _save_post_output(post_dict: Dict, post_type: str) -> None:
@@ -1306,6 +1395,7 @@ def stage_publish(
     confirm_high_risk: bool = False,
     visibility: Optional[str] = None,  # Default visibility for free members
     en_posts: Optional[Dict[str, Optional[PostOutput]]] = None,
+    qa_passed: bool = True,  # P0-6: QA 是否通過
 ) -> Dict[str, Dict]:
     """
     Stage 5: Publish to Ghost (P0-7: Upsert by slug)
@@ -1314,6 +1404,10 @@ def stage_publish(
     - 以 slug 為 unique key 執行 upsert
     - 若 slug 已存在：更新內容（不重發 newsletter）
     - 若 slug 不存在：建立新文章
+
+    P0-6 Fail-Closed:
+    - 若 qa_passed=False：強制 status=draft 且 send_newsletter=False
+    - 寧可不寄，也不要寄錯誤內容
 
     Strategy:
     - Post A (Flash): publish-send (email on first create only)
@@ -1329,6 +1423,12 @@ def stage_publish(
     results = {}
     visibility = resolve_visibility(visibility)
 
+    # P0-6: Fail-closed - 若 QA 未通過，強制降級
+    if not qa_passed:
+        console.print("  [red]⚠ P0-6 FAIL-CLOSED 模式啟動[/red]")
+        console.print("    - 強制 status=draft")
+        console.print("    - 強制 send_newsletter=False")
+
     # Determine newsletter/segment based on mode
     if mode == "test":
         segment = "label:internal"
@@ -1337,7 +1437,10 @@ def stage_publish(
 
     console.print(f"  Mode: {mode}, Segment: {segment}, Visibility: {visibility}")
 
+    # P0-6: 若 QA 未通過，強制關閉所有 newsletter
     send_all_newsletters = os.getenv("GHOST_SEND_ALL_NEWSLETTERS", "").lower() == "true"
+    if not qa_passed:
+        send_all_newsletters = False
 
     # Publish order: B, C first (no email), then A (with email on first create)
     # Set GHOST_SEND_ALL_NEWSLETTERS=true to send for all posts.
@@ -1362,6 +1465,10 @@ def stage_publish(
                 # Only Post A (Flash) gets email on first create
                 send_newsletter = (post_type == "flash" and mode == "prod")
 
+            # P0-6: 若 QA 未通過，強制關閉 newsletter
+            if not qa_passed:
+                send_newsletter = False
+
             console.print(f"  Publishing {post_type} (slug: {post.slug})...")
 
             # Upload feature image if present
@@ -1377,7 +1484,11 @@ def stage_publish(
 
             # P0-7: Use upsert_by_slug
             # 支援 GHOST_POST_STATUS 環境變數覆蓋 (draft/published)
-            post_status = os.getenv("GHOST_POST_STATUS", "published" if mode == "prod" else "draft")
+            # P0-6: 若 QA 未通過，強制使用 draft
+            if not qa_passed:
+                post_status = "draft"
+            else:
+                post_status = os.getenv("GHOST_POST_STATUS", "published" if mode == "prod" else "draft")
             result = publisher.upsert_by_slug(
                 post=post.json_data,
                 status=post_status,
@@ -1568,6 +1679,15 @@ def stage_minio_archive(run_date: str, out_dir: str = "out") -> Optional[Dict]:
 @click.option("--posts", "-p", multiple=True, type=click.Choice(["flash", "earnings", "deep"]),
               help="Specific posts to generate (default: all)")
 @click.option("--resume", "-r", is_flag=True, help="Resume from last checkpoint (skip completed stages)")
+# P0-6: 新增 skip 選項，避免每次重跑 28 分鐘
+@click.option("--skip-ingest", is_flag=True, help="Skip Stage 1 (Ingest) - use cached data")
+@click.option("--skip-pack", is_flag=True, help="Skip Stage 2 (Pack) - use existing edition_pack.json")
+@click.option("--skip-write", is_flag=True, help="Skip Stage 3 (Write) - only run QA + Publish")
+@click.option("--only", "only_post", type=click.Choice(["flash", "earnings", "deep"]),
+              help="Only regenerate a specific post (requires existing edition_pack)")
+@click.option("--enable-review", is_flag=True, help="Enable LLM review (cli-gpt-5.2) before publish")
+@click.option("--skip-review", is_flag=True, help="Skip LLM review even if enabled by default")
+@click.option("--review-iterations", default=3, type=int, help="Max LLM review iterations (default: 3)")
 def main(
     mode: str,
     run_date: Optional[str],
@@ -1576,6 +1696,13 @@ def main(
     confirm_high_risk: bool,
     posts: tuple,
     resume: bool,
+    skip_ingest: bool,
+    skip_pack: bool,
+    skip_write: bool,
+    only_post: Optional[str],
+    enable_review: bool,
+    skip_review: bool,
+    review_iterations: int,
 ):
     """
     Run the daily 3-post pipeline.
@@ -1604,13 +1731,21 @@ def main(
     else:
         run_id = get_run_id()
 
+    # P0-6: 處理 --only 選項（只重跑單篇）
+    if only_post:
+        posts = (only_post,)
+        skip_ingest = True
+        skip_pack = True
+        console.print(f"[cyan]ONLY MODE - Regenerating {only_post} only[/cyan]\n")
+
     console.print(Panel.fit(
         f"[bold]Daily Brief Pipeline v2[/bold]\n"
         f"Run ID: {run_id[:12]}...\n"
         f"Date: {run_date}\n"
         f"Mode: {mode}\n"
         f"Resume: {resume}\n"
-        f"Posts: {', '.join(posts) if posts else 'all'}",
+        f"Posts: {', '.join(posts) if posts else 'all'}\n"
+        f"Skip: {', '.join(s for s, v in [('ingest', skip_ingest), ('pack', skip_pack), ('write', skip_write)] if v) or 'none'}",
         border_style="blue",
     ))
 
@@ -1633,8 +1768,10 @@ def main(
 
     try:
         # Stage 1: Ingest
-        if _is_stage_completed(checkpoint, "ingest") and resume:
-            console.print("\n[bold cyan]Stage 1: Ingest[/bold cyan] [dim](skipped - checkpoint)[/dim]")
+        # P0-6: 支援 --skip-ingest
+        should_skip_ingest = skip_ingest or (_is_stage_completed(checkpoint, "ingest") and resume)
+        if should_skip_ingest:
+            console.print("\n[bold cyan]Stage 1: Ingest[/bold cyan] [dim](skipped)[/dim]")
             # Load from edition_pack
             if Path("out/edition_pack.json").exists():
                 with open("out/edition_pack.json", "r") as f:
@@ -1645,6 +1782,7 @@ def main(
                     "earnings_calendar": pack_dict.get("earnings_calendar", []),
                     "companies": {},  # Will be rebuilt in pack stage
                 }
+                console.print(f"  ✓ Loaded cached data: {len(ingest_data['news_items'])} news, {len(ingest_data['market_data'])} tickers")
             else:
                 console.print("  [yellow]⚠ edition_pack.json not found, re-ingesting[/yellow]")
                 ingest_data = stage_ingest(run_date, theme)
@@ -1654,8 +1792,10 @@ def main(
             _update_checkpoint("ingest", completed=True)
 
         # Stage 2: Pack
-        if _is_stage_completed(checkpoint, "pack") and resume:
-            console.print("\n[bold cyan]Stage 2: Pack[/bold cyan] [dim](skipped - checkpoint)[/dim]")
+        # P0-6: 支援 --skip-pack
+        should_skip_pack = skip_pack or (_is_stage_completed(checkpoint, "pack") and resume)
+        if should_skip_pack:
+            console.print("\n[bold cyan]Stage 2: Pack[/bold cyan] [dim](skipped)[/dim]")
             # Load edition_pack from file
             with open("out/edition_pack.json", "r") as f:
                 pack_dict = json.load(f)
@@ -1686,23 +1826,61 @@ def main(
         result.edition_pack_path = str(Path("out/edition_pack.json"))
 
         # Stage 3: Write (with checkpoint support)
-        post_types = list(posts) if posts else None
-        generated_posts = stage_write(edition_pack, run_id, post_types, checkpoint=checkpoint if resume else None)
+        # P0-6: 支援 --skip-write
+        if skip_write:
+            console.print("\n[bold cyan]Stage 3: Write[/bold cyan] [dim](skipped)[/dim]")
+            # Load existing posts from files
+            generated_posts = {}
+            for pt in ["flash", "earnings", "deep"]:
+                json_path = Path(f"out/post_{pt}.json")
+                html_path = Path(f"out/post_{pt}.html")
+                if json_path.exists() and html_path.exists():
+                    with open(json_path, "r") as f:
+                        post_data = json.load(f)
+                    with open(html_path, "r") as f:
+                        html_content = f.read()
+                    generated_posts[pt] = PostOutput(
+                        post_type=pt,
+                        json_data=post_data,
+                        html=html_content,
+                        slug=post_data.get("slug", ""),
+                    )
+                    console.print(f"  ✓ Loaded {pt} from file")
+            console.print(f"  ✓ Skipped write, loaded {len(generated_posts)} existing posts")
+        else:
+            post_types = list(posts) if posts else None
+            generated_posts = stage_write(edition_pack, run_id, post_types, checkpoint=checkpoint if resume else None)
         result.posts = generated_posts
 
-        # Stage 3.3: Enhance
-        generated_posts = stage_enhance_posts(generated_posts)
-        result.posts = generated_posts
+        # Stage 3.3: Enhance (skip if --skip-write)
+        if not skip_write:
+            generated_posts = stage_enhance_posts(generated_posts)
+            result.posts = generated_posts
 
-        # Stage 3.4: Feature Images
-        stage_feature_images(generated_posts)
+        # Stage 3.4: Feature Images (skip if --skip-write)
+        if not skip_write:
+            stage_feature_images(generated_posts)
 
-        # Stage 3.5: Translate (EN posts)
+        # Stage 3.5: Translate (EN posts) - skip if --skip-write
         en_posts = {}
-        if os.getenv("ENABLE_EN_POSTS", "true").lower() == "true":
+        if not skip_write and os.getenv("ENABLE_EN_POSTS", "true").lower() == "true":
             en_posts = stage_translate_posts(generated_posts)
 
-        # Stage 4: QA
+        # Stage 3.6: LLM Review (before QA)
+        # Enable review: --enable-review flag OR prod mode (unless --skip-review)
+        should_review = enable_review or (mode == "prod" and not skip_review)
+        if should_review and not skip_review:
+            from ..quality.llm_reviewer import stage_review
+            generated_posts = stage_review(
+                posts=generated_posts,
+                edition_pack=edition_pack,
+                max_iterations=review_iterations,
+            )
+            result.posts = generated_posts
+        elif skip_review:
+            console.print("\n[dim]Stage 3.6: LLM Review (skipped via --skip-review)[/dim]")
+
+        # Stage 4: QA (after LLM review)
         qa_results = stage_qa(generated_posts, edition_pack)
         result.quality_gates_passed = (
             bool(qa_results.get("overall_passed")) if isinstance(qa_results, dict) else False
@@ -1712,17 +1890,34 @@ def main(
         stage_run_report(generated_posts, run_id, run_date)
 
         # Stage 5: Publish
+        # P0-6: Newsletter fail-closed - 若 QA 未通過，強制不寄信且降為 draft
+        qa_passed = result.quality_gates_passed
         if not skip_publish:
             if not os.getenv("GHOST_API_URL"):
                 console.print("\n[yellow]Ghost not configured - skipping publish[/yellow]")
             else:
+                # P0-6: 若 QA 失敗，強制設定 fail-closed 模式
+                effective_mode = mode
+                if not qa_passed:
+                    console.print("\n[red bold]⚠ P0-6 FAIL-CLOSED: QA 未通過，強制 draft + 不寄信[/red bold]")
+                    console.print("  [dim]原因：寧可不寄，也不要寄錯誤的內容給訂閱者[/dim]")
+                    # 強制使用 test mode（會設為 draft 且不寄信）
+                    os.environ["GHOST_POST_STATUS"] = "draft"
+                    os.environ["GHOST_SEND_ALL_NEWSLETTERS"] = "false"
+
                 publish_results = stage_publish(
                     generated_posts,
                     mode=mode,
                     confirm_high_risk=confirm_high_risk,
                     en_posts=en_posts,
+                    qa_passed=qa_passed,  # P0-6: 傳遞 QA 結果
                 )
                 result.publish_results = publish_results
+
+                # P0-6: 如果是 fail-closed，在結果中標記
+                if not qa_passed:
+                    result.publish_results["fail_closed"] = True
+                    result.publish_results["fail_closed_reason"] = "quality_gates_failed"
         else:
             console.print("\n[yellow]Publish skipped (--skip-publish)[/yellow]")
 
