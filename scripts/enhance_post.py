@@ -252,7 +252,7 @@ def call_litellm(prompt: str, model: Optional[str] = None) -> Optional[str]:
     """
     base_url = os.getenv("LITELLM_BASE_URL", "https://litellm.whaleforce.dev")
     api_key = os.getenv("LITELLM_API_KEY")
-    model = model or os.getenv("LITELLM_MODEL", "cli-gpt-5.2")
+    model = model or os.getenv("LITELLM_MODEL") or os.getenv("CODEX_MODEL") or "claude-sonnet-4.5"
 
     if not api_key:
         print("[ERROR] LITELLM_API_KEY not set")
@@ -303,7 +303,7 @@ def call_litellm(prompt: str, model: Optional[str] = None) -> Optional[str]:
         return None
 
 
-def call_anthropic(prompt: str, model: str = "claude-sonnet-4-20250514") -> Optional[str]:
+def call_anthropic(prompt: str, model: str = "claude-sonnet-4.5") -> Optional[str]:
     """使用 Anthropic API 呼叫 Claude
 
     Args:
@@ -375,25 +375,138 @@ def build_prompt(template: str, research_pack: dict, draft_post: dict) -> str:
 def parse_llm_response(response: str) -> Optional[dict]:
     """解析 LLM 回應
 
+    P0-3 修正：
+    - 加入容錯機制，不要因為一點 JSON 問題就整個失敗
+    - 借鑒 codex_runner.py 的修復策略
+
     Args:
         response: LLM 回應文字
 
     Returns:
         解析後的 JSON 或 None
     """
-    # 清理 markdown code block
+    if not response:
+        return None
+
+    # ===== Step 1: 清理 markdown code block =====
     text = response.strip()
+
+    # 移除 markdown code fence
     if "```json" in text:
-        text = text.split("```json")[1].split("```")[0]
+        parts = text.split("```json")
+        if len(parts) > 1:
+            text = parts[1].split("```")[0]
     elif "```" in text:
-        text = text.split("```")[1].split("```")[0]
+        parts = text.split("```")
+        if len(parts) >= 2:
+            text = parts[1].split("```")[0]
+
+    text = text.strip()
+
+    # ===== Step 2: 第一次嘗試直接解析 =====
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass  # 繼續嘗試修復
+
+    # ===== Step 3: 嘗試找到第一個 { 和最後一個 } =====
+    first_brace = text.find("{")
+    last_brace = text.rfind("}")
+
+    if first_brace != -1 and last_brace != -1 and last_brace > first_brace:
+        candidate = text[first_brace : last_brace + 1]
+        try:
+            return json.loads(candidate)
+        except json.JSONDecodeError:
+            text = candidate  # 用這個繼續修復
+
+    # ===== Step 4: 修復常見問題 =====
+    fixed = text
+
+    # 4a: 修復未轉義的換行符（JSON 字串中不允許）
+    # 找出字串內容並轉義換行
+    def escape_newlines_in_strings(s: str) -> str:
+        """轉義 JSON 字串中的換行符"""
+        result = []
+        in_string = False
+        escape_next = False
+        i = 0
+        while i < len(s):
+            char = s[i]
+            if escape_next:
+                result.append(char)
+                escape_next = False
+            elif char == '\\':
+                result.append(char)
+                escape_next = True
+            elif char == '"':
+                result.append(char)
+                in_string = not in_string
+            elif in_string and char == '\n':
+                result.append('\\n')
+            elif in_string and char == '\t':
+                result.append('\\t')
+            else:
+                result.append(char)
+            i += 1
+        return ''.join(result)
+
+    fixed = escape_newlines_in_strings(fixed)
 
     try:
-        return json.loads(text.strip())
-    except json.JSONDecodeError as e:
-        print(f"[ERROR] Failed to parse JSON: {e}")
-        print(f"[DEBUG] Response preview: {text[:500]}...")
-        return None
+        return json.loads(fixed)
+    except json.JSONDecodeError:
+        pass
+
+    # 4b: 修復尾隨逗號
+    fixed = re.sub(r',(\s*[}\]])', r'\1', fixed)
+
+    try:
+        return json.loads(fixed)
+    except json.JSONDecodeError:
+        pass
+
+    # 4c: 嘗試補上缺失的 closing braces
+    open_braces = fixed.count('{') - fixed.count('}')
+    open_brackets = fixed.count('[') - fixed.count(']')
+
+    if open_braces > 0 or open_brackets > 0:
+        # 移除最後可能的不完整內容（截斷）
+        # 找最後一個完整的 key-value pair
+        last_complete = fixed.rfind('",')
+        if last_complete == -1:
+            last_complete = fixed.rfind('"},')
+        if last_complete == -1:
+            last_complete = fixed.rfind('},')
+        if last_complete == -1:
+            last_complete = fixed.rfind('],')
+
+        if last_complete > len(fixed) // 2:  # 至少保留一半
+            fixed = fixed[:last_complete + 1]
+            # 補上 closing
+            fixed += ']' * open_brackets
+            fixed += '}' * open_braces
+
+            try:
+                return json.loads(fixed)
+            except json.JSONDecodeError:
+                pass
+
+    # ===== Step 5: 最後嘗試使用 ast.literal_eval（更寬鬆） =====
+    try:
+        import ast
+        # 把 JSON null/true/false 轉成 Python
+        py_text = fixed.replace('null', 'None').replace('true', 'True').replace('false', 'False')
+        result = ast.literal_eval(py_text)
+        if isinstance(result, dict):
+            return result
+    except Exception:
+        pass
+
+    # ===== 全部失敗 =====
+    print(f"[ERROR] Failed to parse JSON after all fix attempts")
+    print(f"[DEBUG] Response preview: \n{text[:1000]}...")
+    return None
 
 
 def merge_enhanced(draft: dict, enhanced: dict) -> dict:
@@ -501,7 +614,7 @@ def enhance_post(
     if use_litellm:
         response = call_litellm(prompt, model)
     else:
-        response = call_anthropic(prompt, model or "claude-sonnet-4-20250514")
+        response = call_anthropic(prompt, model or "claude-sonnet-4.5")
 
     if not response:
         print("[ERROR] LLM call failed")

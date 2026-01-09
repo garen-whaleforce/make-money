@@ -846,14 +846,45 @@ class CodexRunner:
         }
 
     def _sanitize_markdown_numbers(self, markdown_text: str, research_pack: dict) -> str:
-        """Remove untraced numbers to satisfy traceability gate."""
+        """Remove untraced numbers to satisfy traceability gate.
+
+        P0-2 修正：
+        1. 從 fact_pack.json 載入額外的可驗證數據
+        2. 把 fact_pack merge 進 research_pack 供 tracer 使用
+        3. 把佔位符改成唯一 token ⟦UNTRACED⟧ 避免假陽性
+        """
         if not markdown_text:
             return markdown_text
         try:
+            from pathlib import Path
+            import json
             from ..quality.trace_numbers import NumberTracer
 
+            # P0-2: 載入 fact_pack（如果存在）並 merge 進 research_pack
+            fact_pack_path = Path("out/fact_pack.json")
+            merged_pack = dict(research_pack)  # 複製一份
+
+            if fact_pack_path.exists():
+                try:
+                    with open(fact_pack_path) as f:
+                        fact_pack = json.load(f)
+                    # 把 fact_pack 的數據加入 merged_pack 供 tracer 使用
+                    merged_pack["fact_pack"] = fact_pack
+
+                    # 也把 fact_pack 的 tickers 數據 merge 進 market_data
+                    if "tickers" in fact_pack and "market_data" not in merged_pack:
+                        merged_pack["market_data"] = {}
+                    for ticker, data in fact_pack.get("tickers", {}).items():
+                        if ticker not in merged_pack.get("market_data", {}):
+                            merged_pack.setdefault("market_data", {})[ticker] = data
+                        else:
+                            # merge 進現有的
+                            merged_pack["market_data"][ticker].update(data)
+                except Exception:
+                    pass  # fact_pack 載入失敗就用原本的 research_pack
+
             tracer = NumberTracer()
-            result = tracer.trace(markdown_text, research_pack)
+            result = tracer.trace(markdown_text, merged_pack)
             if result.passed:
                 return markdown_text
 
@@ -864,7 +895,8 @@ class CodexRunner:
             )
             sanitized = markdown_text
             for value in untraced_values:
-                sanitized = sanitized.replace(value, "數據")
+                # P0-2: 使用唯一佔位符 token，避免與「數據中心」等正常用語混淆
+                sanitized = sanitized.replace(value, "⟦UNTRACED⟧")
             return sanitized
         except Exception:
             return markdown_text
@@ -1036,7 +1068,19 @@ class CodexRunner:
                 return None
 
             verify_ssl = os.getenv("OPENAI_VERIFY_SSL", "true").lower() != "false"
-            timeout = float(os.getenv("LITELLM_TIMEOUT", "180"))
+            base_timeout = float(os.getenv("LITELLM_TIMEOUT", "180"))
+
+            # P0-5: 動態 timeout - 根據 max_tokens 計算
+            # 長文 (如 Deep Dive) 需要更長的 timeout
+            # 公式: timeout = max(base_timeout, max_tokens * 0.03)
+            # 例如: 12000 tokens * 0.03 = 360 秒 (6 分鐘)
+            effective_max_tokens = max_tokens if max_tokens else self.max_tokens
+            dynamic_timeout = max(base_timeout, effective_max_tokens * 0.03)
+            # 上限設為 10 分鐘
+            timeout = min(dynamic_timeout, 600)
+
+            logger.info(f"Dynamic timeout: {timeout:.0f}s (based on {effective_max_tokens} max_tokens)")
+
             client_kwargs = {"api_key": api_key, "base_url": base_url}
             try:
                 import httpx
@@ -1065,7 +1109,8 @@ class CodexRunner:
                 logger.info(f"Model {self.model} max_tokens capped at 8192")
 
             max_attempts = int(os.getenv("LITELLM_MAX_RETRIES", "3"))
-            retry_delay = float(os.getenv("LITELLM_RETRY_DELAY", "5"))
+            base_delay = float(os.getenv("LITELLM_RETRY_DELAY", "5"))
+            max_delay = float(os.getenv("LITELLM_MAX_RETRY_DELAY", "60"))
 
             for attempt in range(1, max_attempts + 1):
                 try:
@@ -1089,8 +1134,28 @@ class CodexRunner:
                         or "timeout" in msg.lower()
                     )
                     if retryable and attempt < max_attempts:
-                        logger.warning(f"LiteLLM retry {attempt}/{max_attempts} after error: {msg}")
-                        time.sleep(retry_delay)
+                        # P0-4: 指數退避 + jitter
+                        # delay = min(base * 2^attempt, max_delay) + random_jitter
+                        import random
+                        exponential_delay = min(base_delay * (2 ** (attempt - 1)), max_delay)
+                        jitter = random.uniform(0, exponential_delay * 0.2)  # 0-20% jitter
+                        actual_delay = exponential_delay + jitter
+
+                        # 如果有 Retry-After header，優先使用
+                        retry_after = None
+                        if hasattr(e, 'response') and e.response:
+                            retry_after = e.response.headers.get('Retry-After')
+                            if retry_after:
+                                try:
+                                    actual_delay = max(float(retry_after), actual_delay)
+                                except ValueError:
+                                    pass
+
+                        logger.warning(
+                            f"LiteLLM retry {attempt}/{max_attempts} in {actual_delay:.1f}s "
+                            f"(exponential backoff) after error: {msg[:100]}"
+                        )
+                        time.sleep(actual_delay)
                         continue
                     logger.error(f"LiteLLM API call failed: {e}")
                     return None

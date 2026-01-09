@@ -532,9 +532,13 @@ class QualityGate:
     def _check_json_html_consistency(self, post: dict, html_content: str = "") -> GateResult:
         """檢查 JSON 與 HTML 一致性
 
-        確保 JSON 資料與 HTML 輸出同步。
+        P0-1 修正：
+        - Ghost CMS 會自動渲染標題，HTML 內不需要重複包含 title
+        - 因此 title 不在 HTML 中是正常的，改為 warning 而非 error
+        - 只有 ticker 不一致才是真正的問題
         """
         errors = []
+        warnings = []
 
         # 從 post 取得 HTML（如果沒有傳入）
         if not html_content:
@@ -548,12 +552,14 @@ class QualityGate:
                 details={},
             )
 
-        # 檢查 title 一致性
+        # P0-1 修正：Title 檢查改為 warning（Ghost 會自動渲染標題）
+        # 因為 _remove_h1_title() 會移除 HTML 中的 <h1> 標題，這是正常行為
         title = post.get("title", "")
         if title and title not in html_content:
-            errors.append(f"Title '{title[:30]}...' not found in HTML")
+            # 只是 info，不是 error
+            warnings.append(f"Title not in HTML body (Ghost will render separately)")
 
-        # 檢查 ticker 一致性
+        # 檢查 ticker 一致性 - 這個仍然是重要的
         tickers_mentioned = post.get("tickers_mentioned", [])
         if tickers_mentioned:
             primary_ticker = tickers_mentioned[0] if tickers_mentioned else None
@@ -566,7 +572,7 @@ class QualityGate:
             name="json_html_consistency",
             passed=passed,
             message="; ".join(errors) if errors else "OK",
-            details={"errors": errors},
+            details={"errors": errors, "warnings": warnings},
         )
 
     def _check_flash_consistency(self, post: dict, research_pack: dict) -> GateResult:
@@ -873,40 +879,46 @@ class QualityGate:
         preview_placeholder_locations = []  # 預覽區專用
 
         # Placeholder patterns to detect (case-insensitive where applicable)
-        # P0-1: 加強偵測模式，包含數字前後的佔位符
+        # P0-1 修正：只偵測「絕不會自然出現」的佔位符 token
+        # 原本的 r"數據" 會把「數據中心」「歷史數據」等正常用語誤判
         PLACEHOLDER_PATTERNS = [
-            # Chinese placeholders - 核心（最常見）
-            r"數據",  # "data" - placeholder for unfilled data
+            # ===== 唯一佔位符 Token（絕不會自然出現） =====
+            r"⟦UNTRACED⟧",  # 系統產生的未追溯標記
+            r"\[\[DATA_TBD\]\]",  # 明確的佔位符
+            r"\[\[PLACEHOLDER\]\]",
+            r"\[\[待填\]\]",
+            r"\[\[待補\]\]",
+            # ===== 孤立的佔位符（必須是獨立出現，不是詞組的一部分） =====
+            r"(?<![數歷統資])數據(?![中心庫分析科學源驗證])",  # 孤立的「數據」，排除「數據中心」「歷史數據」等
             r"\+數據",  # "+數據" - positive change placeholder
             r"-數據",  # "-數據" - negative change placeholder
-            r"YoY\s*\+?數據",  # "YoY +數據"
-            r"QoQ\s*\+?數據",  # "QoQ +數據"
+            r"YoY\s*\+?\s*數據",  # "YoY +數據"
+            r"QoQ\s*\+?\s*數據",  # "QoQ +數據"
+            r">\s*數據",  # ">數據" comparison
+            r"<\s*數據",  # "<數據" comparison
+            r"\d+\s*-\s*數據",  # "22-數據" range
+            r"數據\s*-\s*\d+",  # "數據-30" range
+            # ===== 明確的佔位詞 =====
             r"待確認",  # "to be confirmed"
             r"待補充",  # "to be added"
             r"資料缺失",  # "data missing"
-            r"尚未公布",  # "not yet announced"
-            r"無資料",  # "no data"
-            # English placeholders
+            r"無資料",  # "no data" (排除「無資料來源」這種解釋性用語)
+            # ===== English placeholders =====
             r"\bTBD\b",  # "to be determined"
             r"\bTBA\b",  # "to be announced"
-            r"\bN/A\b(?!\s*\()",  # N/A not followed by explanation
-            r"\bXXX\b",  # generic placeholder
+            r"\bXXX+\b",  # generic placeholder (XXX, XXXX)
             r"\$XXX",  # price placeholder
-            r"\[.*?待.*?\]",  # [待...] style placeholders
-            r"\{.*?\}",  # {variable} style unfilled templates
-            # Numeric placeholders
-            r">\s*數據",  # ">數據" comparison
-            r"<\s*數據",  # "<數據" comparison
-            r"\d+-數據",  # "22-數據" range
-            r"數據-\d+",  # "數據-30" range
-            # Suspicious patterns
+            # ===== 模板變數未填 =====
+            r"\{\{[^}]+\}\}",  # {{variable}} 未填模板
+            r"\[\[.*?待.*?\]\]",  # [[待...]] style placeholders
+            # ===== 程式碼殘留（不應該出現在文章中） =====
             r"\bnull\b",  # literal null in output (word boundary)
             r"\bundefined\b",  # literal undefined
-            r"\bNone\b",  # literal None (Python)
         ]
 
         # 關鍵佔位符 - 必須 hard fail
-        CRITICAL_PATTERNS = ["數據", "TBD", "TBA", "null", "undefined", "None", "{"]
+        # P0-1 修正：移除「數據」這種會假陽性的詞，改用明確 token
+        CRITICAL_PATTERNS = ["⟦UNTRACED⟧", "[[DATA_TBD]]", "[[PLACEHOLDER]]", "TBD", "TBA", "null", "undefined", "{{"]
 
         def extract_preview_content(html_content: str) -> str:
             """提取 paywall 之前的預覽內容（Email/SEO/社群可見）"""
@@ -1766,29 +1778,31 @@ def main():
 # =============================================================================
 
 # 佔位符模式（全域定義，供多處使用）
+# P0-1 修正：只偵測「絕不會自然出現」的佔位符 token
 PLACEHOLDER_PATTERNS = [
-    # Chinese placeholders - 核心（最常見）
-    r"數據",  # "data" - placeholder for unfilled data
+    # ===== 唯一佔位符 Token（絕不會自然出現） =====
+    r"⟦UNTRACED⟧",  # 系統產生的未追溯標記
+    r"\[\[DATA_TBD\]\]",  # 明確的佔位符
+    r"\[\[PLACEHOLDER\]\]",
+    r"\[\[待填\]\]",
+    r"\[\[待補\]\]",
+    # ===== 孤立的佔位符（必須是獨立出現，不是詞組的一部分） =====
+    r"(?<![數歷統資])數據(?![中心庫分析科學源驗證])",  # 孤立的「數據」
     r"\+數據",  # "+數據" - positive change placeholder
     r"-數據",  # "-數據" - negative change placeholder
-    r"YoY\s*\+?數據",  # "YoY +數據"
-    r"QoQ\s*\+?數據",  # "QoQ +數據"
+    r"YoY\s*\+?\s*數據",  # "YoY +數據"
+    r"QoQ\s*\+?\s*數據",  # "QoQ +數據"
+    # ===== 明確的佔位詞 =====
     r"待確認",  # "to be confirmed"
     r"待補充",  # "to be added"
     r"資料缺失",  # "data missing"
-    r"尚未公布",  # "not yet announced"
-    r"無資料",  # "no data"
-    # English placeholders
+    # ===== English placeholders =====
     r"\bTBD\b",  # "to be determined"
     r"\bTBA\b",  # "to be announced"
-    r"\bN/A\b(?!\s*\()",  # N/A not followed by explanation
-    r"\bXXX\b",  # generic placeholder
+    r"\bXXX+\b",  # generic placeholder
     r"\$XXX",  # price placeholder
-    # Numeric placeholders
-    r">\s*數據",  # ">數據" comparison
-    r"<\s*數據",  # "<數據" comparison
-    r"\d+-數據",  # "22-數據" range
-    r"數據-\d+",  # "數據-30" range
+    # ===== 模板變數未填 =====
+    r"\{\{[^}]+\}\}",  # {{variable}} 未填模板
 ]
 
 

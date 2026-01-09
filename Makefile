@@ -28,6 +28,13 @@ help:
 	@echo "  make run            - Full run (draft mode)"
 	@echo "  make publish        - Full run (publish mode)"
 	@echo ""
+	@echo "Daily Pipeline v2 (P0-6 快速重跑):"
+	@echo "  make daily-prod     - 生產模式完整執行"
+	@echo "  make daily-rerun    - 從 checkpoint 重跑失敗的文章"
+	@echo "  make daily-rerun-flash    - 只重跑 Flash"
+	@echo "  make daily-rerun-deep     - 只重跑 Deep Dive"
+	@echo "  make daily-rerun-earnings - 只重跑 Earnings"
+	@echo ""
 	@echo "Ghost CMS (三段式安全發佈):"
 	@echo "  make ghost-draft    - Step 1: 建立 Draft (最安全)"
 	@echo "  make ghost-publish  - Step 2: 發佈但不寄信"
@@ -247,13 +254,32 @@ clean-cache:
 # Daily Pipeline v2 (三篇文章產線)
 # ============================
 
-# 測試模式 - 產生三篇，發到內部
+# 測試模式 - 產生三篇，發到內部（支援斷點續跑）
 daily-test:
-	python3 -m src.pipeline.run_daily --mode test
+	python3 -m src.pipeline.run_daily --mode test --resume
 
 # 生產模式 - 產生三篇，發到正式（需確認）
 daily-prod:
 	python3 -m src.pipeline.run_daily --mode prod --confirm-high-risk
+
+# P0-6: 重跑當天失敗的文章（從 checkpoint 繼續）
+daily-rerun:
+	./scripts/rerun_today.sh
+
+# P0-6: 只重跑指定的文章（flash/earnings/deep）
+daily-rerun-flash:
+	./scripts/rerun_post.sh flash
+
+daily-rerun-earnings:
+	./scripts/rerun_post.sh earnings
+
+daily-rerun-deep:
+	./scripts/rerun_post.sh deep
+
+# 從 MinIO 發佈到 Ghost（用於重發或補發）
+daily-from-minio:
+	@read -p "Date (YYYY-MM-DD): " date; \
+	python3 -m src.publishers.minio_archiver "$$date" --status draft
 
 # 只產生 Flash (Post A)
 daily-flash:
