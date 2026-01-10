@@ -113,6 +113,9 @@ paywall:
   # HTML comment marker
   divider: "<!--members-only-->"
 
+  # Gate style: compact / full
+  style: compact
+
   # Minimum public preview length (characters)
   min_preview_length: 1000
 

@@ -375,9 +375,9 @@ def build_prompt(template: str, research_pack: dict, draft_post: dict) -> str:
 def parse_llm_response(response: str) -> Optional[dict]:
     """解析 LLM 回應
 
-    P0-3 修正：
-    - 加入容錯機制，不要因為一點 JSON 問題就整個失敗
-    - 借鑒 codex_runner.py 的修復策略
+    P0-4 修正：使用共用的 json_repair 模組
+    - 本地修復優先（不需要額外 API 呼叫）
+    - 如果本地修復失敗，使用小模型修復
 
     Args:
         response: LLM 回應文字
@@ -388,7 +388,41 @@ def parse_llm_response(response: str) -> Optional[dict]:
     if not response:
         return None
 
-    # ===== Step 1: 清理 markdown code block =====
+    # 嘗試導入共用模組（如果失敗則 fallback 到舊邏輯）
+    try:
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from src.utils.json_repair import repair_json
+
+        parsed, report = repair_json(
+            response,
+            use_llm=True,
+            llm_model=os.getenv("LITELLM_REPAIR_MODEL", "gemini-2.5-flash"),
+        )
+
+        if parsed is not None:
+            print(f"  JSON repair succeeded via {report.get('method', 'unknown')}")
+            return parsed
+        else:
+            print(f"[ERROR] Failed to parse JSON after all fix attempts")
+            print(f"[DEBUG] Local repair log: {report.get('local_repair_log', [])}")
+            print(f"[DEBUG] LLM repair log: {report.get('llm_repair_log', [])}")
+            print(f"[DEBUG] Response preview: \n{response[:1000]}...")
+
+            # 儲存 debug 資訊
+            debug_path = Path("out/enhance_debug.txt")
+            debug_path.write_text(response, encoding="utf-8")
+            print(f"  Debug response saved to: {debug_path}")
+
+            return None
+
+    except ImportError:
+        # Fallback 到舊的解析邏輯
+        print("  [WARN] Could not import json_repair, using fallback parser")
+        return _parse_llm_response_fallback(response)
+
+
+def _parse_llm_response_fallback(response: str) -> Optional[dict]:
+    """舊版 LLM 回應解析（fallback）"""
     text = response.strip()
 
     # 移除 markdown code fence
@@ -403,13 +437,13 @@ def parse_llm_response(response: str) -> Optional[dict]:
 
     text = text.strip()
 
-    # ===== Step 2: 第一次嘗試直接解析 =====
+    # 第一次嘗試直接解析
     try:
         return json.loads(text)
     except json.JSONDecodeError:
-        pass  # 繼續嘗試修復
+        pass
 
-    # ===== Step 3: 嘗試找到第一個 { 和最後一個 } =====
+    # 嘗試找到第一個 { 和最後一個 }
     first_brace = text.find("{")
     last_brace = text.rfind("}")
 
@@ -418,15 +452,13 @@ def parse_llm_response(response: str) -> Optional[dict]:
         try:
             return json.loads(candidate)
         except json.JSONDecodeError:
-            text = candidate  # 用這個繼續修復
+            text = candidate
 
-    # ===== Step 4: 修復常見問題 =====
+    # 修復常見問題
     fixed = text
 
-    # 4a: 修復未轉義的換行符（JSON 字串中不允許）
-    # 找出字串內容並轉義換行
+    # 修復未轉義的換行符
     def escape_newlines_in_strings(s: str) -> str:
-        """轉義 JSON 字串中的換行符"""
         result = []
         in_string = False
         escape_next = False
@@ -458,7 +490,7 @@ def parse_llm_response(response: str) -> Optional[dict]:
     except json.JSONDecodeError:
         pass
 
-    # 4b: 修復尾隨逗號
+    # 修復尾隨逗號
     fixed = re.sub(r',(\s*[}\]])', r'\1', fixed)
 
     try:
@@ -466,13 +498,11 @@ def parse_llm_response(response: str) -> Optional[dict]:
     except json.JSONDecodeError:
         pass
 
-    # 4c: 嘗試補上缺失的 closing braces
+    # 嘗試補上缺失的 closing braces
     open_braces = fixed.count('{') - fixed.count('}')
     open_brackets = fixed.count('[') - fixed.count(']')
 
     if open_braces > 0 or open_brackets > 0:
-        # 移除最後可能的不完整內容（截斷）
-        # 找最後一個完整的 key-value pair
         last_complete = fixed.rfind('",')
         if last_complete == -1:
             last_complete = fixed.rfind('"},')
@@ -481,9 +511,8 @@ def parse_llm_response(response: str) -> Optional[dict]:
         if last_complete == -1:
             last_complete = fixed.rfind('],')
 
-        if last_complete > len(fixed) // 2:  # 至少保留一半
+        if last_complete > len(fixed) // 2:
             fixed = fixed[:last_complete + 1]
-            # 補上 closing
             fixed += ']' * open_brackets
             fixed += '}' * open_braces
 
@@ -492,10 +521,9 @@ def parse_llm_response(response: str) -> Optional[dict]:
             except json.JSONDecodeError:
                 pass
 
-    # ===== Step 5: 最後嘗試使用 ast.literal_eval（更寬鬆） =====
+    # 最後嘗試使用 ast.literal_eval
     try:
         import ast
-        # 把 JSON null/true/false 轉成 Python
         py_text = fixed.replace('null', 'None').replace('true', 'True').replace('false', 'False')
         result = ast.literal_eval(py_text)
         if isinstance(result, dict):
@@ -503,7 +531,6 @@ def parse_llm_response(response: str) -> Optional[dict]:
     except Exception:
         pass
 
-    # ===== 全部失敗 =====
     print(f"[ERROR] Failed to parse JSON after all fix attempts")
     print(f"[DEBUG] Response preview: \n{text[:1000]}...")
     return None

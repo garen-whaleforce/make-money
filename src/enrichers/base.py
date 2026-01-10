@@ -7,15 +7,22 @@ from typing import Any, Optional
 
 @dataclass
 class PriceData:
-    """股價資料"""
+    """股價資料
+
+    IMPORTANT - Percent Field Semantics:
+    - change_pct_1d: Already in PERCENT form (e.g., 0.99 = 0.99%, NOT 99%)
+      Source: FMP changePercentage returns percent directly
+      DO NOT multiply by 100 when displaying
+    - change_ytd: Already in PERCENT form (e.g., 15.5 = 15.5%)
+    """
 
     last: Optional[float] = None
-    change_pct_1d: Optional[float] = None
+    change_pct_1d: Optional[float] = None  # Already percent (0.99 = 0.99%)
     volume: Optional[int] = None
     market_cap: Optional[float] = None
     as_of: Optional[str] = None
     # B2: Added YTD and 52W fields for Deep Dive completeness
-    change_ytd: Optional[float] = None  # YTD percentage change
+    change_ytd: Optional[float] = None  # Already percent (15.5 = 15.5%)
     high_52w: Optional[float] = None    # 52-week high
     low_52w: Optional[float] = None     # 52-week low
     avg_volume: Optional[int] = None    # Average volume
@@ -36,15 +43,21 @@ class PriceData:
 
 @dataclass
 class Fundamentals:
-    """基礎財務資料"""
+    """基礎財務資料
+
+    IMPORTANT - Percent Field Semantics:
+    - Margin fields (gross_margin, operating_margin, net_margin): FRACTION form
+      e.g., 0.678 = 67.8%, MUST multiply by 100 when displaying
+    - This is different from PriceData.change_pct_1d which is already percent!
+    """
 
     revenue_ttm: Optional[float] = None
     ebitda_ttm: Optional[float] = None
     net_income_ttm: Optional[float] = None
     fcf_ttm: Optional[float] = None
-    gross_margin: Optional[float] = None
-    operating_margin: Optional[float] = None
-    net_margin: Optional[float] = None
+    gross_margin: Optional[float] = None  # Fraction (0.678 = 67.8%)
+    operating_margin: Optional[float] = None  # Fraction
+    net_margin: Optional[float] = None  # Fraction
     debt_to_equity: Optional[float] = None
     current_ratio: Optional[float] = None
 

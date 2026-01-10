@@ -265,10 +265,16 @@ class EarningsRenderer:
         ))
 
         # 2. Data Stamp with earnings date
-        earnings_date = data.get("earnings_date", "")
+        # P0-4: Use fiscal_period_end for display, announcement_date for "published on" text
+        fiscal_period_end = data.get("fiscal_period_end") or data.get("earnings_date", "")
+        announcement_date = data.get("announcement_date") or data.get("earnings_date", "")
+        fiscal_info = data.get("fiscal_period", "")
+        fiscal_year = data.get("fiscal_year", "")
+        fiscal_display = f"{fiscal_year} {fiscal_info}" if fiscal_year and fiscal_info else fiscal_period_end
+
         html_parts.append(render_data_stamp(
             date=data.get("date", ""),
-            data_as_of=f"財報日期: {earnings_date}" if earnings_date else None,
+            data_as_of=f"財報期間: {fiscal_display}" if fiscal_display else None,
         ))
 
         # 3. Dual Summary
@@ -276,7 +282,7 @@ class EarningsRenderer:
         html_parts.append(render_dual_summary(
             chinese_summary=summary.get("chinese", ""),
             english_summary=summary.get("english", ""),
-            date_note=f"分析基於 {earnings_date} 發布的財報" if earnings_date else None,
+            date_note=f"分析基於 {announcement_date} 發布的財報" if announcement_date else None,
         ))
 
         # 4. Earnings Scoreboard

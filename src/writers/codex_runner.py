@@ -89,18 +89,19 @@ class CodexRunner:
         },
     }
 
-    # P0-1: 各文章類型的推薦模型（預設統一 claude-sonnet-4.5）
+    # P0-1: 各文章類型的推薦模型（預設統一 gemini-3-flash-preview）
     POST_TYPE_MODELS = {
-        "flash": "claude-sonnet-4.5",
-        "earnings": "claude-sonnet-4.5",
-        "deep": "claude-sonnet-4.5",
+        "flash": "gemini-3-flash-preview",
+        "earnings": "gemini-3-flash-preview",
+        "deep": "gemini-3-flash-preview",
     }
 
     # P0-2: 各文章類型的 token/temperature 預設
+    # 降低 max_tokens 避免截斷：flash<=6000, earnings<=7000, deep<=8000
     POST_TYPE_LIMITS = {
-        "flash": {"max_tokens": 12000, "temperature": 0.6},
-        "earnings": {"max_tokens": 14000, "temperature": 0.55},
-        "deep": {"max_tokens": 24000, "temperature": 0.5},
+        "flash": {"max_tokens": 6000, "temperature": 0.6},
+        "earnings": {"max_tokens": 7000, "temperature": 0.55},
+        "deep": {"max_tokens": 8000, "temperature": 0.5},
     }
 
     def __init__(
@@ -795,8 +796,10 @@ class CodexRunner:
     def _build_valuation_fallback(self, research_pack: dict) -> dict:
         """Build valuation section from available valuation data."""
         ticker = research_pack.get("deep_dive_ticker") or ""
-        valuations = research_pack.get("valuations", {}) or {}
-        val = valuations.get(ticker) or research_pack.get("deep_dive_data", {}).get("valuation") or {}
+        valuations = research_pack.get("valuations") or {}
+        if not isinstance(valuations, dict):
+            valuations = {}
+        val = valuations.get(ticker) or (research_pack.get("deep_dive_data") or {}).get("valuation") or {}
         fair_value = val.get("fair_value", {}) or {}
         current_price = val.get("current_price")
         if current_price is None:
@@ -1038,6 +1041,86 @@ class CodexRunner:
                     pass
 
                 return None
+
+    def _repair_json(self, broken_json: str) -> Optional[dict]:
+        """P0-1: 用小模型修復壞掉的 JSON
+
+        當主要 LLM 回傳的 JSON 無法解析時，用更便宜/快速的模型來修復。
+        這比重新生成整篇文章便宜很多。
+
+        Args:
+            broken_json: 無法解析的 JSON 文字
+
+        Returns:
+            修復後的 dict 或 None
+        """
+        try:
+            from openai import OpenAI
+
+            base_url = os.getenv("LITELLM_BASE_URL", "https://litellm.whaleforce.dev")
+            api_key = os.getenv("LITELLM_API_KEY")
+
+            if not api_key:
+                return None
+
+            # 使用較小/快速的模型做 repair
+            repair_model = os.getenv("LITELLM_REPAIR_MODEL", "gemini-2.5-flash")
+
+            client = OpenAI(api_key=api_key, base_url=base_url)
+
+            # 截取 JSON 的前後部分（避免 prompt 過長）
+            max_chars = 12000
+            if len(broken_json) > max_chars:
+                # 保留頭尾，因為問題通常在這兩處
+                head = broken_json[:max_chars // 2]
+                tail = broken_json[-(max_chars // 2):]
+                json_preview = f"{head}\n... [truncated {len(broken_json) - max_chars} chars] ...\n{tail}"
+            else:
+                json_preview = broken_json
+
+            repair_prompt = f"""你是 JSON 修復專家。以下 JSON 無法解析，請修復它使其成為合法 JSON。
+
+規則：
+1. 只輸出修復後的 JSON，不要加任何說明
+2. 不要改變內容語意，只修正結構問題
+3. 常見問題：未閉合的引號、缺少括號、尾隨逗號、未轉義的特殊字元
+4. 如果 JSON 被截斷，合理地補上缺失的結尾
+
+壞掉的 JSON：
+```
+{json_preview}
+```
+
+只輸出修復後的 JSON："""
+
+            logger.info(f"Calling repair model: {repair_model}")
+
+            response = client.chat.completions.create(
+                model=repair_model,
+                messages=[{"role": "user", "content": repair_prompt}],
+                max_tokens=1500,  # 小 token 數，只需要修復結構
+                temperature=0.1,  # 低溫度，保持確定性
+                timeout=30,
+            )
+
+            if not response or not response.choices:
+                return None
+
+            repaired_text = response.choices[0].message.content
+            if not repaired_text:
+                return None
+
+            # 嘗試解析修復後的 JSON
+            result = self._parse_json_response(repaired_text)
+            if result:
+                logger.info("JSON repair successful via LLM")
+                return result
+
+            return None
+
+        except Exception as e:
+            logger.warning(f"JSON repair failed: {e}")
+            return None
 
     def _call_litellm_api(
         self,
@@ -1433,6 +1516,8 @@ class CodexRunner:
         base_max_tokens = self.max_tokens
         base_temperature = self.temperature
 
+        # P0-1: 將 attempts 從 3 降為 2（移除 minimal_json）
+        # 不再放大 max_tokens（避免截斷）
         attempts = [
             {
                 "name": "base",
@@ -1444,13 +1529,7 @@ class CodexRunner:
                 "name": "strict_json",
                 "prompt": prompt + strict_suffix,
                 "temperature": max(base_temperature - 0.15, 0.1),
-                "max_tokens": int(base_max_tokens * 1.1),
-            },
-            {
-                "name": "minimal_json",
-                "prompt": self._build_minimal_prompt(research_pack),
-                "temperature": max(base_temperature - 0.25, 0.1),
-                "max_tokens": int(base_max_tokens * 1.2),
+                "max_tokens": base_max_tokens,  # P0-1: 不再放大
             },
         ]
 
@@ -1465,6 +1544,17 @@ class CodexRunner:
                 if not result:
                     logger.warning("LLM returned empty result")
                     continue
+
+                # P0-1: 如果 result 是原始文字（JSON 解析失敗），嘗試 repair
+                if isinstance(result, str):
+                    logger.info("Attempting JSON repair...")
+                    repaired = self._repair_json(result)
+                    if repaired:
+                        result = repaired
+                    else:
+                        logger.warning("JSON repair failed, trying next attempt")
+                        continue
+
                 post = self._build_post_output(result, research_pack, run_id)
                 if post:
                     return post

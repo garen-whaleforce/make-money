@@ -538,6 +538,32 @@ def stage_pack(ingest_data: Dict, run_date: str, run_id: str) -> EditionPack:
     deep_ticker = None
     deep_reason = None
     companies_data = ingest_data.get("companies", {})
+    market_data = ingest_data.get("market_data", {})
+
+    # v4.4: 動態補充 theme tickers 的市場數據
+    if primary and primary.matched_tickers:
+        missing_tickers = [t for t in primary.matched_tickers if t not in companies_data]
+        if missing_tickers:
+            console.print(f"  Enriching theme tickers: {missing_tickers[:4]}...")
+            from ..enrichers.fmp import FMPEnricher
+            with FMPEnricher() as enricher:
+                for ticker in missing_tickers[:4]:  # 最多補充 4 個
+                    try:
+                        company = enricher.enrich(ticker)
+                        companies_data[ticker] = company.to_dict()
+                        if company.price:
+                            market_data[ticker] = {
+                                "price": company.price.last,
+                                "change_pct": company.price.change_pct_1d,
+                                "market_cap": company.price.market_cap,
+                                "volume": company.price.volume,
+                            }
+                        console.print(f"    ✓ Enriched {ticker}: ${company.price.last:.2f} ({company.price.change_pct_1d:+.2f}%)")
+                    except Exception as e:
+                        console.print(f"    [yellow]⚠ Failed to enrich {ticker}: {e}[/yellow]")
+            # Update ingest_data
+            ingest_data["companies"] = companies_data
+            ingest_data["market_data"] = market_data
 
     if primary and primary.matched_tickers:
         # 優先使用 primary event 的 ticker，但必須在 companies_data 中有資料
@@ -1013,8 +1039,16 @@ def stage_write(
 
                 if output:
                     console.print(f"    ✓ {pt}: 救援成功")
-                    _save_post_output(output.to_dict(), pt)
-                    posts[pt] = output
+                    post_dict = output.to_dict()
+                    _save_post_output(post_dict, pt)
+                    # 轉換為 run_daily.PostOutput（與 codex_runner.PostOutput 不同）
+                    posts[pt] = PostOutput(
+                        post_type=pt,
+                        title=post_dict.get("title", ""),
+                        slug=post_dict.get("slug", ""),
+                        json_data=post_dict,
+                        html_content=post_dict.get("html", ""),
+                    )
                 else:
                     console.print(f"    ✗ {pt}: 救援失敗")
             except Exception as e:
@@ -1688,6 +1722,8 @@ def stage_minio_archive(run_date: str, out_dir: str = "out") -> Optional[Dict]:
 @click.option("--enable-review", is_flag=True, help="Enable LLM review (cli-gpt-5.2) before publish")
 @click.option("--skip-review", is_flag=True, help="Skip LLM review even if enabled by default")
 @click.option("--review-iterations", default=3, type=int, help="Max LLM review iterations (default: 3)")
+@click.option("--enable-chatgpt-review", is_flag=True, help="Enable ChatGPT Pro review loop")
+@click.option("--chatgpt-iterations", default=3, type=int, help="Max ChatGPT Pro review iterations (default: 3)")
 def main(
     mode: str,
     run_date: Optional[str],
@@ -1703,6 +1739,8 @@ def main(
     enable_review: bool,
     skip_review: bool,
     review_iterations: int,
+    enable_chatgpt_review: bool,
+    chatgpt_iterations: int,
 ):
     """
     Run the daily 3-post pipeline.
@@ -1841,9 +1879,10 @@ def main(
                         html_content = f.read()
                     generated_posts[pt] = PostOutput(
                         post_type=pt,
-                        json_data=post_data,
-                        html=html_content,
+                        title=post_data.get("title", ""),
                         slug=post_data.get("slug", ""),
+                        json_data=post_data,
+                        html_content=html_content,
                     )
                     console.print(f"  ✓ Loaded {pt} from file")
             console.print(f"  ✓ Skipped write, loaded {len(generated_posts)} existing posts")
@@ -1879,6 +1918,24 @@ def main(
             result.posts = generated_posts
         elif skip_review:
             console.print("\n[dim]Stage 3.6: LLM Review (skipped via --skip-review)[/dim]")
+
+        # Stage 3.7: ChatGPT Pro Review Loop (optional)
+        # Enable: --enable-chatgpt-review OR prod mode with ENABLE_CHATGPT_REVIEW=true
+        # Note: Can run even with --skip-write (reviews existing posts)
+        should_chatgpt_review = enable_chatgpt_review or (
+            mode == "prod" and os.getenv("ENABLE_CHATGPT_REVIEW", "false").lower() == "true"
+        )
+        if should_chatgpt_review:
+            from ..quality.chatgpt_reviewer import stage_chatgpt_review
+            generated_posts, chatgpt_result = stage_chatgpt_review(
+                posts=generated_posts,
+                edition_pack=edition_pack,
+                max_iterations=chatgpt_iterations,
+            )
+            result.posts = generated_posts
+            # 如果 ChatGPT Pro 審查通過，記錄到結果
+            if chatgpt_result.final_passed:
+                console.print("  [green]✓ ChatGPT Pro review passed[/green]")
 
         # Stage 4: QA (after LLM review)
         qa_results = stage_qa(generated_posts, edition_pack)

@@ -353,3 +353,159 @@ def archive_to_minio(
     """
     archiver = MinIOArchiver()
     return archiver.archive_daily_run(run_date, out_dir)
+
+
+@dataclass
+class PublishResult:
+    """Result of publishing from MinIO to Ghost"""
+    success: bool
+    posts_published: int
+    results: Dict[str, Dict]
+    error: Optional[str] = None
+
+
+def publish_from_minio(
+    run_date: str,
+    status: str = "draft",
+    send_newsletter: bool = False,
+    email_segment: str = "status:-free",
+    visibility: str = "members",
+) -> PublishResult:
+    """Fetch posts from MinIO and publish to Ghost
+
+    完整流程:
+    1. 從 MinIO 下載指定日期的文章
+    2. 上傳 feature images 到 Ghost
+    3. 發佈文章到 Ghost
+
+    Args:
+        run_date: Date in YYYY-MM-DD format (e.g., "2026-01-08")
+        status: Ghost post status ("draft" or "published")
+        send_newsletter: Whether to send newsletter (only for flash)
+        email_segment: Newsletter segment ("status:free", "status:-free", etc.)
+        visibility: Post visibility ("members", "paid", "public")
+
+    Returns:
+        PublishResult with publish status for each post
+    """
+    import tempfile
+    from pathlib import Path
+
+    # Download from MinIO to temp dir
+    archiver = MinIOArchiver()
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        logger.info(f"Downloading {run_date} from MinIO...")
+
+        if not archiver.download_archive(run_date, temp_dir):
+            return PublishResult(
+                success=False,
+                posts_published=0,
+                results={},
+                error=f"Failed to download {run_date} from MinIO",
+            )
+
+        temp_path = Path(temp_dir)
+
+        # Load posts
+        posts = {}
+        for post_type in ["flash", "earnings", "deep"]:
+            json_path = temp_path / f"post_{post_type}.json"
+            if json_path.exists():
+                with open(json_path, "r", encoding="utf-8") as f:
+                    posts[post_type] = json.load(f)
+                logger.info(f"Loaded {post_type}: {posts[post_type].get('slug')}")
+
+        if not posts:
+            return PublishResult(
+                success=False,
+                posts_published=0,
+                results={},
+                error=f"No posts found for {run_date}",
+            )
+
+        # Publish to Ghost
+        from .ghost_admin import GhostPublisher
+
+        results = {}
+        published_count = 0
+
+        with GhostPublisher() as publisher:
+            # Publish order: earnings -> deep -> flash (flash last for newsletter)
+            for post_type in ["earnings", "deep", "flash"]:
+                if post_type not in posts:
+                    continue
+
+                post = posts[post_type]
+                logger.info(f"Publishing {post_type} ({post.get('slug')})...")
+
+                # Upload feature image if exists
+                feature_dir = temp_path / "feature_images"
+                # Try to find matching feature image
+                for img_file in feature_dir.glob("*.png") if feature_dir.exists() else []:
+                    if post_type in img_file.name or post.get("slug", "") in img_file.name:
+                        image_url = publisher.upload_image(img_file)
+                        if image_url:
+                            post["feature_image"] = image_url
+                            logger.info(f"  Feature image uploaded: {img_file.name}")
+                        break
+
+                # Send newsletter only for flash (and only if requested)
+                should_send = send_newsletter and post_type == "flash"
+
+                result = publisher.upsert_by_slug(
+                    post=post,
+                    status=status,
+                    send_newsletter=should_send,
+                    email_segment=email_segment if should_send else None,
+                    visibility=visibility,
+                )
+
+                results[post_type] = {
+                    "success": result.success,
+                    "url": result.url,
+                    "error": result.error,
+                    "newsletter_sent": result.newsletter_sent,
+                }
+
+                if result.success:
+                    published_count += 1
+                    logger.info(f"  ✓ Published: {result.url}")
+                else:
+                    logger.error(f"  ✗ Failed: {result.error}")
+
+        return PublishResult(
+            success=published_count > 0,
+            posts_published=published_count,
+            results=results,
+        )
+
+
+# CLI for publishing from MinIO
+if __name__ == "__main__":
+    import sys
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Publish posts from MinIO to Ghost")
+    parser.add_argument("date", help="Date to publish (YYYY-MM-DD)")
+    parser.add_argument("--status", default="draft", choices=["draft", "published"])
+    parser.add_argument("--send-newsletter", action="store_true")
+    parser.add_argument("--segment", default="status:-free")
+    parser.add_argument("--visibility", default="members")
+
+    args = parser.parse_args()
+
+    result = publish_from_minio(
+        run_date=args.date,
+        status=args.status,
+        send_newsletter=args.send_newsletter,
+        email_segment=args.segment,
+        visibility=args.visibility,
+    )
+
+    print(f"\nPublished {result.posts_published} posts")
+    for post_type, r in result.results.items():
+        status = "✓" if r["success"] else "✗"
+        print(f"  {status} {post_type}: {r.get('url') or r.get('error')}")
+
+    sys.exit(0 if result.success else 1)

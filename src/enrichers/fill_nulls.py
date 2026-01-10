@@ -290,7 +290,12 @@ def format_financial_value(
         return fallback
 
     if format_type == "percent":
+        # For margin-like fields that are stored as fractions (0.678 = 67.8%)
         return f"{value * 100:.1f}%"
+    elif format_type == "percent_raw":
+        # For fields already in percent form (0.99 = 0.99%, e.g., change_pct_1d)
+        # DO NOT multiply by 100
+        return f"{value:+.2f}%"
     elif format_type == "currency":
         if abs(value) >= 1e12:
             return f"${value / 1e12:.2f}T"

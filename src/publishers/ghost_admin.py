@@ -134,9 +134,11 @@ class GhostPublisher:
         if not token:
             return {}
 
+        accept_version = os.getenv("GHOST_ACCEPT_VERSION", "v5.0")
         return {
             "Authorization": f"Ghost {token}",
             "Content-Type": "application/json",
+            "Accept-Version": accept_version,
         }
 
     def _build_post_data(
@@ -181,6 +183,17 @@ class GhostPublisher:
             "status": status,
             "visibility": visibility,  # 會員牆設定
         }
+
+        feature_image = get_attr("feature_image")
+        feature_image_alt = get_attr("feature_image_alt")
+        canonical_url = get_attr("canonical_url")
+
+        if feature_image:
+            post_data["feature_image"] = feature_image
+        if feature_image_alt:
+            post_data["feature_image_alt"] = feature_image_alt
+        if canonical_url:
+            post_data["canonical_url"] = canonical_url
 
         # 使用 lexical 格式來保留 inline styles 並支援 paywall
         # Ghost 的 source=html 會過濾 inline styles，但 lexical HTML 卡片不會
@@ -296,6 +309,34 @@ class GhostPublisher:
             post_data["lexical"] = json.dumps(lexical)
 
         return post_data
+
+    def upload_image(self, image_path: Path, ref: str = "feature_image") -> Optional[str]:
+        """Upload an image to Ghost and return its URL."""
+        if not self.api_url:
+            return None
+
+        headers = self._get_headers()
+        if not headers:
+            return None
+
+        if "Content-Type" in headers:
+            headers.pop("Content-Type")
+
+        try:
+            url = f"{self.api_url}/ghost/api/admin/images/upload/"
+            with open(image_path, "rb") as f:
+                files = {"file": (image_path.name, f, "image/png")}
+                data = {"ref": ref}
+                response = self._client.post(url, headers=headers, files=files, data=data)
+            response.raise_for_status()
+            payload = response.json()
+            images = payload.get("images") or []
+            if images:
+                return images[0].get("url")
+            return None
+        except Exception as e:
+            logger.error(f"Failed to upload image: {e}")
+            return None
 
     def get_post_by_slug(self, slug: str) -> Optional[dict]:
         """根據 slug 取得文章

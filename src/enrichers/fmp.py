@@ -350,24 +350,64 @@ class FMPEnricher(BaseEnricher):
     def get_market_snapshot(self) -> dict:
         """取得市場概況（v4 Market Snapshot）
 
+        P0-1: 回傳數值型欄位 + as_of，支援 raw + formatted 雙軌
+
         Returns:
-            dict with keys: spy_change, qqq_change, us10y, dxy, vix
+            dict with numeric values and formatted strings:
+            - spy_price, spy_change_pct, spy_change_pct_fmt
+            - qqq_price, qqq_change_pct, qqq_change_pct_fmt
+            - us10y (value), us10y_fmt
+            - dxy (value), dxy_fmt
+            - vix (value), vix_fmt
+            - as_of (ISO timestamp)
         """
         snapshot = {
+            "as_of": datetime.now(timezone.utc).isoformat(),
+            # SPY
+            "spy_price": None,
+            "spy_change_pct": None,
+            "spy_change_pct_fmt": None,
+            # QQQ
+            "qqq_price": None,
+            "qqq_change_pct": None,
+            "qqq_change_pct_fmt": None,
+            # 10Y Treasury
+            "us10y": None,
+            "us10y_fmt": None,
+            # DXY
+            "dxy": None,
+            "dxy_fmt": None,
+            # VIX
+            "vix": None,
+            "vix_fmt": None,
+            # Legacy fields for backward compatibility
             "spy_change": None,
             "qqq_change": None,
-            "us10y": None,
-            "dxy": None,
-            "vix": None,
         }
 
-        # 取得 SPY, QQQ 報價
-        for etf, key in [("SPY", "spy_change"), ("QQQ", "qqq_change")]:
-            quote = self.get_quote(etf)
-            if quote and quote.change_pct_1d is not None:
-                change = quote.change_pct_1d
+        # 取得 SPY 報價
+        spy_quote = self.get_quote("SPY")
+        if spy_quote:
+            snapshot["spy_price"] = spy_quote.last
+            if spy_quote.change_pct_1d is not None:
+                change = spy_quote.change_pct_1d
+                snapshot["spy_change_pct"] = round(change, 2)
                 prefix = "+" if change >= 0 else ""
-                snapshot[key] = f"{prefix}{change:.2f}%"
+                snapshot["spy_change_pct_fmt"] = f"{prefix}{change:.2f}%"
+                # Legacy
+                snapshot["spy_change"] = snapshot["spy_change_pct_fmt"]
+
+        # 取得 QQQ 報價
+        qqq_quote = self.get_quote("QQQ")
+        if qqq_quote:
+            snapshot["qqq_price"] = qqq_quote.last
+            if qqq_quote.change_pct_1d is not None:
+                change = qqq_quote.change_pct_1d
+                snapshot["qqq_change_pct"] = round(change, 2)
+                prefix = "+" if change >= 0 else ""
+                snapshot["qqq_change_pct_fmt"] = f"{prefix}{change:.2f}%"
+                # Legacy
+                snapshot["qqq_change"] = snapshot["qqq_change_pct_fmt"]
 
         # 取得 10Y Treasury (使用 ^TNX)
         cache_key = "fmp:quote:^TNX"
@@ -375,7 +415,8 @@ class FMPEnricher(BaseEnricher):
         if tnx_data and isinstance(tnx_data, list) and len(tnx_data) > 0:
             tnx = tnx_data[0]
             if tnx.get("price"):
-                snapshot["us10y"] = f"{tnx['price']:.2f}%"
+                snapshot["us10y"] = round(tnx["price"], 2)
+                snapshot["us10y_fmt"] = f"{tnx['price']:.2f}%"
 
         # 取得 DXY (美元指數)
         cache_key = "fmp:quote:DX-Y.NYB"
@@ -383,7 +424,8 @@ class FMPEnricher(BaseEnricher):
         if dxy_data and isinstance(dxy_data, list) and len(dxy_data) > 0:
             dxy = dxy_data[0]
             if dxy.get("price"):
-                snapshot["dxy"] = f"{dxy['price']:.2f}"
+                snapshot["dxy"] = round(dxy["price"], 2)
+                snapshot["dxy_fmt"] = f"{dxy['price']:.2f}"
 
         # 取得 VIX
         cache_key = "fmp:quote:^VIX"
@@ -391,7 +433,8 @@ class FMPEnricher(BaseEnricher):
         if vix_data and isinstance(vix_data, list) and len(vix_data) > 0:
             vix = vix_data[0]
             if vix.get("price"):
-                snapshot["vix"] = f"{vix['price']:.2f}"
+                snapshot["vix"] = round(vix["price"], 2)
+                snapshot["vix_fmt"] = f"{vix['price']:.2f}"
 
         return snapshot
 

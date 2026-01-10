@@ -2,8 +2,129 @@
 # Quality Rules Configuration - 品質檢查規則設定
 # =============================================================================
 # Fail-Closed 原則：任何一關失敗就不自動發布
+#
+# P0 規則：必須通過才能發布
+# P1 規則：建議通過，可降級為警告
+# P2 規則：可選，用於品質追蹤
 
-version: "1.0"
+version: "1.1"
+
+# -----------------------------------------------------------------------------
+# P0 規則：核心品質檢查（必須通過）
+# -----------------------------------------------------------------------------
+p0_rules:
+  # P0-1: 佔位符檢查（最重要）
+  placeholder_detection:
+    enabled: true
+    hard_fail: true  # 發現即 fail，不發 Ghost、不寄 newsletter
+    critical_patterns:
+      # 中文佔位符
+      - "數據"
+      - "+數據"
+      - "-數據"
+      - "YoY.*數據"
+      - "QoQ.*數據"
+      - "待確認"
+      - "待補充"
+      - "資料缺失"
+      - "尚未公布"
+      - "無資料"
+      # 英文佔位符
+      - "TBD"
+      - "TBA"
+      - "N/A"
+      - "XXX"
+      - "$XXX"
+      # 程式佔位符
+      - "null"
+      - "undefined"
+      - "None"
+    description: "禁止關鍵區域出現佔位符文字，發現即阻擋發布"
+
+  # P0-2: 跨篇數值一致性
+  cross_post_consistency:
+    enabled: true
+    hard_fail: true
+    tolerance: 0.05   # 允許 5% 誤差
+    check_fields:
+      - "pe_ttm"
+      - "price"
+      - "market_cap"
+      - "change_pct"
+    description: "同一 ticker 在 Flash/Earnings/Deep 必須顯示一致的數值"
+
+  # P0-3: 百分比合理性檢查
+  percent_sanity:
+    enabled: true
+    mega_cap_threshold: 50e9    # $50B
+    extreme_change_threshold: 35  # 35%
+    description: "Mega-cap (>$50B) 單日漲跌超過 35% 視為資料錯誤"
+
+  # P0-4: 估值完整性
+  valuation_completeness:
+    enabled: true
+    hard_fail: false  # 警告但不阻擋
+    require_three_scenarios: true  # 必須有 bear/base/bull
+    forbid_target_equals_current: true  # 禁止 target = 現價
+    forbid_na_multiple: true  # 禁止 multiple = N/A
+    description: "若有估值區塊，必須完整填寫三種情境"
+
+  # P0-5: Earnings Scoreboard 完整性
+  earnings_scoreboard:
+    enabled: true
+    min_quarters: 1
+    required_fields:
+      - "ticker"
+      - "quarter"
+      - "eps_actual"
+      - "revenue_actual"
+    forbid_duplicate_quarters: true  # 禁止重複季度
+    description: "Earnings scoreboard 季度不可重複，欄位不可空"
+
+  # P0-6: 財報日期語意
+  earnings_date_semantics:
+    enabled: true
+    max_days_old: 90  # 財報發布日超過 90 天視為過舊
+    description: "區分 fiscal_period_end 與 announcement_date"
+
+# -----------------------------------------------------------------------------
+# 各篇文章的最低規格
+# -----------------------------------------------------------------------------
+post_specs:
+  flash:
+    min_news_items: 8           # P0-新02: 至少 8 條新聞
+    target_news_items: 12       # 目標數量
+    min_key_numbers: 3
+    min_tldr_items: 5
+    min_html_length: 5000
+    min_markdown_length: 3000
+    required_sections:
+      - "market_snapshot"
+      - "key_numbers"
+      - "tldr"
+      - "news_items"
+
+  earnings:
+    min_scoreboard_rows: 1
+    min_key_numbers: 3
+    min_tldr_items: 3
+    min_html_length: 4000
+    required_scenarios:
+      - "bear"
+      - "base"
+      - "bull"
+
+  deep:
+    min_key_numbers: 3
+    min_tldr_items: 5
+    min_peer_count: 3
+    min_html_length: 8000
+    min_if_then_branches: 3
+    required_sections:
+      - "business_model"
+      - "valuation"
+      - "risks"
+      - "peer_comparison"
 
 # -----------------------------------------------------------------------------
 # 資訊來源 Gate

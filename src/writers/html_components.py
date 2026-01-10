@@ -25,8 +25,14 @@
 - NewsRadarItem - 新聞雷達條目（4 行模板）
 """
 
+import os
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional, List
+
+import yaml
+
+from ..utils.logging import get_logger
 
 
 # 共用樣式（inline CSS for email compatibility）
@@ -41,6 +47,36 @@ BASE_STYLES = {
     "danger_color": "#ef4444",   # Red
     "muted_color": "#6b7280",    # Gray
 }
+
+logger = get_logger(__name__)
+_PAYWALL_STYLE_CACHE: Optional[str] = None
+
+
+def resolve_paywall_style() -> str:
+    """Resolve paywall style from env or config (compact/full)."""
+    global _PAYWALL_STYLE_CACHE
+    if _PAYWALL_STYLE_CACHE:
+        return _PAYWALL_STYLE_CACHE
+
+    env_style = os.getenv("PAYWALL_STYLE") or os.getenv("GHOST_PAYWALL_STYLE")
+    if env_style:
+        _PAYWALL_STYLE_CACHE = env_style.strip().lower()
+        return _PAYWALL_STYLE_CACHE
+
+    try:
+        config_path = Path(__file__).resolve().parents[2] / "config" / "ghost.yml"
+        if config_path.exists():
+            with open(config_path, "r", encoding="utf-8") as f:
+                config = yaml.safe_load(f) or {}
+            style = ((config.get("paywall") or {}).get("style") or "").strip().lower()
+            if style in {"compact", "full"}:
+                _PAYWALL_STYLE_CACHE = style
+                return style
+    except Exception:
+        pass
+
+    _PAYWALL_STYLE_CACHE = "full"
+    return _PAYWALL_STYLE_CACHE
 
 
 @dataclass
@@ -768,12 +804,29 @@ def render_tldr_bullets(
     '''
 
 
-def render_paywall_gate() -> str:
+def render_paywall_gate(style: Optional[str] = None) -> str:
     """元件 7: PaywallGate - 固定文案 + 按鈕 + 分隔線
 
     Returns:
         HTML 字串（含 Ghost members-only 標記）
     """
+    style = (style or resolve_paywall_style()).strip().lower()
+    if style == "compact":
+        return '''
+        <!--members-only-->
+        <div style="margin: 32px 0; font-family: system-ui, -apple-system, sans-serif;">
+            <div style="height: 1px; background: linear-gradient(to right, transparent, #e5e5e5, transparent);"></div>
+            <div style="padding: 16px 20px; background: #f8fafc; border-radius: 10px; margin-top: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                <div style="font-size: 14px; color: #1e293b;">
+                    <strong>會員專屬內容從此開始</strong> · 解鎖完整分析與估值
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <a href="#/portal/signup" style="display: inline-block; padding: 8px 16px; background: #1e40af; color: #ffffff; font-size: 13px; font-weight: 600; text-decoration: none; border-radius: 6px;">免費訂閱</a>
+                    <a href="#/portal/account" style="display: inline-block; padding: 8px 16px; background: #ffffff; border: 1px solid #1e40af; color: #1e40af; font-size: 13px; font-weight: 600; text-decoration: none; border-radius: 6px;">會員登入</a>
+                </div>
+            </div>
+        </div>
+        '''
     return '''
     <!--members-only-->
     <div style="margin: 48px 0; font-family: system-ui, -apple-system, sans-serif;">
@@ -871,7 +924,7 @@ def render_member_section_header(title: str, reading_time: str = "10-15 min") ->
 # P0-4 / P0-5: HTML 規範化函數
 # =============================================================================
 
-def normalize_html(html: str, post_type: str = "flash") -> str:
+def normalize_html(html: str, post_type: str = "flash", paywall_style: Optional[str] = None) -> str:
     """P0-4/P0-5: HTML 規範化 - 確保 Paywall 和格式一致
 
     規則：
@@ -904,39 +957,50 @@ def normalize_html(html: str, post_type: str = "flash") -> str:
         after = after.replace("<!--members-only-->", "")
         html = before + after
 
-    # 3. 若沒有 paywall，在適當位置插入
+    # 3. 若沒有 paywall，在適當位置插入（避免 mid-point 插入）
     if paywall_count == 0:
+        resolved_style = (paywall_style or resolve_paywall_style()).strip().lower()
         # 根據 post_type 決定插入位置
-        # Flash: 在 TL;DR 後
-        # Earnings: 在 Key Numbers 後
-        # Deep: 在 Valuation Quick View 後
         insert_markers = {
-            "flash": ["TL;DR", "摘要", "tldr", "key_numbers", "關鍵數字"],
-            "earnings": ["key_numbers", "關鍵數字", "估值壓力測試"],
-            "deep": ["估值快覽", "VALUATION QUICK VIEW", "key_numbers"],
+            "flash": ["TL;DR", "摘要", "news radar", "新聞雷達", "key_numbers", "關鍵數字"],
+            "earnings": ["key_numbers", "關鍵數字", "市場反應", "估值壓力測試", "摘要"],
+            "deep": ["估值快覽", "valuation quick view", "reading guide", "摘要", "key_numbers"],
         }
 
         markers = insert_markers.get(post_type, insert_markers["flash"])
+        lower_html = html.lower()
+        insert_idx = None
+        used_marker = None
 
-        inserted = False
         for marker in markers:
-            # 找到 marker 所在的 section 結束位置
-            marker_idx = html.lower().find(marker.lower())
-            if marker_idx != -1:
-                # 找到下一個 </div> 或 </section>
-                end_idx = html.find("</div>", marker_idx)
+            marker_idx = lower_html.find(marker.lower())
+            if marker_idx == -1:
+                continue
+            for tag in ["</section>", "</div>", "</p>", "</ul>", "</ol>"]:
+                end_idx = lower_html.find(tag, marker_idx)
                 if end_idx != -1:
-                    # 在該 section 結束後插入 paywall
-                    paywall_html = render_paywall_gate()
-                    html = html[:end_idx + 6] + paywall_html + html[end_idx + 6:]
-                    inserted = True
+                    insert_idx = end_idx + len(tag)
+                    used_marker = marker
+                    break
+            if insert_idx is not None:
+                break
+
+        if insert_idx is None:
+            # 最後保底：第一個標題結束
+            for tag in ["</h2>", "</h3>", "</h4>"]:
+                end_idx = lower_html.find(tag)
+                if end_idx != -1:
+                    insert_idx = end_idx + len(tag)
+                    used_marker = tag
                     break
 
-        # 如果找不到合適位置，在中間插入
-        if not inserted:
-            mid_point = len(html) // 2
-            paywall_html = render_paywall_gate()
-            html = html[:mid_point] + paywall_html + html[mid_point:]
+        paywall_html = render_paywall_gate(style=resolved_style)
+        if insert_idx is None:
+            logger.warning("Paywall marker missing; no insertion point found, appending gate to end")
+            html = html + paywall_html
+        else:
+            logger.warning(f"Paywall marker missing; inserting after marker: {used_marker}")
+            html = html[:insert_idx] + paywall_html + html[insert_idx:]
 
     # 4. 清理多餘空白
     html = re.sub(r'\n\s*\n\s*\n', '\n\n', html)

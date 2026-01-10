@@ -103,7 +103,7 @@ valuation:
 writer:
   codex:
     # 模型
-    model: "claude-sonnet-4-20250514"
+    model: "claude-sonnet-4.5"
 
     # 最大 tokens
     max_tokens: 8000
