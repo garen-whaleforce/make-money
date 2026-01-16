@@ -89,24 +89,24 @@ class CodexRunner:
         },
     }
 
-    # P0-1: 各文章類型的推薦模型（預設統一 gemini-3-flash-preview）
+    # P0-1: 各文章類型的推薦模型（預設統一 cli-gpt-5.2）
     POST_TYPE_MODELS = {
-        "flash": "gemini-3-flash-preview",
-        "earnings": "gemini-3-flash-preview",
-        "deep": "gemini-3-flash-preview",
+        "flash": "cli-gpt-5.2",
+        "earnings": "cli-gpt-5.2",
+        "deep": "cli-gpt-5.2",
     }
 
     # P0-2: 各文章類型的 token/temperature 預設
-    # 降低 max_tokens 避免截斷：flash<=6000, earnings<=7000, deep<=8000
+    # deep 需要更多 tokens 以避免 JSON 截斷
     POST_TYPE_LIMITS = {
         "flash": {"max_tokens": 6000, "temperature": 0.6},
         "earnings": {"max_tokens": 7000, "temperature": 0.55},
-        "deep": {"max_tokens": 8000, "temperature": 0.5},
+        "deep": {"max_tokens": 12000, "temperature": 0.5},  # 從 8000 提高到 12000
     }
 
     def __init__(
         self,
-        model: str = "claude-sonnet-4.5",
+        model: str = "cli-gpt-5.2",
         prompt_path: str = "prompts/daily_brief.prompt.txt",
         schema_path: str = "schemas/post.schema.json",
         max_tokens: int = 32000,
@@ -1164,14 +1164,17 @@ class CodexRunner:
 
             logger.info(f"Dynamic timeout: {timeout:.0f}s (based on {effective_max_tokens} max_tokens)")
 
-            client_kwargs = {"api_key": api_key, "base_url": base_url}
+            client_kwargs = {"api_key": api_key, "base_url": base_url, "timeout": timeout}
             try:
                 import httpx
-                client_kwargs["http_client"] = httpx.Client(timeout=timeout, verify=verify_ssl)
-            except Exception:
-                pass
+                # httpx timeout needs to be a Timeout object for proper handling
+                httpx_timeout = httpx.Timeout(timeout, connect=30.0)
+                client_kwargs["http_client"] = httpx.Client(timeout=httpx_timeout, verify=verify_ssl)
+            except Exception as e:
+                print(f"[LiteLLM] httpx setup failed: {e}", flush=True)
 
             client = OpenAI(**client_kwargs)
+            print(f"[LiteLLM] Client created with timeout={timeout}s, verify_ssl={verify_ssl}", flush=True)
 
             logger.info(f"Calling LiteLLM with model: {self.model}")
 
@@ -1197,6 +1200,10 @@ class CodexRunner:
 
             for attempt in range(1, max_attempts + 1):
                 try:
+                    logger.info(f"LiteLLM request: attempt={attempt}/{max_attempts}, prompt_len={len(prompt)}, max_tokens={max_tokens}, timeout={timeout:.0f}s")
+                    print(f"[LiteLLM] Sending request: attempt={attempt}/{max_attempts}, prompt_len={len(prompt)}, max_tokens={max_tokens}, timeout={timeout:.0f}s", flush=True)
+                    import datetime
+                    start_time = datetime.datetime.now()
                     response = client.chat.completions.create(
                         model=self.model,
                         messages=[
@@ -1207,6 +1214,9 @@ class CodexRunner:
                         temperature=temperature,
                         timeout=timeout,
                     )
+                    elapsed = (datetime.datetime.now() - start_time).total_seconds()
+                    logger.info(f"LiteLLM response received in {elapsed:.1f}s")
+                    print(f"[LiteLLM] Response received in {elapsed:.1f}s", flush=True)
                 except Exception as e:
                     msg = str(e)
                     retryable = (
