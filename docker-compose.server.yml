@@ -1,0 +1,20 @@
+# Daily Brief Pipeline - Server Deployment
+# Deploy to: gpu5090 (172.23.22.100)
+# Schedule: Taiwan 06:00 = UTC 22:00
+
+version: "3.9"
+
+services:
+  daily-brief:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: daily-brief-runner
+    network_mode: host
+    restart: "no"  # Cron job, not long-running service
+    env_file:
+      - .env.server
+    volumes:
+      - ./out:/app/out
+      - ./data:/app/data
+    command: ["--mode", "prod", "--confirm-high-risk"]
