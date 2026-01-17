@@ -369,3 +369,43 @@ Truist 將 TSLA 目標價從 $470 下修至 $439（-7%）  // WRONG - $470 前�
 6. **Paywall Structure**: Insert `<!--members-only-->` after TL;DR section (section 6)
 
 Set `meta.quality_gates_passed: true` only if ALL checks pass.
+
+---
+
+## ⚠️ REQUIRED FIELDS CHECKLIST (P0-6)
+
+**Before outputting JSON, verify ALL these fields are present and populated:**
+
+### Flash-Specific Required Fields
+
+| Field | Minimum | Description |
+|-------|---------|-------------|
+| `title` | 1 | 中文標題 |
+| `slug` | 1 | URL slug ending in `-flash` |
+| `tldr` | 5 items | 每項至少 30 字元 |
+| `key_numbers` | exactly 3 | value + label + source |
+| `news_items` | 8 items | 包含 headline, source, url |
+| `repricing_dashboard` | 3 items | variable + why_important + leading_signal + direct_impact |
+| `key_stocks` | 3 items | ticker + price + change_pct + setup + catalyst + risk |
+| `sources` | 5 items | 每個有 name + type + url |
+| `executive_summary.zh_tw` | 100 字 | 中文摘要 |
+| `executive_summary.en` | 200 字 | 英文摘要 |
+
+### Disclosure (REQUIRED)
+必須包含免責聲明文字，以下關鍵字至少出現一個：
+- 「非投資建議」或 "not investment advice"
+- 「投資有風險」或 "investment risk"
+- 「僅供參考」或 "for reference only"
+
+### What to Watch (觀察清單)
+在 `news_items` 的每個項目中包含 `what_to_watch` 陣列，或在頂層提供 `what_to_watch` 陣列（至少 3 項）。
+
+### Common Missing Fields That Cause QA Failure
+
+1. ❌ **`what_to_watch`** - 從 news_items 提取，至少 3 項
+2. ❌ **`repricing_dashboard`** - 必須至少 3 項，不能為空
+3. ❌ **`sources` with URLs** - 每個來源必須有 url
+4. ❌ **`disclosure`** - 免責聲明文字
+5. ❌ **`peer_table`** - 至少 2 行比較表
+
+**如果任何必填欄位無法填寫，使用合理的預設值而非留空或使用佔位符。**

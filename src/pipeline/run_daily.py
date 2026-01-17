@@ -1240,6 +1240,7 @@ def _save_post_output(post_dict: Dict, post_type: str) -> Dict:
     P0-2: 填充佔位符（從 edition_pack 取得實際數據）
     P0-3: 智能佔位符修稿器（從 fact_pack 補值或降級改寫）
     P0-4/P0-5: 在存檔前進行 HTML 規範化
+    P0-6: JSON → HTML 渲染（template_renderer）
 
     Returns:
         Dict: The cleaned post_dict after P0-FIX (caller should use this for PostOutput)
@@ -1247,9 +1248,51 @@ def _save_post_output(post_dict: Dict, post_type: str) -> Dict:
     global _output_manager
 
     from ..writers.html_components import normalize_html, validate_paywall
-    from ..writers.post_processor import enhanced_process_post_html, placeholder_quality_gate, strip_placeholders_from_all_fields
+    from ..writers.post_processor import (
+        enhanced_process_post_html,
+        placeholder_quality_gate,
+        strip_placeholders_from_all_fields,
+        transform_llm_output_for_renderer,
+        fill_missing_qa_fields,
+    )
+    from ..writers.template_renderer import render_post
 
-    # P0-2: 載入 edition_pack 並填充佔位符
+    # P0-6: 載入 edition_pack 用於 QA 欄位填充
+    edition_pack_data = {}
+    if _output_manager:
+        edition_pack_data = _output_manager.load_edition_pack() or {}
+    else:
+        try:
+            edition_pack_path = Path("out/edition_pack.json")
+            if edition_pack_path.exists():
+                with open(edition_pack_path, "r", encoding="utf-8") as f:
+                    edition_pack_data = json.load(f)
+        except Exception:
+            pass
+
+    # P0-6: Step 1 - 填充 QA 必需但 LLM 可能遺漏的欄位
+    post_dict = fill_missing_qa_fields(post_dict, edition_pack_data, post_type)
+
+    # P0-6: Step 2 - 轉換 LLM 輸出格式為 renderer 期望的格式
+    transformed_dict = transform_llm_output_for_renderer(post_dict, post_type)
+
+    # P0-6: Step 3 - 使用 template_renderer 生成 HTML（如果還沒有）
+    html_content = post_dict.get("html", "")
+    if not html_content:
+        try:
+            rendered = render_post(post_type, transformed_dict)
+            html_content = rendered.html
+            post_dict["html"] = html_content
+            console.print(f"    ✓ P0-6 HTML 渲染: {len(html_content)} chars")
+        except Exception as e:
+            console.print(f"    [yellow]⚠ P0-6 HTML 渲染失敗: {e}[/yellow]")
+            # 使用 markdown fallback
+            markdown_content = post_dict.get("markdown", "")
+            if markdown_content:
+                html_content = f"<div class='markdown-content'>{markdown_content}</div>"
+                post_dict["html"] = html_content
+
+    # P0-2: 重新載入 edition_pack 並填充佔位符（使用完整資料）
     html_content = post_dict.get("html", "")
     edition_pack = {}
     fact_pack = None

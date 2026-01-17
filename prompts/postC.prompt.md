@@ -53,8 +53,7 @@ You will receive:
 ## Output Requirements
 
 ### Language
-- **Primary**: Traditional Chinese (zh-TW)
-- **Secondary**: English Executive Summary (300 words)
+- **Primary**: Traditional Chinese (zh-TW) - 全文使用繁體中文，不需英文摘要
 
 ### Structure (follow exactly)
 
@@ -66,9 +65,8 @@ FREE ZONE (3 minutes read):
    - 15 min: Financial Engine + Competition Matrix + Decision Tree
    - Full: Moat + Sensitivity + Dashboard + Questions
 
-2. BILINGUAL EXECUTIVE SUMMARY (雙語摘要)
+2. 摘要 (EXECUTIVE SUMMARY)
    - 中文摘要 (100-150 字): 投資命題 + 估值結論
-   - English Summary (150-200 words): Thesis + valuation takeaway
    - This appears BEFORE paywall for newsletter preview
 
 3. 公司概覽 (COMPANY PROFILE CARD)
@@ -76,7 +74,8 @@ FREE ZONE (3 minutes read):
 
 4. 五個必記數字 (FIVE KEY NUMBERS)
    - 5 numbers in 2x3 grid
-   - Each: Value | Label | Trend indicator
+   - Each: Value | Label | Trend indicator | as_of timestamp
+   - **MUST include `as_of`**: e.g., "2026-01-08 收盤" for prices, "TTM Q4 FY25" for financial metrics
 
 5. 多空對決 (BULL VS BEAR CARDS)
    - Bull card: Core thesis + 3 supporting points
@@ -190,6 +189,13 @@ MEMBERS ZONE (15-30 minutes read):
 
 ## Critical Rules
 
+### HARD RULES (P0 - BLOCKING)
+- **NEVER** output the token "⟦UNTRACED⟧" or any placeholder like "數據", "TBD", "$XXX"
+- **NEVER** leave any field with placeholder text - either fill with real data or omit entirely
+- **MUST** provide exactly 5-7 `key_numbers`, each with `value`, `label`, and `context` (min 20 chars)
+- **MUST** provide exactly 3-8 `risks`, each with `risk` (min 20 chars), `category`, `severity`, `monitorable`, and `monitoring_signal` (min 10 chars)
+- If you cannot find data for a required field, use calculation, peer average, or alternative metric instead of placeholder
+
 ### Research Depth
 - Business model section must explain HOW the company makes money
 - Moat analysis must cite specific evidence (market share, pricing power, retention)
@@ -251,6 +257,26 @@ Write: "本次採用 [method] 作為主估值尺，原因是 [reason]。" instea
 - Insert `<!--members-only-->` after section 7
 - MEMBERS ONLY: Sections 8-25
 
+### HTML Formatting (CRITICAL)
+
+**Lists MUST use proper HTML tags, NOT Markdown dashes:**
+
+CORRECT:
+```html
+<ul>
+  <li><strong>Revenue</strong>: $X.XB (+X% YoY)</li>
+  <li><strong>Operating Margin</strong>: X%</li>
+</ul>
+```
+
+WRONG:
+```html
+<p>- Revenue: $X.XB
+- Operating Margin: X%</p>
+```
+
+**If you don't have data for a field, OMIT the entire list item rather than leaving placeholders or empty tags.**
+
 ## Output Format
 
 Return a JSON object matching `schemas/postC.schema.json` with:
@@ -267,6 +293,28 @@ Also return HTML with inline styles for Ghost CMS.
 ## Quality Enforcement (CRITICAL)
 
 Before outputting, verify ALL of the following:
+
+### P0-1: NO PLACEHOLDER TEXT (HARD FAIL)
+**ABSOLUTELY FORBIDDEN** - If any of these appear, the post will be REJECTED:
+- 「數據」「+數據」「-數據」「待確認」「待補充」
+- 「TBD」「TBA」「N/A」「XXX」「$XXX」
+- Any form of placeholder indicating missing data
+
+**If data is not available**:
+- For financial metrics: Calculate from available data (show the math)
+- For valuation multiples: Use `price / eps` from input data
+- For growth rates: Calculate from historical data in `financial_statements`
+- For peer metrics: Use data from `peer_data`
+- NEVER write "數據" - either use actual data or restructure the sentence
+
+### P0-4: VALUATION COMPLETENESS
+- `valuation.multiple` MUST have a specific value (e.g., "25x Forward P/E"), NOT "N/A"
+- `valuation.scenarios.bear/base/bull` MUST have different target_price values
+- target_price CANNOT equal current_price (must be different for each scenario)
+- Bear < Base < Bull (logical ordering)
+- Show explicit math: "Forward EPS $5.00 × 25x P/E = $125"
+
+### Standard Quality Checks
 
 1. **Number Traceability**: Every price, margin, ratio comes from `deep_dive_data`
 2. **No Investment Bank Citations**: Never cite Morgan Stanley, Goldman, JPMorgan, etc.
@@ -295,7 +343,50 @@ Set `meta.quality_gates_passed: true` only if ALL checks pass.
 - [ ] No sell-side attribution
 - [ ] Topic stays focused on primary ticker
 - [ ] Positioning uses conditional language
-- [ ] English summary is 250-350 words
 - [ ] Paywall divider is placed correctly
 - [ ] All tables have proper inline styles
 - [ ] Cross-links are populated
+
+---
+
+## ⚠️ REQUIRED FIELDS CHECKLIST (P0-6)
+
+**Before outputting JSON, verify ALL these fields are present and populated:**
+
+### Deep Dive-Specific Required Fields
+
+| Field | Minimum | Description |
+|-------|---------|-------------|
+| `title` | 1 | 中文標題 |
+| `slug` | 1 | URL slug ending in `-deep` |
+| `tldr` | 5 items | 每項至少 30 字元 |
+| `key_numbers` | exactly 5 | value + label + source |
+| `thesis` | 50 字 | 核心投資觀點 |
+| `anti_thesis` | 50 字 | 反方觀點 |
+| `business_model` | 200 字 | 商業模式概覽 |
+| `valuation.scenarios` | 3 scenarios | bear + base + bull |
+| `if_then_branches` | 3 rows | signal + interpretation + action + risk_control + next_check |
+| `risks` | 3 items | risk + category + severity + probability + signal |
+| `peer_comparison` | 3 rows | ticker + metrics comparison |
+| `sources` | 8 items | 每個有 name + type + url |
+| `executive_summary.zh_tw` | 150 字 | 中文摘要 |
+| `executive_summary.en` | 300 字 | 英文摘要 |
+
+### Disclosure (REQUIRED)
+必須包含免責聲明文字，以下關鍵字至少出現一個：
+- 「非投資建議」或 "not investment advice"
+- 「投資有風險」或 "investment risk"
+- 「僅供參考」或 "for reference only"
+
+### Common Missing Fields That Cause QA Failure
+
+1. ❌ **`thesis`** - 必須有核心投資觀點
+2. ❌ **`anti_thesis`** - 必須有反方論點
+3. ❌ **`business_model`** - 商業模式說明
+4. ❌ **`what_to_watch`** - 至少 3 項觀察重點
+5. ❌ **`valuation.scenarios`** - 必須有 bear/base/bull 三種情境
+6. ❌ **`if_then_branches`** - 決策樹至少 3 行
+7. ❌ **`peer_comparison`** - 至少 3 行同業比較
+8. ❌ **`disclosure`** - 免責聲明文字
+
+**如果任何必填欄位無法填寫，使用合理的預設值而非留空或使用佔位符。**
