@@ -69,7 +69,7 @@ class NumberTracer:
     NUMBER_PATTERNS = [
         (r'\$[\d,]+\.?\d*[BMK]?', 'currency', 3),  # $150.00, $1.5B
         (r'[\d.]+x', 'multiple', 3),  # 25.5x
-        (r'[\d.]+%', 'percent', 2),  # 15.5%
+        (r'-?[\d.]+%', 'percent', 2),  # -15.5% or 15.5%
         (r'\d{1,3}(?:,\d{3})+', 'large_number', 1),  # 1,000,000
     ]
 

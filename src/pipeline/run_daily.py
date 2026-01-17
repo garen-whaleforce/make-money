@@ -21,7 +21,7 @@ import sys
 import time
 from datetime import datetime, date
 from pathlib import Path
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, List, Any, TYPE_CHECKING
 from dataclasses import dataclass, field, asdict
 
 import click
@@ -31,9 +31,15 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
+if TYPE_CHECKING:
+    from .output_manager import OutputManager
+
 load_dotenv()
 
 console = Console()
+
+# P0-1: Global OutputManager instance (set in main())
+_output_manager: Optional["OutputManager"] = None
 
 
 # =============================================================================
@@ -77,6 +83,17 @@ class EditionPack:
         return (self.meta or {}).get("run_id")
 
     def save(self, path: str = "out/edition_pack.json") -> Path:
+        """Save edition_pack to file.
+
+        P0-1: Uses OutputManager if available for structured output.
+        """
+        global _output_manager
+
+        # P0-1: Use OutputManager if available
+        if _output_manager:
+            return _output_manager.save_edition_pack(self.to_dict())
+
+        # Legacy path
         p = Path(path)
         p.parent.mkdir(parents=True, exist_ok=True)
         with open(p, "w", encoding="utf-8") as f:
@@ -86,12 +103,18 @@ class EditionPack:
 
 @dataclass
 class PostOutput:
-    """Generated post output"""
+    """Generated post output
+
+    P0-FIX (ChatGPT Pro Review):
+    - json_data: 清理後的版本（用於 QA 和發布）
+    - json_data_raw: 原始版本（用於 debug，保留佔位符）
+    """
     post_type: str  # flash, earnings, deep
     title: str
     slug: str
-    json_data: Dict
+    json_data: Dict  # Cleaned version for QA
     html_content: str
+    json_data_raw: Optional[Dict] = None  # P0-FIX: 原始版本供 debug
     quality_passed: bool = False
     quality_report: Optional[Dict] = None
     publish_result: Optional[Dict] = None
@@ -116,17 +139,35 @@ class DailyPipelineResult:
 # Checkpoint Functions (斷點續跑)
 # =============================================================================
 
+# Legacy checkpoint path (for backward compatibility)
 CHECKPOINT_PATH = Path("out/checkpoint.json")
+
+
+def _get_checkpoint_path() -> Path:
+    """Get the current checkpoint path (P0-1: OutputManager aware)"""
+    global _output_manager
+    if _output_manager:
+        return _output_manager.checkpoint_path
+    return CHECKPOINT_PATH
 
 
 def _init_checkpoint(run_id: str, run_date: str) -> Dict:
     """Initialize a new checkpoint file"""
+    global _output_manager
+
     ckpt = {
         "run_id": run_id,
         "date": run_date,
         "started_at": datetime.now().isoformat(),
         "stages": {},
     }
+
+    # P0-1: Use OutputManager if available
+    if _output_manager:
+        _output_manager.save_checkpoint(ckpt)
+        return ckpt
+
+    # Legacy path
     CHECKPOINT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(CHECKPOINT_PATH, "w", encoding="utf-8") as f:
         json.dump(ckpt, f, indent=2, ensure_ascii=False)
@@ -135,6 +176,17 @@ def _init_checkpoint(run_id: str, run_date: str) -> Dict:
 
 def _load_checkpoint(run_date: str) -> Optional[Dict]:
     """Load checkpoint if it exists and matches the current date"""
+    global _output_manager
+
+    # P0-1: Use OutputManager if available
+    if _output_manager:
+        ckpt = _output_manager.load_checkpoint()
+        if ckpt and ckpt.get("date") != run_date:
+            console.print(f"  [yellow]Checkpoint from {ckpt.get('date')}, ignoring[/yellow]")
+            return None
+        return ckpt
+
+    # Legacy path
     if not CHECKPOINT_PATH.exists():
         return None
     try:
@@ -152,6 +204,14 @@ def _load_checkpoint(run_date: str) -> Optional[Dict]:
 
 def _update_checkpoint(stage: str, completed: bool = True, error: str = None) -> None:
     """Update checkpoint with stage status"""
+    global _output_manager
+
+    # P0-1: Use OutputManager if available
+    if _output_manager:
+        _output_manager.update_checkpoint(stage, completed, error)
+        return
+
+    # Legacy path
     try:
         if CHECKPOINT_PATH.exists():
             with open(CHECKPOINT_PATH, "r", encoding="utf-8") as f:
@@ -180,7 +240,26 @@ def _is_stage_completed(ckpt: Optional[Dict], stage: str) -> bool:
 
 
 def _load_existing_post(post_type: str) -> Optional[PostOutput]:
-    """Load an existing post from out/ directory"""
+    """Load an existing post from out/ directory
+
+    P0-1: Uses OutputManager if available.
+    """
+    global _output_manager
+
+    # P0-1: Use OutputManager if available
+    if _output_manager:
+        post_dict = _output_manager.load_post(post_type)
+        if not post_dict:
+            return None
+        return PostOutput(
+            post_type=post_type,
+            title=post_dict.get("title", ""),
+            slug=post_dict.get("slug", ""),
+            json_data=post_dict,
+            html_content=post_dict.get("html", ""),
+        )
+
+    # Legacy path
     json_path = Path(f"out/post_{post_type}.json")
     if not json_path.exists():
         return None
@@ -762,6 +841,24 @@ def stage_pack(ingest_data: Dict, run_date: str, run_id: str) -> EditionPack:
     else:
         console.print(f"  [yellow]⚠ Edition coherence check failed: {edition_coherence}[/yellow]")
 
+    # P0-2: 驗證並修正百分比資料
+    from .percent_contract import validate_market_data, auto_fix_market_data, percent_quality_gate
+    raw_market_data = ingest_data.get("market_data", {})
+
+    pct_validation = validate_market_data(raw_market_data)
+    if not pct_validation["valid"]:
+        console.print(f"  [yellow]⚠ P0-2: Percent validation failed: {pct_validation['errors'][:3]}[/yellow]")
+        # 自動修正
+        market_data, fix_log = auto_fix_market_data(raw_market_data)
+        if fix_log:
+            console.print(f"  ✓ P0-2: Auto-fixed {len(fix_log)} percent values")
+            for log in fix_log[:3]:
+                console.print(f"    - {log}")
+    else:
+        market_data = raw_market_data
+        if pct_validation["warnings"]:
+            console.print(f"  [dim]P0-2: {len(pct_validation['warnings'])} warnings[/dim]")
+
     # Build pack
     pack = EditionPack(
         meta={
@@ -774,7 +871,7 @@ def stage_pack(ingest_data: Dict, run_date: str, run_id: str) -> EditionPack:
         primary_event=primary.to_dict() if primary else None,
         primary_theme=primary_theme,
         news_items=ingest_data.get("news_items", [])[:20],
-        market_data=ingest_data.get("market_data", {}),
+        market_data=market_data,  # P0-2: 使用驗證/修正後的資料
         earnings_calendar=ingest_data.get("earnings_calendar", []),  # P0-2: Added earnings calendar
         key_stocks=key_stocks,
         peer_data=peer_data,  # Contains fundamentals for all companies
@@ -806,9 +903,37 @@ def stage_pack(ingest_data: Dict, run_date: str, run_id: str) -> EditionPack:
         console.print(f"  [yellow]⚠ Research pack save failed: {e}[/yellow]")
 
     # P1-1: Generate Fact Pack (single source of truth for all factual data)
+    # P0-3: 加入 Completeness Gate
+    # P0-4: 加入 YoY 計算修正
     try:
-        from .fact_pack import build_fact_pack, save_fact_pack
+        from .fact_pack import (
+            build_fact_pack, save_fact_pack,
+            validate_fact_pack_completeness, enrich_earnings_with_yoy
+        )
         fact_pack = build_fact_pack(pack.to_dict(), run_date)
+
+        # P0-4: 計算正確的 YoY
+        fact_pack = enrich_earnings_with_yoy(fact_pack)
+
+        # P0-3: Completeness Gate
+        require_earnings = pack.recent_earnings is not None
+        completeness = validate_fact_pack_completeness(
+            fact_pack,
+            deep_dive_ticker=pack.deep_dive_ticker,
+            require_earnings=require_earnings,
+        )
+
+        if not completeness["passed"]:
+            console.print(f"  [yellow]⚠ Fact pack completeness failed:[/yellow]")
+            for err in completeness["errors"]:
+                console.print(f"      - {err}")
+        else:
+            console.print(f"  ✓ Fact pack completeness: PASSED")
+
+        if completeness["warnings"]:
+            for warn in completeness["warnings"][:3]:
+                console.print(f"      [dim]⚠ {warn}[/dim]")
+
         fact_pack_path = save_fact_pack(fact_pack)
         console.print(f"  ✓ Fact pack saved to {fact_pack_path}")
     except Exception as e:
@@ -817,12 +942,12 @@ def stage_pack(ingest_data: Dict, run_date: str, run_id: str) -> EditionPack:
     return pack
 
 
-def _should_generate_earnings(edition_pack: EditionPack, max_days_old: int = 90) -> tuple:
+def _should_generate_earnings(edition_pack: EditionPack, max_days_old: int = 180) -> tuple:
     """P0-2: 判斷是否生成 Earnings 文章
 
     規則：
     1. 必須有 recent_earnings 資料
-    2. 財報日期不能太舊（預設 90 天內）
+    2. 財報日期不能太舊（預設 180 天內，可分析上一季財報）
 
     Args:
         edition_pack: 今日版本資料包
@@ -975,15 +1100,21 @@ def stage_write(
 
             post_dict = inject_cross_links(post_dict, cross_links, pt)
 
+            # P0-FIX: 保留 raw 版本供 debug（ChatGPT Pro Review 建議）
+            import copy
+            raw_dict = copy.deepcopy(post_dict)
+
+            # P0-FIX: Save first, then create PostOutput with cleaned dict
+            cleaned_dict = _save_post_output(post_dict, pt)
+
             output = PostOutput(
                 post_type=pt,
-                title=post_dict.get("title", ""),
+                title=cleaned_dict.get("title", ""),
                 slug=slug,
-                json_data=post_dict,
-                html_content=post_dict.get("html", ""),
+                json_data=cleaned_dict,  # Use cleaned version for QA
+                html_content=cleaned_dict.get("html", ""),
+                json_data_raw=raw_dict,  # P0-FIX: 原始版本供 debug
             )
-
-            _save_post_output(post_dict, pt)
             # Update checkpoint after successful save
             _update_checkpoint(f"write_{pt}", completed=True)
             console.print(f"    ✓ {pt}: {slug}")
@@ -1040,14 +1171,15 @@ def stage_write(
                 if output:
                     console.print(f"    ✓ {pt}: 救援成功")
                     post_dict = output.to_dict()
-                    _save_post_output(post_dict, pt)
+                    # P0-FIX: Use cleaned dict from _save_post_output
+                    cleaned_dict = _save_post_output(post_dict, pt)
                     # 轉換為 run_daily.PostOutput（與 codex_runner.PostOutput 不同）
                     posts[pt] = PostOutput(
                         post_type=pt,
-                        title=post_dict.get("title", ""),
-                        slug=post_dict.get("slug", ""),
-                        json_data=post_dict,
-                        html_content=post_dict.get("html", ""),
+                        title=cleaned_dict.get("title", ""),
+                        slug=cleaned_dict.get("slug", ""),
+                        json_data=cleaned_dict,
+                        html_content=cleaned_dict.get("html", ""),
                     )
                 else:
                     console.print(f"    ✗ {pt}: 救援失敗")
@@ -1101,18 +1233,75 @@ def _build_minimal_research_pack(full_pack: Dict, post_type: str) -> Dict:
     return minimal
 
 
-def _save_post_output(post_dict: Dict, post_type: str) -> None:
-    """P0-1: Save post output to out/ directory with type-specific naming
+def _save_post_output(post_dict: Dict, post_type: str) -> Dict:
+    """P0-1: Save post output with type-specific naming
 
+    P0-1: Uses OutputManager for structured output (out/{run_id}/{post_type}/)
+    P0-2: 填充佔位符（從 edition_pack 取得實際數據）
+    P0-3: 智能佔位符修稿器（從 fact_pack 補值或降級改寫）
     P0-4/P0-5: 在存檔前進行 HTML 規範化
-    """
-    from ..writers.html_components import normalize_html, validate_paywall
 
-    out_dir = Path("out")
-    out_dir.mkdir(parents=True, exist_ok=True)
+    Returns:
+        Dict: The cleaned post_dict after P0-FIX (caller should use this for PostOutput)
+    """
+    global _output_manager
+
+    from ..writers.html_components import normalize_html, validate_paywall
+    from ..writers.post_processor import enhanced_process_post_html, placeholder_quality_gate, strip_placeholders_from_all_fields
+
+    # P0-2: 載入 edition_pack 並填充佔位符
+    html_content = post_dict.get("html", "")
+    edition_pack = {}
+    fact_pack = None
+
+    # Load edition_pack (P0-1: Use OutputManager if available)
+    if _output_manager:
+        edition_pack = _output_manager.load_edition_pack() or {}
+        # P0-3: 也載入 fact_pack
+        fact_pack_path = _output_manager.fact_pack_path
+        if fact_pack_path.exists():
+            with open(fact_pack_path, "r", encoding="utf-8") as f:
+                fact_pack = json.load(f)
+    else:
+        try:
+            edition_pack_path = Path("out/edition_pack.json")
+            if edition_pack_path.exists():
+                with open(edition_pack_path, "r", encoding="utf-8") as f:
+                    edition_pack = json.load(f)
+            # P0-3: 也載入 fact_pack
+            fact_pack_path = Path("out/fact_pack.json")
+            if fact_pack_path.exists():
+                with open(fact_pack_path, "r", encoding="utf-8") as f:
+                    fact_pack = json.load(f)
+        except Exception as e:
+            console.print(f"    [yellow]⚠ 載入 edition_pack/fact_pack 失敗: {e}[/yellow]")
+
+    if html_content and edition_pack:
+        # P0-3: 使用增強版處理器（整合智能修稿器）
+        processed_html, fill_report = enhanced_process_post_html(
+            html_content, edition_pack, post_type, fact_pack
+        )
+        post_dict["html"] = processed_html
+
+        # 記錄填充結果
+        total = fill_report.get("total_fills", 0)
+        ticker = fill_report.get("ticker_fills", 0)
+        intelligent = fill_report.get("intelligent_fills", 0)
+        fallback = fill_report.get("fallback_fills", 0)
+
+        if total > 0 or intelligent > 0 or fallback > 0:
+            console.print(f"    ✓ P0-3 填充: {total} ticker, {intelligent} intelligent, {fallback} fallback")
+
+        # P0-5: 佔位符品質檢查
+        title = post_dict.get("title", "")
+        excerpt = post_dict.get("excerpt", "")
+        gate_result = placeholder_quality_gate(processed_html, title, excerpt)
+        if not gate_result["passed"]:
+            console.print(f"    [yellow]⚠ 仍有 {gate_result['count']} 個佔位符未填: {gate_result['failures'][:3]}[/yellow]")
+
+        html_content = processed_html
 
     # P0-4/P0-5: HTML 規範化
-    html_content = post_dict.get("html", "")
     if html_content:
         html_content = normalize_html(html_content, post_type)
         post_dict["html"] = html_content
@@ -1121,6 +1310,27 @@ def _save_post_output(post_dict: Dict, post_type: str) -> None:
         is_valid, msg = validate_paywall(html_content)
         if not is_valid:
             console.print(f"    [yellow]⚠ Paywall 驗證: {msg}[/yellow]")
+
+    # P0-FIX: 最後一道防線 - 從所有字串欄位移除佔位符
+    # 這確保 title, excerpt, newsletter_subject 等 preview 欄位也被清理
+    post_dict, stripped_count = strip_placeholders_from_all_fields(post_dict)
+    if stripped_count > 0:
+        console.print(f"    ✓ P0-FIX: 從 JSON 欄位移除 {stripped_count} 個佔位符")
+
+    # P0-1: Save using OutputManager if available
+    if _output_manager:
+        feature_image = post_dict.get("feature_image_path")
+        _output_manager.save_post(
+            post_type=post_type,
+            post_dict=post_dict,
+            html_content=html_content,
+            feature_image_src=feature_image,
+        )
+        return post_dict  # P0-FIX: Return cleaned dict for PostOutput
+
+    # Legacy path
+    out_dir = Path("out")
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     # Save JSON
     json_path = out_dir / f"post_{post_type}.json"
@@ -1131,6 +1341,8 @@ def _save_post_output(post_dict: Dict, post_type: str) -> None:
     html_path = out_dir / f"post_{post_type}.html"
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(html_content)
+
+    return post_dict  # P0-FIX: Return cleaned dict for PostOutput
 
 
 def _resolve_site_url() -> str:
@@ -1312,10 +1524,14 @@ def stage_qa(
     console.print(f"\n  Overall: {'[green]PASSED[/green]' if daily_report.overall_passed else '[red]FAILED[/red]'}")
     console.print(f"  Can Publish: {daily_report.can_publish_all}")
 
-    # 儲存 quality report
-    report_path = Path("out/quality_report.json")
-    with open(report_path, "w", encoding="utf-8") as f:
-        json.dump(daily_report.to_dict(), f, indent=2, ensure_ascii=False)
+    # 儲存 quality report (P0-1: Use OutputManager if available)
+    global _output_manager
+    if _output_manager:
+        report_path = _output_manager.save_quality_report(daily_report.to_dict())
+    else:
+        report_path = Path("out/quality_report.json")
+        with open(report_path, "w", encoding="utf-8") as f:
+            json.dump(daily_report.to_dict(), f, indent=2, ensure_ascii=False)
     console.print(f"  Report saved to: {report_path}")
 
     return {
@@ -1722,8 +1938,9 @@ def stage_minio_archive(run_date: str, out_dir: str = "out") -> Optional[Dict]:
 @click.option("--enable-review", is_flag=True, help="Enable LLM review (cli-gpt-5.2) before publish")
 @click.option("--skip-review", is_flag=True, help="Skip LLM review even if enabled by default")
 @click.option("--review-iterations", default=3, type=int, help="Max LLM review iterations (default: 3)")
-@click.option("--enable-chatgpt-review", is_flag=True, help="Enable ChatGPT Pro review loop")
-@click.option("--chatgpt-iterations", default=3, type=int, help="Max ChatGPT Pro review iterations (default: 3)")
+@click.option("--enable-chatgpt-review", is_flag=True, default=True, help="Enable ChatGPT Pro review loop (default: enabled)")
+@click.option("--skip-chatgpt-review", is_flag=True, help="Skip ChatGPT Pro review")
+@click.option("--chatgpt-iterations", default=2, type=int, help="Max ChatGPT Pro review iterations (default: 2)")
 def main(
     mode: str,
     run_date: Optional[str],
@@ -1740,6 +1957,7 @@ def main(
     skip_review: bool,
     review_iterations: int,
     enable_chatgpt_review: bool,
+    skip_chatgpt_review: bool,
     chatgpt_iterations: int,
 ):
     """
@@ -1751,7 +1969,10 @@ def main(
     - Earnings (Post B): Earnings reaction & fair value - CONDITIONAL
     - Deep Dive (Post C): Full investment memo - ALWAYS
     """
+    global _output_manager
+
     from ..utils.time import get_run_id
+    from .output_manager import OutputManager, find_run_for_date
 
     start_time = time.time()
     run_date = run_date or date.today().isoformat()
@@ -1759,15 +1980,36 @@ def main(
     # Handle checkpoint/resume
     checkpoint = None
     if resume:
-        checkpoint = _load_checkpoint(run_date)
-        if checkpoint:
-            run_id = checkpoint.get("run_id", get_run_id())
-            console.print(f"[cyan]RESUME MODE - Loading checkpoint from {checkpoint.get('started_at')}[/cyan]\n")
+        # P0-1: Try to find existing run for this date first
+        existing_manager = find_run_for_date(run_date)
+        if existing_manager:
+            _output_manager = existing_manager
+            checkpoint = _output_manager.load_checkpoint()
+            if checkpoint:
+                run_id = checkpoint.get("run_id", get_run_id())
+                console.print(f"[cyan]RESUME MODE - Loading checkpoint from {checkpoint.get('started_at')}[/cyan]")
+                console.print(f"[dim]Resuming run: {_output_manager.run_dir}[/dim]\n")
+            else:
+                # Run exists but no checkpoint - use it anyway
+                run_id = _output_manager.run_id
+                console.print(f"[cyan]RESUME MODE - Continuing run {run_id[:12]}... (no checkpoint)[/cyan]\n")
         else:
-            console.print("[yellow]No checkpoint found - starting fresh[/yellow]\n")
-            run_id = get_run_id()
+            # Fall back to legacy checkpoint path
+            checkpoint = _load_checkpoint(run_date)
+            if checkpoint:
+                run_id = checkpoint.get("run_id", get_run_id())
+                _output_manager = OutputManager(run_id, run_date)
+                console.print(f"[cyan]RESUME MODE - Loading legacy checkpoint from {checkpoint.get('started_at')}[/cyan]\n")
+            else:
+                console.print("[yellow]No checkpoint found - starting fresh[/yellow]\n")
+                run_id = get_run_id()
+                _output_manager = OutputManager(run_id, run_date)
     else:
         run_id = get_run_id()
+        # P0-1: Initialize OutputManager for structured output
+        _output_manager = OutputManager(run_id, run_date)
+
+    console.print(f"[dim]Output directory: {_output_manager.run_dir}[/dim]\n")
 
     # P0-6: 處理 --only 選項（只重跑單篇）
     if only_post:
@@ -1896,9 +2138,11 @@ def main(
             generated_posts = stage_enhance_posts(generated_posts)
             result.posts = generated_posts
 
-        # Stage 3.4: Feature Images (skip if --skip-write)
-        if not skip_write:
+        # Stage 3.4: Feature Images (skip if --skip-write or ENABLE_FEATURE_IMAGES=false)
+        if not skip_write and os.getenv("ENABLE_FEATURE_IMAGES", "false").lower() == "true":
             stage_feature_images(generated_posts)
+        else:
+            console.print("\n[dim]Stage 3.4: Feature Images (disabled)[/dim]")
 
         # Stage 3.5: Translate (EN posts) - skip if --skip-write
         en_posts = {}
@@ -1919,12 +2163,10 @@ def main(
         elif skip_review:
             console.print("\n[dim]Stage 3.6: LLM Review (skipped via --skip-review)[/dim]")
 
-        # Stage 3.7: ChatGPT Pro Review Loop (optional)
-        # Enable: --enable-chatgpt-review OR prod mode with ENABLE_CHATGPT_REVIEW=true
+        # Stage 3.7: ChatGPT Pro Review Loop (default enabled)
+        # Skip: --skip-chatgpt-review
         # Note: Can run even with --skip-write (reviews existing posts)
-        should_chatgpt_review = enable_chatgpt_review or (
-            mode == "prod" and os.getenv("ENABLE_CHATGPT_REVIEW", "false").lower() == "true"
-        )
+        should_chatgpt_review = enable_chatgpt_review and not skip_chatgpt_review
         if should_chatgpt_review:
             from ..quality.chatgpt_reviewer import stage_chatgpt_review
             generated_posts, chatgpt_result = stage_chatgpt_review(
@@ -1995,6 +2237,12 @@ def main(
 
     # Complete
     result.duration_seconds = time.time() - start_time
+
+    # P0-1: Finalize OutputManager and copy to legacy paths
+    if _output_manager:
+        _output_manager.finalize(result.duration_seconds)
+        _output_manager.copy_to_legacy_paths()
+        console.print(f"  [dim]Output finalized: {_output_manager.manifest_path}[/dim]")
 
     console.print(Panel.fit(
         f"[bold green]Pipeline Complete![/bold green]\n"
