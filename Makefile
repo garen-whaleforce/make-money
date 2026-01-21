@@ -251,14 +251,14 @@ clean-cache:
 	@echo "Cache cleaned!"
 
 # ============================
-# Daily Pipeline v2 (三篇文章產線)
+# Daily Pipeline v2 (四篇文章產線)
 # ============================
 
-# 測試模式 - 產生三篇，發到內部（支援斷點續跑）
+# 測試模式 - 產生四篇，發到內部（支援斷點續跑）
 daily-test:
 	python3 -m src.pipeline.run_daily --mode test --resume
 
-# 生產模式 - 產生三篇，發到正式（需確認）
+# 生產模式 - 產生四篇，發到正式（需確認）
 daily-prod:
 	python3 -m src.pipeline.run_daily --mode prod --confirm-high-risk
 
@@ -281,6 +281,10 @@ daily-from-minio:
 	@read -p "Date (YYYY-MM-DD): " date; \
 	python3 -m src.publishers.minio_archiver "$$date" --status draft
 
+# 只產生 Morning Brief (Post D)
+daily-morning:
+	python3 -m src.pipeline.run_daily --mode test --posts morning
+
 # 只產生 Flash (Post A)
 daily-flash:
 	python3 -m src.pipeline.run_daily --mode test --posts flash
@@ -293,7 +297,7 @@ daily-earnings:
 daily-deep:
 	python3 -m src.pipeline.run_daily --mode test --posts deep
 
-# 產生全部三篇但不發佈
+# 產生全部四篇但不發佈
 daily-no-publish:
 	python3 -m src.pipeline.run_daily --mode test --skip-publish
 

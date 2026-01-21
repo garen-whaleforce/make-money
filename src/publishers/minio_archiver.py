@@ -409,7 +409,7 @@ def publish_from_minio(
 
         # Load posts
         posts = {}
-        for post_type in ["flash", "earnings", "deep"]:
+        for post_type in ["morning", "flash", "earnings", "deep"]:
             json_path = temp_path / f"post_{post_type}.json"
             if json_path.exists():
                 with open(json_path, "r", encoding="utf-8") as f:

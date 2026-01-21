@@ -289,6 +289,7 @@ def generate_slug(post_type: str, topic: str, ticker: Optional[str], run_date: s
     Generate unique slug for each post type.
 
     Format:
+    - Morning: {YYYY-MM-DD}-morning
     - Flash: {topic}-{YYYY-MM-DD}-flash
     - Earnings: {ticker}-earnings-{context}-{YYYY-MM-DD}-earnings
     - Deep: {ticker}-deep-dive-{YYYY-MM-DD}-deep
@@ -297,7 +298,9 @@ def generate_slug(post_type: str, topic: str, ticker: Optional[str], run_date: s
     topic_slug = topic.lower().replace(" ", "-").replace("_", "-")
     topic_slug = "".join(c for c in topic_slug if c.isalnum() or c == "-")
 
-    if post_type == "flash":
+    if post_type == "morning":
+        return f"{run_date}-morning"
+    elif post_type == "flash":
         return f"{topic_slug}-{run_date}-flash"
     elif post_type == "earnings":
         ticker = ticker or "market"
@@ -312,6 +315,7 @@ def generate_slug(post_type: str, topic: str, ticker: Optional[str], run_date: s
 def validate_slug(slug: str, post_type: str) -> bool:
     """Validate slug matches expected format"""
     suffixes = {
+        "morning": "-morning",
         "flash": "-flash",
         "earnings": "-earnings",
         "deep": "-deep"
@@ -1011,10 +1015,10 @@ def stage_write(
     should_earnings, earnings_reason = _should_generate_earnings(edition_pack)
 
     if post_types is None:
-        # v4.3: 預設生成 flash 和 deep，Earnings 條件觸發
-        post_types = ["flash", "deep"]
+        # v4.3: 預設生成 morning, flash 和 deep，Earnings 條件觸發
+        post_types = ["morning", "flash", "deep"]
         if should_earnings:
-            post_types.insert(1, "earnings")  # 插入到 flash 和 deep 之間
+            post_types.insert(2, "earnings")  # 插入到 flash 和 deep 之間
             console.print(f"  ✓ Earnings 觸發: {earnings_reason}")
         else:
             console.print(f"  [yellow]⚠ Earnings 跳過: {earnings_reason}[/yellow]")
@@ -1735,9 +1739,9 @@ def stage_publish(
     if not qa_passed:
         send_all_newsletters = False
 
-    # Publish order: B, C first (no email), then A (with email on first create)
+    # Publish order: D, B, C first (no email), then A (with email on first create)
     # Set GHOST_SEND_ALL_NEWSLETTERS=true to send for all posts.
-    publish_order = ["earnings", "deep", "flash"]
+    publish_order = ["morning", "earnings", "deep", "flash"]
 
     with GhostPublisher() as publisher:
         for post_type in publish_order:
@@ -1969,14 +1973,14 @@ def stage_minio_archive(run_date: str, out_dir: str = "out") -> Optional[Dict]:
 @click.option("--theme", "-t", help="Force specific theme")
 @click.option("--skip-publish", is_flag=True, help="Skip Ghost publishing")
 @click.option("--confirm-high-risk", is_flag=True, help="Confirm high-risk segment")
-@click.option("--posts", "-p", multiple=True, type=click.Choice(["flash", "earnings", "deep"]),
+@click.option("--posts", "-p", multiple=True, type=click.Choice(["morning", "flash", "earnings", "deep"]),
               help="Specific posts to generate (default: all)")
 @click.option("--resume", "-r", is_flag=True, help="Resume from last checkpoint (skip completed stages)")
 # P0-6: 新增 skip 選項，避免每次重跑 28 分鐘
 @click.option("--skip-ingest", is_flag=True, help="Skip Stage 1 (Ingest) - use cached data")
 @click.option("--skip-pack", is_flag=True, help="Skip Stage 2 (Pack) - use existing edition_pack.json")
 @click.option("--skip-write", is_flag=True, help="Skip Stage 3 (Write) - only run QA + Publish")
-@click.option("--only", "only_post", type=click.Choice(["flash", "earnings", "deep"]),
+@click.option("--only", "only_post", type=click.Choice(["morning", "flash", "earnings", "deep"]),
               help="Only regenerate a specific post (requires existing edition_pack)")
 @click.option("--enable-review", is_flag=True, help="Enable LLM review (cli-gpt-5.2) before publish")
 @click.option("--skip-review", is_flag=True, help="Skip LLM review even if enabled by default")
@@ -2154,7 +2158,7 @@ def main(
             console.print("\n[bold cyan]Stage 3: Write[/bold cyan] [dim](skipped)[/dim]")
             # Load existing posts from files
             generated_posts = {}
-            for pt in ["flash", "earnings", "deep"]:
+            for pt in ["morning", "flash", "earnings", "deep"]:
                 json_path = Path(f"out/post_{pt}.json")
                 html_path = Path(f"out/post_{pt}.html")
                 if json_path.exists() and html_path.exists():

@@ -96,6 +96,7 @@ def inject_cross_links(
     post_data["deep_url"] = links.get("deep_url", "")
 
     # 根據 post_type 設定「本篇」標記
+    post_data["is_morning"] = post_type == "morning"
     post_data["is_flash"] = post_type == "flash"
     post_data["is_earnings"] = post_type == "earnings"
     post_data["is_deep"] = post_type == "deep"

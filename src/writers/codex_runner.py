@@ -75,6 +75,10 @@ class CodexRunner:
 
     # Post type specific configurations
     POST_TYPE_CONFIG = {
+        "morning": {
+            "prompt_path": "prompts/postD.prompt.md",
+            "schema_path": "schemas/postD.schema.json",
+        },
         "flash": {
             "prompt_path": "prompts/postA.prompt.md",
             "schema_path": "schemas/postA.schema.json",
@@ -89,19 +93,21 @@ class CodexRunner:
         },
     }
 
-    # P0-1: 各文章類型的推薦模型（預設統一 cli-gpt-5.2）
+    # P0-1: 各文章類型的推薦模型（測試 gpt-5.2）
     POST_TYPE_MODELS = {
-        "flash": "cli-gpt-5.2",
-        "earnings": "cli-gpt-5.2",
-        "deep": "cli-gpt-5.2",
+        "morning": "cli-gpt-5.2",           # 晨報：CLI 模型
+        "flash": "cli-gpt-5.2",             # CLI 模型，輸出較長
+        "earnings": "cli-gpt-5.2",          # CLI 模型，輸出較長
+        "deep": "cli-gpt-5.2",              # CLI 模型，輸出較長
     }
 
     # P0-2: 各文章類型的 token/temperature 預設
-    # deep 需要更多 tokens 以避免 JSON 截斷
+    # 大幅提高 max_tokens 以確保完整輸出（尤其是 Deep 的 25 個 sections）
     POST_TYPE_LIMITS = {
-        "flash": {"max_tokens": 6000, "temperature": 0.6},
-        "earnings": {"max_tokens": 7000, "temperature": 0.55},
-        "deep": {"max_tokens": 12000, "temperature": 0.5},  # 從 8000 提高到 12000
+        "morning": {"max_tokens": 12000, "temperature": 0.6},   # 晨報：8 top events + 10 quick hits
+        "flash": {"max_tokens": 10000, "temperature": 0.6},    # 6000 → 10000
+        "earnings": {"max_tokens": 20000, "temperature": 0.55}, # 7000 → 20000
+        "deep": {"max_tokens": 25000, "temperature": 0.5},      # 12000 → 25000 (需要 25 個 sections)
     }
 
     def __init__(

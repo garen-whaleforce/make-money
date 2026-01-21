@@ -1,11 +1,11 @@
 name: Daily Brief Pipeline
 
 on:
-  # 每天台灣時間 06:00 (22:00 UTC 前一天) 自動觸發
-  schedule:
-    - cron: '0 22 * * *'  # 每天 22:00 UTC = 隔天 06:00 台灣時間
+  # 排程已移至 gpu5090 server cron job
+  # schedule:
+  #   - cron: '0 22 * * *'  # 每天 22:00 UTC = 隔天 06:00 台灣時間
 
-  # 允許手動觸發
+  # 允許手動觸發 (備用)
   workflow_dispatch:
     inputs:
       mode:
@@ -63,7 +63,8 @@ jobs:
           ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
           LITELLM_BASE_URL: ${{ secrets.LITELLM_BASE_URL }}
           LITELLM_API_KEY: ${{ secrets.LITELLM_API_KEY }}
-          CODEX_MODEL: 'claude-sonnet-4.5'
+          LITELLM_MODEL: 'cli-gpt-5.2'
+          CODEX_MODEL: 'cli-gpt-5.2'
         run: |
           echo "🚀 Starting Daily Brief Pipeline..."
           echo "Mode: ${{ steps.mode.outputs.mode }}"
@@ -110,7 +111,7 @@ jobs:
           send_newsletter = os.getenv('SEND_NEWSLETTER', 'true').lower() == 'true'
 
           results = []
-          for post_type in ['flash', 'earnings', 'deep']:
+          for post_type in ['morning', 'flash', 'earnings', 'deep']:
               json_path = artifacts_dir / f'post_{post_type}.json'
               if not json_path.exists():
                   print(f"⚠️ Skipping {post_type}: file not found")

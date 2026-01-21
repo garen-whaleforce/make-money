@@ -1,0 +1,166 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Post D: 美股盤後晨報",
+  "type": "object",
+  "required": [
+    "title",
+    "slug",
+    "post_type",
+    "market_thesis",
+    "quick_reads",
+    "market_snapshot",
+    "top_events",
+    "quick_hits",
+    "html"
+  ],
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "文章標題",
+      "minLength": 10
+    },
+    "slug": {
+      "type": "string",
+      "description": "URL slug，必須以 -morning 結尾",
+      "pattern": ".*-morning$"
+    },
+    "post_type": {
+      "type": "string",
+      "const": "morning"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "contains": { "const": "morning-brief" }
+    },
+    "market_thesis": {
+      "type": "string",
+      "description": "1-2 句市場主線",
+      "minLength": 50
+    },
+    "quick_reads": {
+      "type": "array",
+      "description": "三行快讀",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "string",
+        "minLength": 30
+      }
+    },
+    "market_snapshot": {
+      "type": "array",
+      "description": "市場快照數據",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["name", "close", "change_display"],
+        "properties": {
+          "name": { "type": "string" },
+          "close": { "type": ["string", "number"] },
+          "change_display": { "type": "string" }
+        }
+      }
+    },
+    "top_events": {
+      "type": "array",
+      "description": "今日焦點 Top 8",
+      "minItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["headline", "what_happened", "why_important", "next_watch"],
+        "properties": {
+          "headline": { "type": "string", "minLength": 10 },
+          "what_happened": { "type": "string", "minLength": 50 },
+          "why_important": { "type": "string", "minLength": 50 },
+          "impact": { "type": "string" },
+          "next_watch": { "type": "string", "minLength": 30 },
+          "source_urls": {
+            "type": "array",
+            "items": { "type": "string", "format": "uri" }
+          }
+        }
+      }
+    },
+    "quick_hits": {
+      "type": "array",
+      "description": "Quick Hits 簡短新聞",
+      "minItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["summary"],
+        "properties": {
+          "summary": { "type": "string", "minLength": 20 },
+          "ticker": { "type": "string" },
+          "change": { "type": "string" }
+        }
+      }
+    },
+    "catalyst_calendar": {
+      "type": "object",
+      "description": "今晚/明天事件",
+      "properties": {
+        "econ": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "time": { "type": "string" },
+              "event": { "type": "string" }
+            }
+          }
+        },
+        "earnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timing": { "type": "string" },
+              "event": { "type": "string" },
+              "ticker": { "type": "string" }
+            }
+          }
+        },
+        "other": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "time": { "type": "string" },
+              "event": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "watchlist": {
+      "type": "array",
+      "description": "Rocket Watchlist",
+      "minItems": 3,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "required": ["ticker", "reason"],
+        "properties": {
+          "ticker": { "type": "string" },
+          "reason": { "type": "string", "minLength": 20 },
+          "key_levels": { "type": "string" },
+          "event_time": { "type": "string" }
+        }
+      }
+    },
+    "html": {
+      "type": "string",
+      "description": "Ghost CMS HTML 內容",
+      "minLength": 6000
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "generated_at": { "type": "string" },
+        "model": { "type": "string" },
+        "quality_gates_passed": { "type": "boolean" }
+      }
+    }
+  }
+}
