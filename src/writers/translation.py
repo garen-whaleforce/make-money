@@ -12,13 +12,18 @@ logger = get_logger(__name__)
 class TranslationRunner:
     """Translate a post JSON into English using LiteLLM."""
 
+    # Fallback 模型（當主要模型不可用時）
+    FALLBACK_MODELS = {
+        "cli-gpt-5.2": "gpt-5.2",
+    }
+
     def __init__(
         self,
         model: Optional[str] = None,
         max_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
     ) -> None:
-        env_model = os.getenv("LITELLM_MODEL") or os.getenv("CODEX_MODEL") or "claude-sonnet-4.5"
+        env_model = os.getenv("LITELLM_MODEL") or os.getenv("CODEX_MODEL") or "cli-gpt-5.2"
         self.model = model or env_model
         self.max_tokens = max_tokens or int(os.getenv("TRANSLATE_MAX_TOKENS", "16000"))
         self.temperature = temperature if temperature is not None else float(os.getenv("TRANSLATE_TEMPERATURE", "0.2"))
@@ -46,6 +51,7 @@ class TranslationRunner:
     def _call_litellm(self, prompt: str) -> Optional[dict]:
         try:
             from openai import OpenAI
+            import httpx
         except Exception:
             logger.error("openai SDK not installed. Run: pip install openai")
             return None
@@ -56,7 +62,12 @@ class TranslationRunner:
             logger.error("LITELLM_API_KEY not set")
             return None
 
-        client = OpenAI(api_key=api_key, base_url=base_url)
+        # Disable SSL verification if OPENAI_VERIFY_SSL=false
+        verify_ssl = os.getenv("OPENAI_VERIFY_SSL", "true").lower() != "false"
+        # 翻譯需要較長時間，使用 LITELLM_TIMEOUT 環境變數（預設 900s = 15 分鐘）
+        timeout_sec = float(os.getenv("LITELLM_TIMEOUT", "900"))
+        http_client = httpx.Client(verify=verify_ssl, timeout=timeout_sec)
+        client = OpenAI(api_key=api_key, base_url=base_url, http_client=http_client)
         try:
             response = client.chat.completions.create(
                 model=self.model,
@@ -91,4 +102,16 @@ class TranslationRunner:
             "Translate this JSON to English. Keep structure and keys unchanged.\n\n"
             f"{payload}"
         )
-        return self._call_litellm(prompt)
+        result = self._call_litellm(prompt)
+
+        # Fallback 機制：若主要模型失敗，嘗試備用模型
+        if result is None:
+            fallback_model = self.FALLBACK_MODELS.get(self.model)
+            if fallback_model and fallback_model != self.model:
+                logger.warning(f"Primary model {self.model} failed, retry with fallback: {fallback_model}")
+                original_model = self.model
+                self.model = fallback_model
+                result = self._call_litellm(prompt)
+                self.model = original_model
+
+        return result

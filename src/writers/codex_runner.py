@@ -93,12 +93,19 @@ class CodexRunner:
         },
     }
 
-    # P0-1: 各文章類型的推薦模型（測試 gpt-5.2）
+    # P2 優化：模型分層（成本優化）
+    # 主要使用 cli-gpt-5.2（免費配額），若不可用則 fallback 到 gpt-5.2
+    # 設定 USE_MODEL_TIERING=true 啟用分層，否則用全局 LITELLM_MODEL
     POST_TYPE_MODELS = {
-        "morning": "cli-gpt-5.2",           # 晨報：CLI 模型
-        "flash": "cli-gpt-5.2",             # CLI 模型，輸出較長
-        "earnings": "cli-gpt-5.2",          # CLI 模型，輸出較長
-        "deep": "cli-gpt-5.2",              # CLI 模型，輸出較長
+        "morning": "cli-gpt-5.2",             # 晨報
+        "flash": "cli-gpt-5.2",               # Flash
+        "earnings": "cli-gpt-5.2",            # 財報分析
+        "deep": "cli-gpt-5.2",                # 深度分析
+    }
+
+    # Fallback 模型（當主要模型不可用時）
+    FALLBACK_MODELS = {
+        "cli-gpt-5.2": "gpt-5.2",             # cli-gpt-5.2 → gpt-5.2
     }
 
     # P0-2: 各文章類型的 token/temperature 預設
@@ -129,15 +136,21 @@ class CodexRunner:
             temperature: Temperature 參數
             post_type: 文章類型 (flash, earnings, deep) - 用於選擇對應的 prompt/schema
         """
-        # 模型選擇優先順序:
-        # 1. LITELLM_MODEL 環境變數（強制覆蓋）
-        # 2. CODEX_MODEL 環境變數
-        # 3. POST_TYPE_MODELS[post_type]（按文章類型優化）
-        # 4. 參數傳入的 model
+        # P2 優化：模型選擇優先順序
+        # 若 USE_MODEL_TIERING=true，使用分層模型（成本優化）
+        # 否則使用全局 LITELLM_MODEL
+        use_tiering = os.getenv("USE_MODEL_TIERING", "false").lower() == "true"
         env_model = os.getenv("LITELLM_MODEL") or os.getenv("CODEX_MODEL")
         type_model = self.POST_TYPE_MODELS.get(post_type) if post_type else None
-        self.model = env_model or type_model or model
-        self.env_model_override = env_model
+
+        if use_tiering and type_model:
+            # 分層模式：優先使用按類型優化的模型
+            self.model = type_model
+            self.env_model_override = None
+        else:
+            # 全局模式：使用環境變數指定的模型
+            self.model = env_model or type_model or model
+            self.env_model_override = env_model
 
         type_limits = self.POST_TYPE_LIMITS.get(post_type or "", {})
         base_max_tokens = type_limits.get("max_tokens", max_tokens)
@@ -499,17 +512,18 @@ class CodexRunner:
                     "type": "news",
                 })
 
-        news_items = research_pack.get("news_items", [])
-        for item in news_items:
+        # 優先從 sources 讀取，fallback 到 news_items（向後相容）
+        fallback_items = research_pack.get("sources", []) or research_pack.get("news_items", [])
+        for item in fallback_items:
             if len(normalized) >= min_count and distinct_publishers() >= min_publishers:
                 break
             if not isinstance(item, dict):
                 continue
             add_source({
-                "name": item.get("headline") or item.get("title") or "",
+                "name": item.get("name") or item.get("headline") or item.get("title") or "",
                 "publisher": item.get("publisher") or item.get("source") or "",
                 "url": item.get("url") or "",
-                "type": item.get("source_type") or "news",
+                "type": item.get("type") or item.get("source_type") or "news",
             })
 
         return normalized
@@ -681,33 +695,68 @@ class CodexRunner:
 
         ticker = research_pack.get("deep_dive_ticker") or ""
         market_data = research_pack.get("market_data", {}) or {}
+
+        # 優先從 deep_dive_ticker 取數據
         if ticker and ticker in market_data:
             data = market_data[ticker]
             price = data.get("price")
             change = data.get("change_pct")
             market_cap = data.get("market_cap")
-            if price is not None:
-                numbers.append({"value": self._format_currency(price), "label": f"{ticker} 現價", "source": "market_data"})
-            if change is not None:
+            if price is not None and len(numbers) < count:
+                numbers.append({"value": self._format_currency(price), "label": f"{ticker} 現價", "source": "market_data", "as_of": research_pack.get("meta", {}).get("date", "")})
+            if change is not None and len(numbers) < count:
                 # change_pct is already in percent form (0.99 = 0.99%), do NOT multiply by 100
-                numbers.append({"value": self._format_percent(change, is_fraction=False), "label": f"{ticker} 1D 變動", "source": "market_data"})
-            if market_cap is not None:
-                numbers.append({"value": self._format_currency(market_cap), "label": f"{ticker} 市值", "source": "market_data"})
+                numbers.append({"value": self._format_percent(change, is_fraction=False), "label": f"{ticker} 1D 變動", "source": "market_data", "as_of": research_pack.get("meta", {}).get("date", "")})
+            if market_cap is not None and len(numbers) < count:
+                numbers.append({"value": self._format_currency(market_cap), "label": f"{ticker} 市值", "source": "market_data", "as_of": research_pack.get("meta", {}).get("date", "")})
 
+        # 從 recent_earnings 填充
         if len(numbers) < count:
             recent = research_pack.get("recent_earnings", {}) or {}
-            if recent.get("revenue_actual") is not None:
+            if recent.get("revenue_actual") is not None and len(numbers) < count:
                 numbers.append({"value": self._format_currency(recent.get("revenue_actual")), "label": "最新營收", "source": "recent_earnings"})
-            if recent.get("eps_actual") is not None:
+            if recent.get("eps_actual") is not None and len(numbers) < count:
                 numbers.append({"value": f"${recent.get('eps_actual'):.2f}", "label": "最新 EPS", "source": "recent_earnings"})
 
+        # 從 fundamentals 填充
         if len(numbers) < count:
             deep_data = research_pack.get("deep_dive_data", {}) or {}
             fundamentals = deep_data.get("fundamentals", {}) or {}
-            if fundamentals.get("gross_margin") is not None:
+            if fundamentals.get("gross_margin") is not None and len(numbers) < count:
                 numbers.append({"value": self._format_percent(fundamentals.get("gross_margin")), "label": "毛利率", "source": "fundamentals"})
-            if fundamentals.get("operating_margin") is not None:
+            if fundamentals.get("operating_margin") is not None and len(numbers) < count:
                 numbers.append({"value": self._format_percent(fundamentals.get("operating_margin")), "label": "營業利益率", "source": "fundamentals"})
+
+        # 從其他 market_data tickers 填充（flash 可能沒有 deep_dive_ticker）
+        if len(numbers) < count and market_data:
+            for other_ticker, data in market_data.items():
+                if len(numbers) >= count:
+                    break
+                if other_ticker == ticker:
+                    continue
+                price = data.get("price")
+                change = data.get("change_pct")
+                if price is not None and len(numbers) < count:
+                    numbers.append({"value": self._format_currency(price), "label": f"{other_ticker} 現價", "source": "market_data", "as_of": research_pack.get("meta", {}).get("date", "")})
+                if change is not None and len(numbers) < count:
+                    numbers.append({"value": self._format_percent(change, is_fraction=False), "label": f"{other_ticker} 1D 變動", "source": "market_data", "as_of": research_pack.get("meta", {}).get("date", "")})
+
+        # 最終 fallback：使用 market_snapshot 數據
+        if len(numbers) < count:
+            meta = research_pack.get("meta", {}) or {}
+            snapshot = meta.get("market_snapshot", {}) or {}
+            if snapshot.get("spy_price") and len(numbers) < count:
+                numbers.append({"value": self._format_currency(snapshot.get("spy_price")), "label": "SPY 現價", "source": "market_snapshot", "as_of": meta.get("date", "")})
+            if snapshot.get("spy_change_pct") is not None and len(numbers) < count:
+                numbers.append({"value": self._format_percent(snapshot.get("spy_change_pct"), is_fraction=False), "label": "SPY 1D 變動", "source": "market_snapshot", "as_of": meta.get("date", "")})
+            if snapshot.get("qqq_price") and len(numbers) < count:
+                numbers.append({"value": self._format_currency(snapshot.get("qqq_price")), "label": "QQQ 現價", "source": "market_snapshot", "as_of": meta.get("date", "")})
+            if snapshot.get("qqq_change_pct") is not None and len(numbers) < count:
+                numbers.append({"value": self._format_percent(snapshot.get("qqq_change_pct"), is_fraction=False), "label": "QQQ 1D 變動", "source": "market_snapshot", "as_of": meta.get("date", "")})
+            if snapshot.get("us10y") and len(numbers) < count:
+                numbers.append({"value": f"{snapshot.get('us10y'):.2f}%", "label": "10Y 殖利率", "source": "market_snapshot", "as_of": meta.get("date", "")})
+            if snapshot.get("vix") and len(numbers) < count:
+                numbers.append({"value": f"{snapshot.get('vix'):.2f}", "label": "VIX", "source": "market_snapshot", "as_of": meta.get("date", "")})
 
         # Trim and ensure no empty values
         cleaned = [n for n in numbers if n.get("value")]
@@ -1171,13 +1220,6 @@ class CodexRunner:
             logger.info(f"Dynamic timeout: {timeout:.0f}s (based on {effective_max_tokens} max_tokens)")
 
             client_kwargs = {"api_key": api_key, "base_url": base_url, "timeout": timeout}
-            try:
-                import httpx
-                # httpx timeout needs to be a Timeout object for proper handling
-                httpx_timeout = httpx.Timeout(timeout, connect=30.0)
-                client_kwargs["http_client"] = httpx.Client(timeout=httpx_timeout, verify=verify_ssl)
-            except Exception as e:
-                print(f"[LiteLLM] httpx setup failed: {e}", flush=True)
 
             client = OpenAI(**client_kwargs)
             print(f"[LiteLLM] Client created with timeout={timeout}s, verify_ssl={verify_ssl}", flush=True)
@@ -1207,10 +1249,12 @@ class CodexRunner:
             for attempt in range(1, max_attempts + 1):
                 try:
                     logger.info(f"LiteLLM request: attempt={attempt}/{max_attempts}, prompt_len={len(prompt)}, max_tokens={max_tokens}, timeout={timeout:.0f}s")
-                    print(f"[LiteLLM] Sending request: attempt={attempt}/{max_attempts}, prompt_len={len(prompt)}, max_tokens={max_tokens}, timeout={timeout:.0f}s", flush=True)
+                    print(f"[LiteLLM] Sending request (stream): attempt={attempt}/{max_attempts}, prompt_len={len(prompt)}, max_tokens={max_tokens}, timeout={timeout:.0f}s", flush=True)
                     import datetime
                     start_time = datetime.datetime.now()
-                    response = client.chat.completions.create(
+
+                    # Use streaming to prevent idle timeout on Tailscale/Caddy proxy
+                    stream = client.chat.completions.create(
                         model=self.model,
                         messages=[
                             {"role": "system", "content": self._get_system_prompt()},
@@ -1219,10 +1263,35 @@ class CodexRunner:
                         max_tokens=max_tokens,
                         temperature=temperature,
                         timeout=timeout,
+                        stream=True,
                     )
+
+                    # Collect streamed chunks
+                    collected_content = []
+                    chunk_count = 0
+                    for chunk in stream:
+                        if chunk.choices and chunk.choices[0].delta.content:
+                            collected_content.append(chunk.choices[0].delta.content)
+                            chunk_count += 1
+
+                    # Build a response-like object
+                    full_content = "".join(collected_content)
+
+                    class _StreamedResponse:
+                        class _Choice:
+                            class _Message:
+                                def __init__(self, content):
+                                    self.content = content
+                            def __init__(self, content):
+                                self.message = self._Message(content)
+                        def __init__(self, content):
+                            self.choices = [self._Choice(content)]
+
+                    response = _StreamedResponse(full_content)
+
                     elapsed = (datetime.datetime.now() - start_time).total_seconds()
-                    logger.info(f"LiteLLM response received in {elapsed:.1f}s")
-                    print(f"[LiteLLM] Response received in {elapsed:.1f}s", flush=True)
+                    logger.info(f"LiteLLM response received in {elapsed:.1f}s ({chunk_count} chunks, {len(full_content)} chars)")
+                    print(f"[LiteLLM] Response received in {elapsed:.1f}s ({chunk_count} chunks, {len(full_content)} chars)", flush=True)
                 except Exception as e:
                     msg = str(e)
                     retryable = (
@@ -1231,6 +1300,7 @@ class CodexRunner:
                         or "rate limit" in msg.lower()
                         or "connection error" in msg.lower()
                         or "timeout" in msg.lower()
+                        or "timed out" in msg.lower()  # P0-FIX: LiteLLM 錯誤訊息是 "Request timed out."
                     )
                     if retryable and attempt < max_attempts:
                         # P0-4: 指數退避 + jitter
@@ -1578,13 +1648,13 @@ class CodexRunner:
 
         post = attempt_generate()
 
-        # 若指定模型失敗，改用 post_type 的預設模型再試一次
-        if not post and self.post_type:
-            fallback_model = self.POST_TYPE_MODELS.get(self.post_type)
+        # 若指定模型失敗，使用 FALLBACK_MODELS 降級
+        if not post:
+            fallback_model = self.FALLBACK_MODELS.get(self.model)
             if self.env_model_override:
                 logger.warning("Model override set; skipping fallback model")
             elif fallback_model and fallback_model != self.model:
-                logger.warning(f"Retry with fallback model: {fallback_model}")
+                logger.warning(f"Primary model {self.model} failed, retry with fallback: {fallback_model}")
                 original_model = self.model
                 self.model = fallback_model
                 post = attempt_generate()
@@ -1681,6 +1751,13 @@ class CodexRunner:
 
         # Normalize sources with publishers
         result["sources"] = self._normalize_sources(result.get("sources", []), research_pack)
+        # P0-FIX: 確保 sources 不為空（截斷時可能缺失）
+        if not result["sources"]:
+            result["sources"] = [
+                {"name": "Financial Modeling Prep", "publisher": "FMP", "url": "https://financialmodelingprep.com", "type": "data"},
+                {"name": "Company Filings", "publisher": "SEC EDGAR", "url": "https://www.sec.gov/edgar", "type": "data"},
+            ]
+            logger.warning("Added fallback sources for truncated output")
 
         # 確保有 slug
         if not result.get("slug"):
@@ -1735,6 +1812,133 @@ class CodexRunner:
             result["executive_summary"] = {"en": "Executive summary based on today's primary market theme."}
         elif not exec_summary.get("en"):
             exec_summary["en"] = "Executive summary based on today's primary market theme."
+
+        # P0-FIX: 為截斷的 JSON 提供 markdown/html fallback
+        # 當 LLM 輸出被截斷時，這些欄位可能缺失
+        if not result.get("markdown"):
+            markdown_parts = []
+            exec_en = result.get("executive_summary", {}).get("en", "")
+            if exec_en:
+                markdown_parts.append(f"## Executive Summary\n\n{exec_en}\n")
+            thesis = result.get("thesis")
+            if isinstance(thesis, dict):
+                thesis_text = thesis.get("statement", "")
+                if thesis_text:
+                    markdown_parts.append(f"## Thesis\n\n{thesis_text}\n")
+            elif isinstance(thesis, str) and thesis:
+                markdown_parts.append(f"## Thesis\n\n{thesis}\n")
+            anti_thesis = result.get("anti_thesis")
+            if isinstance(anti_thesis, dict):
+                anti_text = anti_thesis.get("statement", "")
+                if anti_text:
+                    markdown_parts.append(f"## Anti-Thesis\n\n{anti_text}\n")
+            elif isinstance(anti_thesis, str) and anti_thesis:
+                markdown_parts.append(f"## Anti-Thesis\n\n{anti_thesis}\n")
+            if markdown_parts:
+                result["markdown"] = "\n".join(markdown_parts)
+                logger.warning("Generated fallback markdown from available content")
+
+        if not result.get("html") and result.get("markdown"):
+            result["html"] = self._convert_to_html(result["markdown"], result)
+            logger.warning("Generated fallback HTML from markdown")
+
+        # P0-FIX: 確保 markdown 末尾有免責聲明（compliance check 需要）
+        result = self._ensure_disclosure_in_markdown(result)
+
+        # P0-FIX: 清理 markdown/html 中的 'null' 字串
+        result = self._clean_null_strings(result)
+
+        return result
+
+    def _ensure_disclosure_in_markdown(self, result: dict) -> dict:
+        """P0-FIX: 確保 markdown 末尾有免責聲明
+
+        compliance.py 的 check_disclosures 會檢查 markdown 中是否包含
+        REQUIRED_DISCLOSURES 關鍵字（非投資建議, not investment advice, 投資有風險, risk）。
+
+        Args:
+            result: 文章資料
+
+        Returns:
+            更新後的 result
+        """
+        markdown = result.get("markdown", "")
+        if not markdown:
+            return result
+
+        # 檢查是否已有免責聲明關鍵字
+        required_keywords = ["非投資建議", "not investment advice", "投資有風險", "risk"]
+        has_disclosure = any(kw.lower() in markdown.lower() for kw in required_keywords)
+
+        if not has_disclosure:
+            # 從 disclosures 或 disclosure 欄位取得免責聲明
+            disclosures = result.get("disclosures", {})
+            disclosure_text = result.get("disclosure", "")
+
+            # 優先使用 risk_warning，否則用 disclosure
+            risk_warning = disclosures.get("risk_warning", "")
+            if not risk_warning and disclosure_text:
+                risk_warning = disclosure_text
+
+            # 如果還是沒有，用預設值
+            if not risk_warning:
+                risk_warning = "本報告僅供參考，非投資建議。投資有風險，請審慎評估。"
+
+            # 在 markdown 末尾附加免責聲明
+            result["markdown"] = markdown.rstrip() + f"\n\n---\n\n**免責聲明：** {risk_warning}"
+            logger.info("Added disclosure to markdown for compliance check")
+
+        return result
+
+    def _clean_null_strings(self, result: dict) -> dict:
+        """P0-FIX: 清理 markdown/html 中的 'null' 字串
+
+        LLM 有時會將 JSON 中的 null 值直接輸出為 'null' 字串，
+        例如 "Forward P/E 為 null"。
+
+        Args:
+            result: 文章資料
+
+        Returns:
+            清理後的 result
+        """
+        import re
+
+        # 需要清理的欄位
+        fields_to_clean = ["markdown", "html", "excerpt", "title", "newsletter_subject"]
+
+        # null 字串的替換模式
+        null_patterns = [
+            # "Forward P/E 為 null" → "Forward P/E 資料不足"
+            (r"([A-Za-z/\s]+)(?:為|是|=)\s*null", r"\1資料不足"),
+            # "null；" → "資料不足；"
+            (r"\bnull[；;，,]", "資料不足；"),
+            # "(null)" → "(資料不足)"
+            (r"\(\s*null\s*\)", "(資料不足)"),
+            # "為 null" → "資料不足"
+            (r"為\s*null\b", "資料不足"),
+            # "是 null" → "資料不足"
+            (r"是\s*null\b", "資料不足"),
+            # 孤立的 "null" 字串
+            (r"\bnull\b", "N/A"),
+        ]
+
+        cleaned_count = 0
+        for field in fields_to_clean:
+            content = result.get(field)
+            if not content or not isinstance(content, str):
+                continue
+
+            original = content
+            for pattern, replacement in null_patterns:
+                content = re.sub(pattern, replacement, content, flags=re.IGNORECASE)
+
+            if content != original:
+                result[field] = content
+                cleaned_count += 1
+
+        if cleaned_count > 0:
+            logger.info(f"Cleaned 'null' strings from {cleaned_count} fields")
 
         return result
 

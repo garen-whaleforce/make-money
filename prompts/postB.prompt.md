@@ -1,15 +1,57 @@
 # Post B: Earnings Reaction & Next-Quarter Fair Value (v4.3)
 
+## 🚨 OPTIMIZATION v2 REQUIREMENTS (2026-01-19)
+
+**請先閱讀 OPTIMIZATION_V2_ADDENDUM.md 中的所有要求，本 prompt 的所有規則仍然有效。**
+
+新增要求包括：
+1. 📊 Decision Box (完整版 - Base/Bull/Bear)
+2. 💰 Cashflow-to-Capital Table (≥7指標，含資料等級)
+3. ⚠️ Risk KPI Table (簡化版 - ≥5條)
+4. 📅 時區標註 (ET/TW)
+5. 📋 資料缺口與信心分數
+6. 🎯 驗收清單自檢
+
+**這些要求為 P0 級別，必須嚴格遵守。**
+
+---
+
 ## HARD RULES (P0 - BLOCKING)
 
 **THESE RULES ARE NON-NEGOTIABLE. VIOLATION WILL CAUSE PIPELINE FAILURE:**
 
 1. **NEVER** output the token `⟦UNTRACED⟧` or any placeholder like `數據`, `TBD`, `$XXX`, `待補`, `(漲幅)`
 2. **NEVER** leave any field with placeholder text - either fill with real data or omit the sentence entirely
-3. **MUST** ensure total HTML content length exceeds 4000 characters
+3. **MUST** ensure total HTML content length exceeds 10000 characters (aim for 12,000+)
 4. **MUST** fill `earnings_scoreboard` with real data - each entry MUST have `ticker` (use deep_dive_ticker) and `quarter` (e.g., "Q3 FY26")
 5. **MUST** include the primary ticker (from `deep_dive_ticker`) in the HTML content at least 5 times
 6. If you cannot find data for a required field, REWRITE the sentence to not need that data - do NOT use placeholders
+
+## 🚨 SECTION LENGTH REQUIREMENTS (P0 - CRITICAL)
+
+**每個 section 必須達到以下最低字元數，否則文章會被拒絕：**
+
+| Section | 最低字元數 | 說明 |
+|---------|-----------|------|
+| 1. 摘要 | 400 字元 | 中英文摘要，財報重點 + 估值結論 |
+| 2. 財報記分板 | 500 字元 | 表格 + 4 季歷史數據 |
+| 3. 財報摘要 | 400 字元 | Beat/Miss 分析及重要性 |
+| 4. 估值壓力測試 | 600 字元 | 多個倍數情境分析 |
+| 5. 三個必記數字 | 300 字元 | 每個數字需有完整說明 |
+| 6. TODAY'S PACKAGE | 150 字元 | Cross-links |
+| 7. 季度表現分析 | **1000 字元** | 營收趨勢、EPS 軌跡、利潤率變化 |
+| 8. 同業比較升級版 | **800 字元** | 完整同業比較表格及分析 |
+| 9. 法說後劇本矩陣 | **1200 字元** | 3x3 矩陣 + 每格詳細說明 |
+| 10. 估值：下一季合理價 | **1000 字元** | Bear/Base/Bull 三情境完整分析 |
+| 11. 資料來源 | 200 字元 | 來源列表 |
+
+**總計最低：6,550 字元（目標 10,000+）**
+
+**寫作技巧**：
+- Section 7 (季度表現分析) 需深入分析，不只是列數字
+- Section 9 (3x3 矩陣) 每格需 100+ 字元說明
+- Section 10 (估值情境) 每個情境需完整推導過程
+- 不要只寫標題，每個要點都需要 2-3 句解釋
 
 ## Role
 
@@ -241,7 +283,6 @@ Return a JSON object matching `schemas/postB.schema.json` with:
 - `meta.earnings_date` set to the earnings date being analyzed
 - `meta.earnings_ticker` listing the ticker analyzed
 - `meta.trigger_reason` set to "deep_dive_ticker_recent_earnings"
-- `scenario_matrix_3x3` with all 9 cells populated
 - Cross-link URLs populated
 
 Also return HTML content suitable for Ghost CMS.

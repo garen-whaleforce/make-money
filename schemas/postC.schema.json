@@ -141,16 +141,18 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["value", "label"],
+        "required": ["value", "label", "context"],
         "properties": {
-          "value": {"type": "string"},
-          "label": {"type": "string"},
-          "context": {"type": "string"},
-          "source": {"type": "string"}
+          "value": {"type": "string", "minLength": 1},
+          "label": {"type": "string", "minLength": 2},
+          "context": {"type": "string", "minLength": 20, "description": "Why this number matters (min 20 chars)"},
+          "source": {"type": "string"},
+          "as_of": {"type": "string", "description": "Data timestamp, e.g., '2026-01-08 收盤' or 'TTM Q4 FY25'"}
         }
       },
-      "minItems": 3,
-      "maxItems": 5
+      "minItems": 5,
+      "maxItems": 7,
+      "description": "5-7 key numbers with context explaining significance"
     },
     "business_model": {
       "type": "object",
@@ -559,18 +561,19 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["risk", "severity", "monitorable"],
+        "required": ["risk", "severity", "monitorable", "category", "monitoring_signal"],
         "properties": {
-          "risk": {"type": "string"},
+          "risk": {"type": "string", "minLength": 20, "description": "Clear description of the risk"},
           "category": {"enum": ["business", "financial", "regulatory", "competitive", "macro"]},
           "severity": {"enum": ["high", "medium", "low"]},
           "probability": {"enum": ["high", "medium", "low"]},
           "monitorable": {"type": "boolean"},
-          "monitoring_signal": {"type": "string"}
+          "monitoring_signal": {"type": "string", "minLength": 10, "description": "What to watch for"}
         }
       },
       "minItems": 3,
-      "maxItems": 8
+      "maxItems": 8,
+      "description": "3-8 risks with monitoring signals"
     },
     "peer_comparison": {
       "type": "object",

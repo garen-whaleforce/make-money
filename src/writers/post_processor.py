@@ -49,6 +49,24 @@ PLACEHOLDER_PATTERNS = [
     r"XXX%",
 ]
 
+# P0-FIX: null 字串清理模式（LLM 有時會將 JSON null 直接輸出為字串）
+NULL_STRING_PATTERNS = [
+    # "Forward P/E 為 null" → "Forward P/E 資料不足"
+    (r"([A-Za-z/\s]+)(?:為|是|=)\s*null", r"\1資料不足"),
+    # "null；" → "資料不足；"
+    (r"\bnull[；;，,]", "資料不足；"),
+    # "(null)" → "(資料不足)"
+    (r"\(\s*null\s*\)", "(資料不足)"),
+    # "為 null" → "資料不足"
+    (r"為\s*null\b", "資料不足"),
+    # "是 null" → "資料不足"
+    (r"是\s*null\b", "資料不足"),
+    # "皆為 null" → "皆無資料"
+    (r"皆為\s*null\b", "皆無資料"),
+    # 孤立的 "null" 字串（排除 'nullable' 等合法詞）
+    (r"(?<![a-zA-Z])null(?![a-zA-Z])", "N/A"),
+]
+
 # 破損 HTML/Markdown 模式（會造成顯示錯誤）
 BROKEN_HTML_PATTERNS = [
     # Empty list items with just markdown bold markers
@@ -465,6 +483,28 @@ FINAL_REPLACEMENT_RULES = [
 ]
 
 
+def clean_null_strings(html: str) -> Tuple[str, int]:
+    """P0-FIX: 清理 HTML/Markdown 中的 'null' 字串
+
+    LLM 有時會將 JSON 中的 null 值直接輸出為 'null' 字串，
+    例如 "Forward P/E 為 null"。
+
+    Args:
+        html: HTML 或 Markdown 內容
+
+    Returns:
+        (cleaned_html, cleaned_count)
+    """
+    cleaned_count = 0
+    for pattern, replacement in NULL_STRING_PATTERNS:
+        matches = re.findall(pattern, html, flags=re.IGNORECASE)
+        if matches:
+            html = re.sub(pattern, replacement, html, flags=re.IGNORECASE)
+            cleaned_count += len(matches)
+
+    return html, cleaned_count
+
+
 def cleanup_broken_html(html: str) -> Tuple[str, List[str]]:
     """
     清理破損的 HTML/Markdown 結構
@@ -751,6 +791,9 @@ def enhanced_process_post_html(
     # Step 4: 清理破損的 HTML/Markdown
     html, cleanup_changes = cleanup_broken_html(html)
 
+    # Step 4.5: P0-FIX 清理 'null' 字串
+    html, null_cleaned = clean_null_strings(html)
+
     # Step 5: 轉換 Markdown lists 為 HTML lists
     html, list_conversions = fix_markdown_lists_to_html(html)
 
@@ -765,6 +808,7 @@ def enhanced_process_post_html(
         "removed_sentences": fixer_report["removed_sentences"],
         "fallback_fills": len(generic_results) + fixer_report["replaced_with_na"],
         "html_cleanup": cleanup_changes,
+        "null_strings_cleaned": null_cleaned,  # P0-FIX
         "list_conversions": list_conversions,
         "remaining_placeholders": len(final_check),
         "remaining_details": final_check[:10] if final_check else [],
@@ -820,10 +864,34 @@ def transform_llm_output_for_renderer(
         if news_items:
             radar_items = []
             for item in news_items[:6]:
+                # 處理 affected_tickers：可能是 string 或 dict
+                affected_tickers = item.get("affected_tickers", [])
+                ticker_strs = []
+                for t in affected_tickers[:3]:
+                    if isinstance(t, str):
+                        ticker_strs.append(t)
+                    elif isinstance(t, dict):
+                        # 嘗試取得 ticker 或 name 欄位
+                        ticker_strs.append(t.get("ticker", t.get("name", str(t))))
+                    else:
+                        ticker_strs.append(str(t))
+
+                # 處理 affected_sectors：可能是 string 或 dict
+                affected_sectors = item.get("affected_sectors", [])
+                first_sector = ""
+                if affected_sectors:
+                    s = affected_sectors[0]
+                    if isinstance(s, str):
+                        first_sector = s
+                    elif isinstance(s, dict):
+                        first_sector = s.get("name", s.get("sector", str(s)))
+                    else:
+                        first_sector = str(s)
+
                 radar_items.append({
                     "headline": item.get("headline_zh", item.get("headline", "")),
                     "impact": item.get("direction", "mixed"),
-                    "chain": f"{item.get('affected_sectors', [''])[0] if item.get('affected_sectors') else ''} → {', '.join(item.get('affected_tickers', [])[:3])}",
+                    "chain": f"{first_sector} → {', '.join(ticker_strs)}",
                     "watch": item.get("what_to_watch", [""])[0] if item.get("what_to_watch") else "",
                 })
             transformed["news_radar"] = radar_items
@@ -857,12 +925,18 @@ def transform_llm_output_for_renderer(
     if key_stocks and post_type == "flash":
         flow_items = []
         for stock in key_stocks[:8]:
+            # 安全轉換 change_pct 為數字（LLM 可能回傳 string）
+            change_pct_raw = stock.get("change_pct", 0)
+            try:
+                change_pct = float(change_pct_raw) if change_pct_raw else 0
+            except (ValueError, TypeError):
+                change_pct = 0
             flow_items.append({
                 "ticker": stock.get("ticker", ""),
                 "name": stock.get("name", ""),
-                "change_pct": stock.get("change_pct", 0),
+                "change_pct": change_pct,
                 "volume_ratio": 1,
-                "signal": "bullish" if stock.get("change_pct", 0) > 0 else "bearish",
+                "signal": "bullish" if change_pct > 0 else "bearish",
             })
         transformed["sector_flow_chart"] = {"items": flow_items}
 
@@ -903,21 +977,42 @@ def transform_llm_output_for_renderer(
         if "themes" in theme_board_raw and isinstance(theme_board_raw["themes"], list):
             new_theme_board = {}
             for theme in theme_board_raw["themes"]:
-                theme_id = theme.get("id", "")
-                if theme_id:
-                    new_theme_board[theme_id] = {
-                        "name": theme.get("title", theme.get("name", theme_id)),
-                        "status": theme.get("status", "neutral"),
-                        "tickers": theme.get("tickers", []),
+                # 處理 theme 可能是 string 或 dict
+                if isinstance(theme, str):
+                    # 只是 theme id 字串
+                    new_theme_board[theme] = {
+                        "name": theme.replace("_", " ").title(),
+                        "status": "neutral",
+                        "tickers": [],
                     }
+                elif isinstance(theme, dict):
+                    theme_id = theme.get("id", theme.get("name", ""))
+                    if theme_id:
+                        new_theme_board[theme_id] = {
+                            "name": theme.get("title", theme.get("name", theme_id)),
+                            "status": theme.get("status", "neutral"),
+                            "tickers": theme.get("tickers", []),
+                        }
             if new_theme_board:
                 transformed["theme_board"] = new_theme_board
         elif isinstance(theme_board_raw, dict) and "themes" not in theme_board_raw:
-            # 可能已經是正確格式，檢查第一個值是否為 dict
+            # 可能已經是正確格式，檢查第一個值是否為 dict 或 string
             first_value = next(iter(theme_board_raw.values()), None)
             if isinstance(first_value, dict):
                 transformed["theme_board"] = theme_board_raw
-            # 否則可能是 string values（如 "ai_chips": "bullish"），跳過
+            elif isinstance(first_value, str):
+                # 格式如 {"ai_chips": "bullish", "ai_cloud": "neutral", ...}
+                # 轉換為 renderer 格式
+                new_theme_board = {}
+                for theme_id, status in theme_board_raw.items():
+                    if isinstance(status, str):
+                        new_theme_board[theme_id] = {
+                            "name": theme_id.replace("_", " ").title(),
+                            "status": status,
+                            "tickers": [],
+                        }
+                if new_theme_board:
+                    transformed["theme_board"] = new_theme_board
 
     # 10. 確保 cross_links 存在
     if "cross_links" not in transformed:
@@ -933,17 +1028,26 @@ def transform_llm_output_for_renderer(
         # valuation → valuation_stress_test
         valuation = post_json.get("valuation", {})
         if valuation.get("scenarios"):
-            transformed["valuation_stress_test"] = {
-                "current_price": valuation.get("current_price", 0),
-                "scenarios": [
-                    {
+            scenario_list = []
+            for s in valuation["scenarios"]:
+                if isinstance(s, dict):
+                    scenario_list.append({
                         "label": s.get("name", s.get("label", "")),
                         "target_price": s.get("target_price", 0),
                         "multiple": s.get("pe_multiple", s.get("multiple", 0)),
                         "rationale": s.get("rationale", ""),
-                    }
-                    for s in valuation["scenarios"]
-                ]
+                    })
+                elif isinstance(s, str):
+                    # 如果只是字串，建立基本結構
+                    scenario_list.append({
+                        "label": s,
+                        "target_price": 0,
+                        "multiple": 0,
+                        "rationale": "",
+                    })
+            transformed["valuation_stress_test"] = {
+                "current_price": valuation.get("current_price", 0),
+                "scenarios": scenario_list,
             }
 
         # ticker_profile → company info
@@ -987,17 +1091,25 @@ def transform_llm_output_for_renderer(
         # valuation_scenarios
         valuation = post_json.get("valuation", {})
         if valuation.get("scenarios"):
-            transformed["valuation_scenarios"] = {
-                "current_price": valuation.get("current_price", 0),
-                "scenarios": [
-                    {
+            scenario_list = []
+            for s in valuation["scenarios"]:
+                if isinstance(s, dict):
+                    scenario_list.append({
                         "label": s.get("name", s.get("label", "")),
                         "target_price": s.get("target_price", 0),
                         "multiple": s.get("pe_multiple", s.get("multiple", 0)),
                         "rationale": s.get("rationale", ""),
-                    }
-                    for s in valuation["scenarios"]
-                ]
+                    })
+                elif isinstance(s, str):
+                    scenario_list.append({
+                        "label": s,
+                        "target_price": 0,
+                        "multiple": 0,
+                        "rationale": "",
+                    })
+            transformed["valuation_scenarios"] = {
+                "current_price": valuation.get("current_price", 0),
+                "scenarios": scenario_list,
             }
 
         # decision_tree from if_then_branches
@@ -1005,13 +1117,22 @@ def transform_llm_output_for_renderer(
         if if_then:
             decision_tree = []
             for branch in if_then:
-                decision_tree.append({
-                    "signal": branch.get("if_condition", branch.get("signal", "")),
-                    "interpretation": branch.get("then_action", branch.get("interpretation", "")),
-                    "action": branch.get("action", ""),
-                    "risk_control": branch.get("risk_control", ""),
-                    "next_check": branch.get("next_check", ""),
-                })
+                if isinstance(branch, dict):
+                    decision_tree.append({
+                        "signal": branch.get("if_condition", branch.get("signal", "")),
+                        "interpretation": branch.get("then_action", branch.get("interpretation", "")),
+                        "action": branch.get("action", ""),
+                        "risk_control": branch.get("risk_control", ""),
+                        "next_check": branch.get("next_check", ""),
+                    })
+                elif isinstance(branch, str):
+                    decision_tree.append({
+                        "signal": branch,
+                        "interpretation": "",
+                        "action": "",
+                        "risk_control": "",
+                        "next_check": "",
+                    })
             transformed["decision_tree"] = decision_tree
 
         # moat analysis
@@ -1117,10 +1238,21 @@ def fill_missing_qa_fields(
         if key_stocks:
             peer_table = []
             for stock in key_stocks[:4]:
+                # P0-FIX: change_pct 可能是 str 或 float，需要安全處理
+                change_pct = stock.get("change_pct")
+                if change_pct is not None:
+                    try:
+                        change_val = float(str(change_pct).replace("%", "").replace("+", ""))
+                        change_str = f"{change_val:+.2f}%"
+                    except (ValueError, TypeError):
+                        change_str = str(change_pct) if change_pct else ""
+                else:
+                    change_str = ""
+
                 peer_table.append({
                     "ticker": stock.get("ticker", ""),
                     "price": stock.get("price", ""),
-                    "change": f"{stock.get('change_pct', 0):+.2f}%" if stock.get("change_pct") else "",
+                    "change": change_str,
                     "pe_ttm": stock.get("pe_ttm", "N/A"),
                     "market_cap": stock.get("market_cap", ""),
                 })

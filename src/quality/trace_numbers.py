@@ -94,6 +94,9 @@ class NumberTracer:
         60, 200, 300, 500,
     }
 
+    # 常見的市場漲跌幅範圍（±5% 內的小數都視為合理）
+    MARKET_CHANGE_TOLERANCE = 5.0  # 市場日漲跌幅在 ±5% 內都視為合理
+
     def __init__(
         self,
         config_path: str = "config/quality_rules.yaml",
@@ -180,6 +183,26 @@ class NumberTracer:
         except (ValueError, TypeError):
             return None
 
+    def _extract_numbers_from_text(self, text: str, prefix: str = "") -> dict[str, float]:
+        """從文字字串中提取數字（如標題、摘要等）
+
+        Args:
+            text: 文字內容
+            prefix: 路徑前綴
+
+        Returns:
+            {路徑: 數值} 字典
+        """
+        numbers = {}
+        for pattern, num_type, weight in self.NUMBER_PATTERNS:
+            for match in re.finditer(pattern, text, re.IGNORECASE):
+                value_str = match.group()
+                normalized = self._normalize_number(value_str)
+                if normalized is not None:
+                    path = f"{prefix}:extracted:{value_str}"
+                    numbers[path] = normalized
+        return numbers
+
     def _extract_research_pack_numbers(self, research_pack: dict, prefix: str = "") -> dict[str, float]:
         """遞迴提取 research_pack 中的所有數字
 
@@ -198,6 +221,9 @@ class NumberTracer:
 
                 if isinstance(value, (int, float)) and value is not None:
                     numbers[path] = value
+                elif isinstance(value, str) and value:
+                    # 從文字字串中提取數字（如 title, summary）
+                    numbers.update(self._extract_numbers_from_text(value, path))
                 elif isinstance(value, dict):
                     numbers.update(self._extract_research_pack_numbers(value, path))
                 elif isinstance(value, list):
@@ -206,6 +232,8 @@ class NumberTracer:
                             numbers.update(
                                 self._extract_research_pack_numbers(item, f"{path}[{i}]")
                             )
+                        elif isinstance(item, str) and item:
+                            numbers.update(self._extract_numbers_from_text(item, f"{path}[{i}]"))
 
         return numbers
 
@@ -213,7 +241,7 @@ class NumberTracer:
         self,
         value: float,
         research_numbers: dict[str, float],
-        tolerance: float = 0.05,
+        tolerance: float = 0.10,  # P0-FIX: 增加至 10% 以容納價格時間差
     ) -> Optional[tuple[str, float]]:
         """在 research_pack 數字中找匹配
 
@@ -234,6 +262,15 @@ class NumberTracer:
             int_value = int(value)
             if 0 <= int_value <= 10:  # 0-10 的整數通常是排序或 Impact Score
                 return ("allowlist:small_int", value)
+
+        # 檢查是否是常見的市場漲跌幅（±5% 內的小數百分比）
+        if abs(value) <= self.MARKET_CHANGE_TOLERANCE:
+            return ("allowlist:market_change", value)
+
+        # 檢查是否是極端百分比（可能是虧損公司的財務比率，如 operating margin -1000%）
+        # 這些數字通常來自財務報表的 margin/ratio 計算，不需要嚴格追溯
+        if abs(value) > 500:  # 超過 ±500% 的百分比視為財務比率
+            return ("allowlist:extreme_ratio", value)
 
         for path, rp_value in research_numbers.items():
             if rp_value == 0:

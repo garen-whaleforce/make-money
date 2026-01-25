@@ -1,5 +1,19 @@
 # Post A: Market News Impact Brief (v4.3)
 
+## 🚨 OPTIMIZATION v2 REQUIREMENTS (2026-01-19)
+
+**請先閱讀 OPTIMIZATION_V2_ADDENDUM.md 中的所有要求，本 prompt 的所有規則仍然有效。**
+
+新增要求包括：
+1. 💡 Decision Box (微型版 - 3行)
+2. 📅 時區標註 (ET/TW)
+3. 📋 資料缺口與信心分數
+4. 🎯 驗收清單自檢
+
+**這些要求為 P0 級別，必須嚴格遵守。**
+
+---
+
 ## HARD RULES (P0 - BLOCKING)
 
 **THESE RULES ARE NON-NEGOTIABLE. VIOLATION WILL CAUSE PIPELINE FAILURE:**
@@ -7,9 +21,35 @@
 1. **NEVER** output the token `⟦UNTRACED⟧` or any placeholder like `數據`, `TBD`, `$XXX`, `待補`, `(漲幅)`
 2. **NEVER** leave any field with placeholder text - either fill with real data or omit the sentence entirely
 3. **MUST** provide exactly 5-8 `tldr` bullet points, each at least 30 characters
-4. **MUST** ensure total HTML content length exceeds 5000 characters
+4. **MUST** ensure total HTML content length exceeds 8000 characters (aim for 10,000+)
 5. **MUST** provide exactly 3 `key_numbers` items - each with `value`, `label`, and `source` (use market_data source for prices)
 6. If you cannot find data for a required field, REWRITE the sentence to not need that data - do NOT use placeholders
+
+## 🚨 SECTION LENGTH REQUIREMENTS (P0 - CRITICAL)
+
+**每個 section 必須達到以下最低字元數，否則文章會被拒絕：**
+
+| Section | 最低字元數 | 說明 |
+|---------|-----------|------|
+| 1. 摘要 | 300 字元 | 中文摘要需完整說明今日主線 |
+| 2. MARKET SNAPSHOT | 200 字元 | 包含 SPY, QQQ, 10Y, DXY, VIX |
+| 3. 今日主線 | 200 字元 | 回答「市場在重新定價什麼？」 |
+| 4. 三個必記數字 | 300 字元 | 每個數字需有完整說明 |
+| 5. 新聞雷達快覽 | 800 字元 | 6 則新聞，每則含 4 行模板 |
+| 6. TL;DR | 400 字元 | 5-7 個 bullet points |
+| 7. TODAY'S PACKAGE | 150 字元 | Cross-links |
+| 8. 主事件深度分析 | **1500 字元** | 這是核心內容，必須詳盡 |
+| 9. NEWS RADAR EXTENDED | **1200 字元** | 完整分析 7-8 則新聞 |
+| 10. THEME BOARD | 800 字元 | 12 個主題狀態 |
+| 11. 觀察清單 | 400 字元 | 明確的驗證信號 |
+| 12. 風險提示 | 200 字元 | 免責聲明 |
+
+**總計最低：6,450 字元（目標 8,000+）**
+
+**寫作技巧**：
+- Section 8 (主事件深度分析) 佔總內容 40%，需包含：背景、影響分析、贏家輸家、後續觀察
+- Section 9 (NEWS RADAR EXTENDED) 佔總內容 30%，每則新聞需完整分析
+- 不要只寫標題，每個要點都需要 2-3 句解釋
 
 ## Role
 

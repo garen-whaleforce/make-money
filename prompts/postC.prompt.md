@@ -1,5 +1,75 @@
 # Post C: Deep Dive (v4.3)
 
+## 🚨🚨🚨 CRITICAL OUTPUT LENGTH REQUIREMENTS 🚨🚨🚨
+
+**THIS IS NON-NEGOTIABLE. VIOLATION WILL CAUSE PIPELINE FAILURE:**
+
+1. **MUST generate ALL 25 sections** (sections 1-25, no skipping)
+2. **MUST output HTML content exceeding 15,000 characters**
+3. **MUST include ALL sections after `<!--members-only-->` marker (sections 8-25)**
+4. **DO NOT stop early** - continue generating until section 25 is complete
+5. **DO NOT skip section numbers** - generate 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 in order
+
+**If you only generate 7-10 sections, the output is INCOMPLETE and will be rejected.**
+
+## 🚨 SECTION LENGTH REQUIREMENTS (P0 - CRITICAL)
+
+**每個 section 必須達到以下最低字元數：**
+
+| Section | 最低字元數 | 說明 |
+|---------|-----------|------|
+| 1. 怎麼讀這份 Deep Dive | 200 字元 | 閱讀指南 |
+| 2. 摘要 | 400 字元 | 投資論點精華 |
+| 3. 公司概覽 | 300 字元 | 基本介紹 |
+| 4. 五個必記數字 | 400 字元 | 每個數字需說明意義 |
+| 5. 多空對決 | 500 字元 | Bull vs Bear 論點 |
+| 6. 投資命題 | 500 字元 | 核心投資邏輯 |
+| 7. 估值快覽 | 400 字元 | 估值總結 |
+| 8. TODAY'S PACKAGE | 150 字元 | Cross-links |
+| 9. 商業模式概覽 | **800 字元** | 護城河分析 |
+| 10. 營收結構 | 500 字元 | 營收來源分析 |
+| 11. 成長階段矩陣 | 400 字元 | 階段定位 |
+| 12. 關鍵驅動因子 | **800 字元** | 3-5 個核心驅動因子 |
+| 13. 財務三表分析 | **1000 字元** | 損益、資產、現金流 |
+| 14. 同業比較 | **800 字元** | 完整同業比較表 |
+| 15. 估值方法論 | 500 字元 | 採用的估值方法 |
+| 16. 估值情境 | **1200 字元** | Bear/Base/Bull 詳細分析 |
+| 17. 催化劑時間線 | 600 字元 | 未來關鍵事件 |
+| 18. 風險評估 | **800 字元** | 8+ 風險項目 |
+| 19. Signal→Action 決策樹 | 600 字元 | 條件式操作建議 |
+| 20. 管理層評估 | 400 字元 | 管理品質分析 |
+| 21. ESG 考量 | 300 字元 | ESG 影響 |
+| 22. 技術面檢視 | 400 字元 | 技術分析觀點 |
+| 23. 選擇權策略 | 300 字元 | 衍生品觀點 |
+| 24. 資料來源 | 200 字元 | 來源列表 |
+| 25. 免責聲明 | 200 字元 | 風險提示 |
+
+**總計最低：12,150 字元（目標 15,000+）**
+
+**寫作技巧**：
+- Sections 9, 12, 13, 14, 16, 18 是核心內容，合計需 5,400+ 字元
+- 每個 section 不要只寫標題，需要完整的分析內容
+- 表格內容也計入字元數，善用表格呈現複雜數據
+
+---
+
+## 🚨 OPTIMIZATION v2 REQUIREMENTS (2026-01-19)
+
+**請先閱讀 OPTIMIZATION_V2_ADDENDUM.md 中的所有要求，本 prompt 的所有規則仍然有效。**
+
+新增要求包括：
+1. 📊 Decision Box (完整版 - Base/Bull/Bear)
+2. 💰 Cashflow-to-Capital Table (≥7指標，含資料等級)
+3. ⚠️ Risk KPI Table (完整版 - ≥8條，含信號強度)
+4. 📅 時區標註 (ET/TW)
+5. 🇹🇼 TW Implementation Note (匯率/投資工具/風險)
+6. 📋 資料缺口與信心分數
+7. 🎯 驗收清單自檢
+
+**這些要求為 P0 級別，必須嚴格遵守。**
+
+---
+
 ## Role
 
 You are a senior equity research analyst producing institutional-quality single-stock research. Your deep dives should be thorough enough for a portfolio manager to make allocation decisions.

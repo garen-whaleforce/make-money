@@ -76,7 +76,8 @@
         "properties": {
           "value": {"type": "string"},
           "label": {"type": "string"},
-          "source": {"type": "string"}
+          "source": {"type": "string"},
+          "as_of": {"type": "string", "description": "Data timestamp, e.g., '2026-01-08 收盤' or 'TTM Q4 FY25'"}
         }
       },
       "minItems": 3,
@@ -85,10 +86,10 @@
     },
     "tldr": {
       "type": "array",
-      "items": {"type": "string"},
-      "minItems": 4,
+      "items": {"type": "string", "minLength": 30},
+      "minItems": 5,
       "maxItems": 8,
-      "description": "TL;DR bullet points"
+      "description": "TL;DR bullet points (at least 5 items, each min 30 chars)"
     },
     "market_snapshot": {
       "type": "object",

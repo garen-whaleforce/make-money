@@ -103,7 +103,7 @@ valuation:
 writer:
   codex:
     # 模型
-    model: "claude-sonnet-4.5"
+    model: "gpt-5.2"
 
     # 最大 tokens
     max_tokens: 8000
@@ -128,6 +128,21 @@ publisher:
     newsletter:
       enabled: true
       slug: "default-newsletter"
+
+# -----------------------------------------------------------------------------
+# LLM Review 設定
+# -----------------------------------------------------------------------------
+# Stage 3.6: 基礎 LLM Review (cli-gpt-5.2)
+llm_review:
+  # P0 優化：暫時停用（cli-gpt-5.2 無可用 Codex 容器，全部失敗）
+  enabled: false
+  max_iterations: 3
+
+# Stage 3.7: 進階 LLM Review (cli-gpt-5.2-high review → cli-gpt-5.2 revision)
+chatgpt_review:
+  # P0 優化：暫時停用（同上）
+  enabled: false
+  max_iterations: 1
 
 # -----------------------------------------------------------------------------
 # 品質控管設定

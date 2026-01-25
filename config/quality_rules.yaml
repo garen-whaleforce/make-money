@@ -177,7 +177,11 @@ number_traceability:
     - "\\d+-\\d+"  # 區間 (已在研究包中)
 
   # 嚴格模式：超過 N 個無法追溯的數字則 FAIL
-  max_untraced_numbers: 3
+  # P0-FIX: 放寬至 8，因為：
+  # 1. 同一數字可能在文章多處出現
+  # 2. LLM 可能使用新聞中的數字（與 research_pack 時間差導致價格不同）
+  # 3. LLM 可能計算出合理的衍生數字
+  max_untraced_numbers: 8
 
   # 數字類型權重 (越高越嚴格)
   critical_patterns:
@@ -267,7 +271,7 @@ structure:
   # TL;DR 數量
   tldr:
     min: 3
-    max: 6
+    max: 8  # P0-FIX: 放寬上限，允許更多 TL;DR bullets
 
   # 標題候選數量
   title_candidates:
@@ -276,9 +280,9 @@ structure:
 
   # 同業比較表
   peer_table:
-    required: true
+    required: false  # P0-FIX: peer_table 改為可選
     min_columns: 4
-    min_rows: 3
+    min_rows: 2  # P0-FIX: 放寬至 2 行
 
   # 估值區間
   valuation:

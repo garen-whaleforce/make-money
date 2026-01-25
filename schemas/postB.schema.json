@@ -73,11 +73,11 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["ticker", "quarter", "eps_actual", "eps_estimate", "revenue_actual", "revenue_estimate"],
+        "required": ["ticker", "quarter", "eps_actual", "revenue_actual"],
         "properties": {
           "ticker": {"type": "string"},
           "company_name": {"type": "string"},
-          "quarter": {"type": "string", "pattern": "^Q[1-4] \\d{4}$"},
+          "quarter": {"type": "string", "pattern": "^Q[1-4] (FY)?\\d{2,4}$"},
           "eps_actual": {"type": "number"},
           "eps_estimate": {"type": "number"},
           "eps_surprise_pct": {"type": "number"},
@@ -272,140 +272,6 @@
             "low": {"type": "number"},
             "mid": {"type": "number"},
             "high": {"type": "number"}
-          }
-        }
-      }
-    },
-    "expectation_stack": {
-      "type": "array",
-      "description": "v4: Expectation stack with reaction thresholds",
-      "items": {
-        "type": "object",
-        "properties": {
-          "item": {"type": "string"},
-          "consensus": {"type": "string"},
-          "critical_threshold": {"type": "string"},
-          "positive_reaction": {"type": "string"},
-          "negative_reaction": {"type": "string"}
-        }
-      }
-    },
-    "peer_comparison_extended": {
-      "type": "array",
-      "description": "v4: Extended peer comparison with valuation framework",
-      "items": {
-        "type": "object",
-        "properties": {
-          "ticker": {"type": "string"},
-          "price": {"type": "number"},
-          "pe_ttm": {"type": ["number", "null"]},
-          "pe_forward": {"type": ["number", "null"]},
-          "ev_sales": {"type": "number"},
-          "gross_margin": {"type": "number"},
-          "valuation_framework": {"type": "string", "description": "e.g., platform premium, commodity, growth"}
-        }
-      }
-    },
-    "post_call_tracking": {
-      "type": "object",
-      "description": "v4: Post-earnings call tracking timeline",
-      "properties": {
-        "t_plus_1": {"type": "array", "items": {"type": "string"}},
-        "t_plus_3": {"type": "array", "items": {"type": "string"}},
-        "t_plus_10": {"type": "array", "items": {"type": "string"}}
-      }
-    },
-    "peer_rerate_map": {
-      "type": "object",
-      "description": "v4: Peer re-rate impact map",
-      "properties": {
-        "if_premium_holds": {"type": "array", "items": {"type": "string"}},
-        "if_premium_compresses": {"type": "array", "items": {"type": "string"}}
-      }
-    },
-    "scenario_matrix_3x3": {
-      "type": "object",
-      "description": "v4.1: 3x3 EPS × Guidance scenario matrix",
-      "properties": {
-        "beat_raised": {
-          "type": "object",
-          "properties": {
-            "scenario": {"const": "beat_raised"},
-            "label": {"type": "string"},
-            "description": {"type": "string"},
-            "action": {"type": "string"}
-          }
-        },
-        "beat_maintained": {
-          "type": "object",
-          "properties": {
-            "scenario": {"const": "beat_maintained"},
-            "label": {"type": "string"},
-            "description": {"type": "string"},
-            "action": {"type": "string"}
-          }
-        },
-        "beat_lowered": {
-          "type": "object",
-          "properties": {
-            "scenario": {"const": "beat_lowered"},
-            "label": {"type": "string"},
-            "description": {"type": "string"},
-            "action": {"type": "string"}
-          }
-        },
-        "inline_raised": {
-          "type": "object",
-          "properties": {
-            "scenario": {"const": "inline_raised"},
-            "label": {"type": "string"},
-            "description": {"type": "string"},
-            "action": {"type": "string"}
-          }
-        },
-        "inline_maintained": {
-          "type": "object",
-          "properties": {
-            "scenario": {"const": "inline_maintained"},
-            "label": {"type": "string"},
-            "description": {"type": "string"},
-            "action": {"type": "string"}
-          }
-        },
-        "inline_lowered": {
-          "type": "object",
-          "properties": {
-            "scenario": {"const": "inline_lowered"},
-            "label": {"type": "string"},
-            "description": {"type": "string"},
-            "action": {"type": "string"}
-          }
-        },
-        "miss_raised": {
-          "type": "object",
-          "properties": {
-            "scenario": {"const": "miss_raised"},
-            "label": {"type": "string"},
-            "description": {"type": "string"},
-            "action": {"type": "string"}
-          }
-        },
-        "miss_maintained": {
-          "type": "object",
-          "properties": {
-            "scenario": {"const": "miss_maintained"},
-            "label": {"type": "string"},
-            "description": {"type": "string"},
-            "action": {"type": "string"}
-          }
-        },
-        "miss_lowered": {
-          "type": "object",
-          "properties": {
-            "scenario": {"const": "miss_lowered"},
-            "label": {"type": "string"},
-            "description": {"type": "string"},
-            "action": {"type": "string"}
           }
         }
       }

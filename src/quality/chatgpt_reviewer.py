@@ -1,12 +1,12 @@
-"""ChatGPT Pro Review Loop for Daily Brief Pipeline
+"""LLM Review Loop for Daily Brief Pipeline
 
 設計理念：
-1. ChatGPT Pro 作為「人類審稿者」審查文章
-2. Claude 根據建議修正
-3. 疊代直到通過 QA 或達到上限
+1. cli-gpt-5.2-high 作為「審稿者」審查文章
+2. cli-gpt-5.2 根據建議修正
+3. 一次來回（review → revision）
 
 整合到 pipeline:
-- Stage 3.7: ChatGPT Pro Review Loop
+- Stage 3.7: LLM Review Loop
 - 在 LLM Review (Stage 3.6) 之後
 - 在 QA (Stage 4) 之前
 """
@@ -19,7 +19,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-import requests
 from rich.console import Console
 
 console = Console()
@@ -28,25 +27,25 @@ console = Console()
 # Configuration
 # ============================================================
 
-CHATGPT_PRO_API = os.getenv(
-    "CHATGPT_PRO_API_URL",
-    "http://localhost:8600"  # ChatGPT Pro API runs on gpu5090 localhost
-)
 LITELLM_BASE_URL = os.getenv("LITELLM_BASE_URL", "https://litellm.whaleforce.dev")
 LITELLM_API_KEY = os.getenv("LITELLM_API_KEY", "")
-CLAUDE_MODEL = os.getenv("CHATGPT_REVISION_MODEL", "claude-sonnet-4-5-20250514")
+REVIEW_MODEL = os.getenv("REVIEW_MODEL", "cli-gpt-5.2-high")  # 審稿模型
+REVISION_MODEL = os.getenv("REVISION_MODEL", "cli-gpt-5.2")   # 修正模型
+REVIEW_TIMEOUT = 600  # 10 minutes per request
 
-# ChatGPT Pro Project (must exist in ChatGPT account)
-# See /app/account_project_mapping.json on gpu5090 for available projects
-CHATGPT_PROJECT = os.getenv("CHATGPT_PROJECT", "daily-brief")
 
-# Timeout settings
-# Service-side timeouts:
-#   - idle timeout: 300s (ChatGPT idle/waiting for 5 min)
-#   - active timeout: 3600s (1 hour if still thinking/generating)
-# Pipeline should wait longer than service hard timeout to get proper error
-MAX_WAIT_SECONDS = 3700  # ~62 minutes (slightly longer than service 1-hour timeout)
-POLL_INTERVAL = 15  # Check every 15 seconds
+def _is_meaningful_value(value) -> bool:
+    """Check if a value is meaningful (non-empty, non-None, non-zero-length).
+
+    Used for smart merging to avoid overwriting good data with empty values.
+    """
+    if value is None:
+        return False
+    if isinstance(value, str) and not value.strip():
+        return False
+    if isinstance(value, (list, dict)) and len(value) == 0:
+        return False
+    return True
 
 
 @dataclass
@@ -70,57 +69,34 @@ class ChatGPTReviewResult:
 
 
 # ============================================================
-# ChatGPT Pro API Client
+# LLM Review Client (via LiteLLM)
 # ============================================================
 
-def submit_to_chatgpt_pro(prompt: str, project: str = None) -> dict:
-    """提交任務到 ChatGPT Pro
+def call_llm_review(prompt: str) -> Optional[str]:
+    """呼叫 cli-gpt-5.2-high 進行審查"""
+    try:
+        from openai import OpenAI
 
-    Args:
-        prompt: 審查請求內容
-        project: ChatGPT Project 名稱（用於分類對話）
-    """
-    payload = {
-        "prompt": prompt,
-        "project": project or CHATGPT_PROJECT,
-    }
-    response = requests.post(
-        f"{CHATGPT_PRO_API}/chat",
-        json=payload,
-        timeout=30,
-    )
-    response.raise_for_status()
-    return response.json()
-
-
-def wait_for_chatgpt_result(task_id: str, max_wait: int = MAX_WAIT_SECONDS) -> dict:
-    """等待 ChatGPT Pro 結果"""
-    start_time = time.time()
-
-    while time.time() - start_time < max_wait:
-        wait_time = min(60, max_wait - int(time.time() - start_time))
-        response = requests.get(
-            f"{CHATGPT_PRO_API}/task/{task_id}",
-            params={"wait": wait_time},
-            timeout=wait_time + 10,
+        client = OpenAI(
+            base_url=f"{LITELLM_BASE_URL}/v1",
+            api_key=LITELLM_API_KEY,
+            timeout=REVIEW_TIMEOUT,
         )
-        response.raise_for_status()
-        result = response.json()
 
-        status = result.get("status")
-        if status == "completed":
-            return result
-        elif status == "failed":
-            raise Exception(f"ChatGPT Pro task failed: {result.get('error')}")
-        elif status == "cancelled":
-            raise Exception("ChatGPT Pro task was cancelled")
-        elif status == "timeout":
-            raise TimeoutError(f"ChatGPT Pro service timeout: {result.get('error')}")
+        console.print(f"    [LLM Review] model={REVIEW_MODEL}, timeout={REVIEW_TIMEOUT}s")
 
-        console.print(f"    Status: {status}, Progress: {result.get('progress', 'unknown')}")
-        time.sleep(POLL_INTERVAL)
+        response = client.chat.completions.create(
+            model=REVIEW_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=8000,
+            temperature=0.3,
+        )
 
-    raise TimeoutError(f"ChatGPT Pro task {task_id} timed out after {max_wait}s")
+        return response.choices[0].message.content
+
+    except Exception as e:
+        console.print(f"    [red]LLM review failed: {e}[/red]")
+        return None
 
 
 # ============================================================
@@ -351,18 +327,21 @@ def build_revision_prompt(
 # Claude Revision
 # ============================================================
 
-def call_claude_for_revision(prompt: str) -> Optional[Dict]:
-    """呼叫 Claude 進行修正"""
+def call_llm_for_revision(prompt: str) -> Optional[Dict]:
+    """呼叫 cli-gpt-5.2 進行修正"""
     try:
         from openai import OpenAI
 
         client = OpenAI(
             base_url=f"{LITELLM_BASE_URL}/v1",
             api_key=LITELLM_API_KEY,
+            timeout=REVIEW_TIMEOUT,
         )
 
+        console.print(f"    [LLM Revision] model={REVISION_MODEL}")
+
         response = client.chat.completions.create(
-            model=CLAUDE_MODEL,
+            model=REVISION_MODEL,
             messages=[{"role": "user", "content": prompt}],
             max_tokens=12000,
             temperature=0.3,
@@ -383,7 +362,7 @@ def call_claude_for_revision(prompt: str) -> Optional[Dict]:
             return json.loads(json_str)
 
     except Exception as e:
-        console.print(f"    [red]Claude revision failed: {e}[/red]")
+        console.print(f"    [red]LLM revision failed: {e}[/red]")
 
     return None
 
@@ -395,37 +374,23 @@ def call_claude_for_revision(prompt: str) -> Optional[Dict]:
 def stage_chatgpt_review(
     posts: Dict,
     edition_pack,
-    max_iterations: int = 3,
+    max_iterations: int = 1,
     project: str = None,
 ) -> Tuple[Dict, ChatGPTReviewResult]:
-    """Stage 3.7: ChatGPT Pro Review Loop
+    """Stage 3.7: LLM Review Loop (cli-gpt-5.2-high review → cli-gpt-5.2 revision)
 
     Args:
         posts: Generated posts dict
         edition_pack: Edition pack (EditionPack or dict)
-        max_iterations: Maximum iterations (default 3)
-        project: ChatGPT Project name (default: CHATGPT_PROJECT env var)
+        max_iterations: Maximum iterations (default 1 = one round trip)
 
     Returns:
         (updated_posts, review_result)
     """
-    project = project or CHATGPT_PROJECT
-    console.print("\n[bold cyan]Stage 3.7: ChatGPT Pro Review Loop[/bold cyan]")
-
-    # 檢查 ChatGPT Pro API 是否可用 (使用 /tasks endpoint)
-    try:
-        check = requests.get(f"{CHATGPT_PRO_API}/tasks", timeout=10)
-        if check.status_code != 200:
-            console.print(f"  [yellow]⚠ ChatGPT Pro API not available (status={check.status_code}), skipping[/yellow]")
-            return posts, ChatGPTReviewResult(total_iterations=0, final_passed=False)
-    except Exception as e:
-        console.print(f"  [yellow]⚠ ChatGPT Pro API check failed: {e}[/yellow]")
-        return posts, ChatGPTReviewResult(total_iterations=0, final_passed=False)
-
+    console.print("\n[bold cyan]Stage 3.7: LLM Review (cli-gpt-5.2-high)[/bold cyan]")
+    console.print(f"  Review model: {REVIEW_MODEL}")
+    console.print(f"  Revision model: {REVISION_MODEL}")
     console.print(f"  Max iterations: {max_iterations}")
-    console.print(f"  Project: {project}")
-    console.print(f"  API: {CHATGPT_PRO_API}")
-    console.print(f"  Timeout: {MAX_WAIT_SECONDS}s (service: idle=300s, active=3600s)")
 
     # 轉換 edition_pack 為 dict
     if hasattr(edition_pack, 'to_dict'):
@@ -446,22 +411,13 @@ def stage_chatgpt_review(
         review_prompt = build_review_prompt(current_posts, pack_dict, iteration)
         console.print(f"    Prompt: {len(review_prompt)} chars")
 
-        # Step 2: Submit to ChatGPT Pro
-        console.print(f"    Submitting to ChatGPT Pro (project={project})...")
+        # Step 2: Call LLM for review
+        console.print(f"    Calling {REVIEW_MODEL} for review...")
         try:
-            submit_result = submit_to_chatgpt_pro(review_prompt, project=project)
-            task_id = submit_result.get("task_id")
-            account = submit_result.get("account", "unknown")
-            console.print(f"    Task ID: {task_id} (account: {account})")
-        except Exception as e:
-            console.print(f"    [red]Submit failed: {e}[/red]")
-            break
-
-        # Step 3: Wait for result
-        console.print(f"    Waiting for response (max {MAX_WAIT_SECONDS}s)...")
-        try:
-            chatgpt_result = wait_for_chatgpt_result(task_id)
-            review_text = chatgpt_result.get("answer", "")
+            review_text = call_llm_review(review_prompt)
+            if not review_text:
+                console.print(f"    [red]Review returned empty response[/red]")
+                break
             console.print(f"    Response: {len(review_text)} chars")
 
             # Save review
@@ -502,9 +458,9 @@ def stage_chatgpt_review(
             console.print(f"    [red]Failed: {e}[/red]")
             break
 
-        # Step 4: Apply revisions with Claude
-        if iteration < max_iterations and not passed:
-            console.print(f"    Applying revisions with Claude...")
+        # Step 4: Apply revisions with LLM
+        if not passed:
+            console.print(f"    Applying revisions with {REVISION_MODEL}...")
             fixes_applied = 0
 
             for post_type, post in current_posts.items():
@@ -521,19 +477,46 @@ def stage_chatgpt_review(
                     post_dict, post_type, review_text, pack_dict
                 )
 
-                revised = call_claude_for_revision(revision_prompt)
+                revised = call_llm_for_revision(revision_prompt)
 
                 if revised:
-                    # Update post
-                    if hasattr(post, 'json_data'):
+                    # Update post - SMART MERGE to preserve non-empty fields
+                    # (Claude revision may return empty values for fields it couldn't fill)
+                    merged = revised  # Default to revised if no merge possible
+
+                    if hasattr(post, 'json_data') and isinstance(post.json_data, dict):
+                        # Smart merge: only update with non-empty values from revised
+                        merged = post.json_data.copy()
+                        for key, value in revised.items():
+                            # Only update if revised has a non-empty value
+                            # OR if original is empty/missing
+                            original_value = merged.get(key)
+                            if _is_meaningful_value(value) or not _is_meaningful_value(original_value):
+                                merged[key] = value
+                        post.json_data = merged
+                        post.html_content = merged.get("html", "")
+                    elif hasattr(post, 'json_data'):
+                        # Has json_data but it's not a dict - just replace
                         post.json_data = revised
                         post.html_content = revised.get("html", "")
+                        merged = revised
                     else:
-                        current_posts[post_type] = revised
+                        # For dict posts, also use smart merge
+                        original = current_posts.get(post_type)
+                        if isinstance(original, dict):
+                            merged = original.copy()
+                            for key, value in revised.items():
+                                original_value = merged.get(key)
+                                if _is_meaningful_value(value) or not _is_meaningful_value(original_value):
+                                    merged[key] = value
+                            current_posts[post_type] = merged
+                        else:
+                            current_posts[post_type] = revised
+                            merged = revised
 
-                    # Save
+                    # Save merged version
                     json_path = Path(f"out/post_{post_type}.json")
-                    json_path.write_text(json.dumps(revised, ensure_ascii=False, indent=2))
+                    json_path.write_text(json.dumps(merged, ensure_ascii=False, indent=2))
 
                     fixes_applied += 1
                     console.print(f"      ✓ {post_type} revised")

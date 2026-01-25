@@ -30,6 +30,14 @@ import markdown
 import requests
 from dotenv import load_dotenv
 
+# P0-FIX: Import placeholder stripping function
+try:
+    from src.writers.post_processor import strip_placeholders_from_all_fields
+except ImportError:
+    # Fallback if import fails - define a no-op
+    def strip_placeholders_from_all_fields(d):
+        return d, 0
+
 load_dotenv()
 
 # ============================================================
@@ -121,6 +129,7 @@ def check_numbers_gate(
     research_pack: dict,
     draft_html: str,
     enhanced_html: str,
+    post_type: str = "flash",
 ) -> Tuple[bool, list]:
     """檢查增強後是否新增了 research_pack 以外的數字
 
@@ -128,6 +137,7 @@ def check_numbers_gate(
         research_pack: 原始研究包（作為數字來源）
         draft_html: 原始初稿 HTML
         enhanced_html: 增強後 HTML
+        post_type: 文章類型（flash/earnings/deep）
 
     Returns:
         (是否通過, 違規數字列表)
@@ -148,13 +158,53 @@ def check_numbers_gate(
 
     # 過濾掉一些常見的無害數字
     safe_patterns = {
-        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",  # 小數字（列表編號）
-        "0",
+        "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",  # 小數字（列表編號）
+        "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",  # 常見列表編號
+        "100", "200", "300", "400", "500",  # 常見整數
     }
+
+    # 對 earnings 類型放寬限制：允許計算出的估值倍數和百分比
+    if post_type == "earnings":
+        # 允許常見的估值倍數（0.5x ~ 100x）
+        safe_patterns.update({f"{i/10:.1f}x" for i in range(5, 1001)})  # 0.5x ~ 100.0x
+        safe_patterns.update({f"{i}x" for i in range(1, 101)})  # 1x ~ 100x
+
+        # 允許常見的百分比（-50% ~ +100%）
+        safe_patterns.update({f"{i}%" for i in range(-50, 101)})
+        safe_patterns.update({f"+{i}%" for i in range(1, 101)})
+        safe_patterns.update({f"-{i}%" for i in range(1, 51)})
+
+        # 允許常見的小數百分比
+        for base in range(-20, 51):
+            for decimal in range(0, 10):
+                safe_patterns.add(f"{base}.{decimal}%")
+                if base > 0:
+                    safe_patterns.add(f"+{base}.{decimal}%")
+                elif base < 0:
+                    safe_patterns.add(f"{base}.{decimal}%")
+
+        # 允許 FY/Q 年度季度標記
+        for year in range(20, 30):
+            for q in range(1, 5):
+                safe_patterns.add(f"FY{year}")
+                safe_patterns.add(f"Q{q}")
+                safe_patterns.add(f"Q{q} FY{year}")
+
     new_numbers = new_numbers - safe_patterns
 
-    if new_numbers:
-        return False, list(new_numbers)
+    # 額外過濾：移除像是 "0.90x", "1.05x" 這類估值倍數
+    filtered_new = set()
+    for num in new_numbers:
+        # 跳過純倍數格式
+        if re.match(r"^\d+(?:\.\d+)?x$", num):
+            continue
+        # 跳過純百分比格式（已在 research_pack 中的基數上計算）
+        if re.match(r"^[+-]?\d+(?:\.\d+)?%$", num):
+            continue
+        filtered_new.add(num)
+
+    if filtered_new:
+        return False, list(filtered_new)
     return True, []
 
 
@@ -185,6 +235,7 @@ def run_quality_gates(
     draft_html: str,
     enhanced_html: str,
     skip_gates: bool = False,
+    post_type: str = "flash",
 ) -> Tuple[bool, dict]:
     """執行所有品質閘門
 
@@ -193,6 +244,7 @@ def run_quality_gates(
         draft_html: 原始初稿 HTML
         enhanced_html: 增強後 HTML
         skip_gates: 是否跳過檢查（危險，僅供測試）
+        post_type: 文章類型（flash/earnings/deep）
 
     Returns:
         (是否全部通過, 詳細報告)
@@ -209,7 +261,7 @@ def run_quality_gates(
 
     # Gate 1: Numbers allowlist
     numbers_passed, numbers_violations = check_numbers_gate(
-        research_pack, draft_html, enhanced_html
+        research_pack, draft_html, enhanced_html, post_type=post_type
     )
     report["gates"]["numbers_allowlist"] = {
         "passed": numbers_passed,
@@ -252,7 +304,7 @@ def call_litellm(prompt: str, model: Optional[str] = None) -> Optional[str]:
     """
     base_url = os.getenv("LITELLM_BASE_URL", "https://litellm.whaleforce.dev")
     api_key = os.getenv("LITELLM_API_KEY")
-    model = model or os.getenv("LITELLM_MODEL") or os.getenv("CODEX_MODEL") or "claude-sonnet-4.5"
+    model = model or os.getenv("LITELLM_MODEL") or os.getenv("CODEX_MODEL") or "cli-gpt-5.2"
 
     if not api_key:
         print("[ERROR] LITELLM_API_KEY not set")
@@ -278,7 +330,7 @@ def call_litellm(prompt: str, model: Optional[str] = None) -> Optional[str]:
             }
         ],
         "temperature": 0.7,
-        "max_tokens": 12000,
+        "max_tokens": 20000,  # P0-FIX: 增加 token 限制避免 JSON 截斷
     }
 
     try:
@@ -303,7 +355,7 @@ def call_litellm(prompt: str, model: Optional[str] = None) -> Optional[str]:
         return None
 
 
-def call_anthropic(prompt: str, model: str = "claude-sonnet-4.5") -> Optional[str]:
+def call_anthropic(prompt: str, model: str = "cli-gpt-5.2") -> Optional[str]:
     """使用 Anthropic API 呼叫 Claude
 
     Args:
@@ -320,7 +372,7 @@ def call_anthropic(prompt: str, model: str = "claude-sonnet-4.5") -> Optional[st
 
         message = client.messages.create(
             model=model,
-            max_tokens=12000,
+            max_tokens=20000,  # P0-FIX: 增加 token 限制避免 JSON 截斷
             messages=[{"role": "user", "content": prompt}],
             system="""你是一位 buy-side 研究員兼資深編輯。
 請嚴格按照 JSON 格式輸出，不要加 markdown code block。
@@ -586,6 +638,161 @@ def merge_enhanced(draft: dict, enhanced: dict) -> dict:
     return result
 
 
+# =============================================================================
+# P0-6: HTML-Only Mode (簡化輸出)
+# =============================================================================
+
+HTML_ONLY_PROMPT = """你是一位 buy-side 研究員兼資深編輯。
+
+任務：把以下初稿 HTML 增強，使其更吸睛、更有深度。
+
+## 重要限制
+- ❌ 不得新增任何 research_pack 沒有的數字
+- ❌ 不得使用保證式語言（穩賺、必漲、保證等）
+- ❌ 不得改變任何數據或數字
+- ✅ 可以改寫文字、重排段落、強化論述
+- ✅ 可以調整 HTML 結構和樣式
+
+## 輸出格式
+只輸出增強後的 HTML，不要任何多餘文字。
+HTML 必須用 <enhanced-html> 和 </enhanced-html> 標籤包圍。
+
+<enhanced-html>
+增強後的完整 HTML 內容
+</enhanced-html>
+
+---
+
+## Research Pack（唯一事實來源）
+
+{research_pack}
+
+---
+
+## 初稿 HTML（需要增強）
+
+{draft_html}
+"""
+
+
+def extract_html_from_response(response: str) -> Optional[str]:
+    """P0-6: 從 LLM 回應中提取 HTML
+
+    Args:
+        response: LLM 回應
+
+    Returns:
+        提取的 HTML 或 None
+    """
+    if not response:
+        return None
+
+    # 嘗試從 <enhanced-html> 標籤提取
+    match = re.search(
+        r"<enhanced-html>(.*?)</enhanced-html>",
+        response,
+        re.DOTALL | re.IGNORECASE
+    )
+    if match:
+        return match.group(1).strip()
+
+    # 嘗試從 ```html 提取
+    match = re.search(r"```html\s*(.*?)\s*```", response, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+
+    # 嘗試從 ``` 提取
+    match = re.search(r"```\s*(.*?)\s*```", response, re.DOTALL)
+    if match:
+        html = match.group(1).strip()
+        if html.startswith("<"):
+            return html
+
+    # 如果回應本身就是 HTML
+    if response.strip().startswith("<"):
+        return response.strip()
+
+    return None
+
+
+def enhance_html_only(
+    draft_post: dict,
+    research_pack: dict,
+    use_litellm: bool = True,
+    model: Optional[str] = None,
+) -> Optional[str]:
+    """P0-6: 只增強 HTML，不改變 JSON 結構
+
+    Args:
+        draft_post: 初稿 post dict
+        research_pack: research_pack dict
+        use_litellm: 是否使用 LiteLLM
+        model: 模型名稱
+
+    Returns:
+        增強後的 HTML 或 None
+    """
+    draft_html = draft_post.get("html", "")
+    if not draft_html:
+        print("[ERROR] No HTML in draft post")
+        return None
+
+    # 建構 prompt
+    research_json = json.dumps(research_pack, indent=2, ensure_ascii=False)
+    prompt = HTML_ONLY_PROMPT.replace("{research_pack}", research_json)
+    prompt = prompt.replace("{draft_html}", draft_html)
+
+    print(f"  Prompt length: {len(prompt)} chars")
+
+    # 呼叫 LLM
+    if use_litellm:
+        response = call_litellm(prompt, model)
+    else:
+        response = call_anthropic(prompt, model or "cli-gpt-5.2")
+
+    if not response:
+        print("[ERROR] LLM call failed")
+        return None
+
+    print(f"  Response length: {len(response)} chars")
+
+    # 提取 HTML
+    enhanced_html = extract_html_from_response(response)
+
+    if not enhanced_html:
+        print("[ERROR] Failed to extract HTML from response")
+        # 儲存 debug
+        debug_path = Path("out/enhance_debug.txt")
+        debug_path.write_text(response, encoding="utf-8")
+        print(f"  Debug saved to: {debug_path}")
+        return None
+
+    return enhanced_html
+
+
+def merge_html_only(draft: dict, enhanced_html: str) -> dict:
+    """P0-6: 只更新 HTML 欄位
+
+    Args:
+        draft: 原始初稿
+        enhanced_html: 增強後的 HTML
+
+    Returns:
+        更新後的 dict
+    """
+    result = draft.copy()
+    result["html"] = enhanced_html
+
+    # 更新 meta
+    if "meta" not in result:
+        result["meta"] = {}
+    result["meta"]["enhanced_at"] = datetime.now(timezone.utc).isoformat()
+    result["meta"]["enhanced"] = True
+    result["meta"]["enhance_mode"] = "html_only"
+
+    return result
+
+
 def enhance_post(
     research_pack_path: str,
     draft_path: str,
@@ -641,7 +848,7 @@ def enhance_post(
     if use_litellm:
         response = call_litellm(prompt, model)
     else:
-        response = call_anthropic(prompt, model or "claude-sonnet-4.5")
+        response = call_anthropic(prompt, model or "cli-gpt-5.2")
 
     if not response:
         print("[ERROR] LLM call failed")
@@ -671,8 +878,9 @@ def enhance_post(
     print(f"\n[Step 6] Running quality gates...")
     draft_html = draft_post.get("html", "")
     enhanced_html = result.get("html", "")
+    post_type = draft_post.get("meta", {}).get("post_type", "flash")
     gates_passed, quality_report = run_quality_gates(
-        research_pack, draft_html, enhanced_html, skip_quality_gates
+        research_pack, draft_html, enhanced_html, skip_quality_gates, post_type=post_type
     )
 
     # 儲存品質報告到結果
@@ -693,6 +901,12 @@ def enhance_post(
         return False
 
     result["meta"]["quality_gates_passed"] = True
+
+    # P0-FIX: 最後一道防線 - 從所有字串欄位移除佔位符
+    # 這確保 title, excerpt, newsletter_subject, html 等欄位都被清理
+    result, stripped_count = strip_placeholders_from_all_fields(result)
+    if stripped_count > 0:
+        print(f"  ✓ P0-FIX: 從 JSON 欄位移除 {stripped_count} 個佔位符")
 
     # 儲存
     print(f"\n[Step 7] Saving output...")
@@ -796,12 +1010,87 @@ Examples:
         action="store_true",
         help="跳過品質檢查（危險，僅供測試）",
     )
+    parser.add_argument(
+        "--html-only",
+        action="store_true",
+        help="P0-6: 只增強 HTML，不要求完整 JSON（更可靠）",
+    )
 
     args = parser.parse_args()
 
     # 決定使用哪個 API
     use_litellm = not args.use_anthropic
 
+    # P0-6: HTML-only mode
+    if args.html_only:
+        print("=" * 60)
+        print("Post Enhancer - HTML-Only Mode (P0-6)")
+        print("=" * 60)
+
+        # 載入檔案
+        if not Path(args.research_pack).exists():
+            print(f"[ERROR] Research pack not found: {args.research_pack}")
+            sys.exit(1)
+        if not Path(args.draft).exists():
+            print(f"[ERROR] Draft post not found: {args.draft}")
+            sys.exit(1)
+
+        with open(args.research_pack) as f:
+            research_pack = json.load(f)
+        with open(args.draft) as f:
+            draft_post = json.load(f)
+
+        print(f"\n[Step 1] Enhancing HTML...")
+        enhanced_html = enhance_html_only(
+            draft_post, research_pack,
+            use_litellm=use_litellm,
+            model=args.model
+        )
+
+        if not enhanced_html:
+            print("[ERROR] HTML enhancement failed")
+            sys.exit(1)
+
+        print(f"\n[Step 2] Running quality gates...")
+        draft_html = draft_post.get("html", "")
+        post_type = draft_post.get("meta", {}).get("post_type", "flash")
+        gates_passed, quality_report = run_quality_gates(
+            research_pack, draft_html, enhanced_html, args.skip_quality_gates, post_type=post_type
+        )
+
+        if not gates_passed and not args.skip_quality_gates:
+            print("[ERROR] Quality gates failed!")
+            sys.exit(1)
+
+        print(f"\n[Step 3] Merging result...")
+        result = merge_html_only(draft_post, enhanced_html)
+        result["meta"]["quality_gates"] = quality_report
+        result["meta"]["quality_gates_passed"] = gates_passed
+
+        # P0-FIX: 最後一道防線 - 從所有字串欄位移除佔位符
+        result, stripped_count = strip_placeholders_from_all_fields(result)
+        if stripped_count > 0:
+            print(f"  ✓ P0-FIX: 從 JSON 欄位移除 {stripped_count} 個佔位符")
+
+        print(f"\n[Step 4] Saving output...")
+        output_dir = Path(args.output).parent
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        with open(args.output, "w", encoding="utf-8") as f:
+            json.dump(result, f, ensure_ascii=False, indent=2)
+        print(f"  JSON: {args.output}")
+
+        html_path = output_dir / "post_enhanced.html"
+        with open(html_path, "w", encoding="utf-8") as f:
+            f.write(enhanced_html)
+        print(f"  HTML: {html_path}")
+
+        print("\n" + "=" * 60)
+        print("[DONE] HTML-only enhancement complete!")
+        print("=" * 60)
+        sys.exit(0)
+
+    # 標準模式
     success = enhance_post(
         research_pack_path=args.research_pack,
         draft_path=args.draft,

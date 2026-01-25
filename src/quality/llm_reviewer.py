@@ -99,6 +99,7 @@ def _call_llm(prompt: str, timeout: int = REVIEW_TIMEOUT) -> Tuple[bool, str]:
                 "max_tokens": 3000,
             },
             timeout=timeout,
+            verify=False,  # Disable SSL verification for internal services
         )
 
         result = response.json()

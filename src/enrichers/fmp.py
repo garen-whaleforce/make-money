@@ -465,7 +465,7 @@ class FMPEnricher(BaseEnricher):
         cache_key = f"fmp:earnings_calendar:{from_date}:{to_date}"
         data = self._cached_request(
             cache_key,
-            "earning-calendar",
+            "earnings-calendar",  # P0-FIX: 修正拼字錯誤 (earning → earnings)
             {"from": from_date, "to": to_date}
         )
 
@@ -557,9 +557,10 @@ class FMPEnricher(BaseEnricher):
         quarter_data = {}
         for item in income_data:
             period = item.get("period")  # Q1, Q2, Q3, Q4
-            year = item.get("calendarYear")
+            # P0-FIX: calendarYear 可能為 None，fallback 到 fiscalYear
+            year = item.get("calendarYear") or item.get("fiscalYear")
             if period and year:
-                quarter_data[(period, year)] = item
+                quarter_data[(period, str(year))] = item
 
         results = []
         for item in income_data[:limit]:  # 只返回最近 limit 筆
@@ -576,7 +577,8 @@ class FMPEnricher(BaseEnricher):
 
             # ========== P0-2: 計算 YoY 增長率 ==========
             period = item.get("period")
-            year = item.get("calendarYear")
+            # P0-FIX: calendarYear 可能為 None，fallback 到 fiscalYear
+            year = item.get("calendarYear") or item.get("fiscalYear")
             revenue_yoy = None
             eps_yoy = None
             net_income_yoy = None

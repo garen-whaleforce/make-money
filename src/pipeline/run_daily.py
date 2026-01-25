@@ -2024,6 +2024,31 @@ def main(
     start_time = time.time()
     run_date = run_date or date.today().isoformat()
 
+    # Load runtime config for chatgpt_review settings
+    runtime_config = {}
+    try:
+        import yaml
+        with open("config/runtime.yaml") as f:
+            runtime_config = yaml.safe_load(f) or {}
+    except Exception:
+        pass
+
+    # Override llm_review (Stage 3.6) from runtime config
+    llm_review_config = runtime_config.get("llm_review", {})
+    if not llm_review_config.get("enabled", True):
+        skip_review = True
+        console.print("[dim]LLM review (Stage 3.6) disabled via runtime.yaml[/dim]")
+    if "max_iterations" in llm_review_config:
+        review_iterations = llm_review_config["max_iterations"]
+
+    # Override chatgpt_review (Stage 3.7) from runtime config
+    chatgpt_config = runtime_config.get("chatgpt_review", {})
+    if not chatgpt_config.get("enabled", True):
+        skip_chatgpt_review = True
+        console.print("[dim]LLM review (Stage 3.7) disabled via runtime.yaml[/dim]")
+    if "max_iterations" in chatgpt_config:
+        chatgpt_iterations = chatgpt_config["max_iterations"]
+
     # Handle checkpoint/resume
     checkpoint = None
     if resume:
@@ -2210,9 +2235,8 @@ def main(
         elif skip_review:
             console.print("\n[dim]Stage 3.6: LLM Review (skipped via --skip-review)[/dim]")
 
-        # Stage 3.7: ChatGPT Pro Review Loop (default enabled)
+        # Stage 3.7: LLM Review (cli-gpt-5.2-high review → cli-gpt-5.2 revision)
         # Skip: --skip-chatgpt-review
-        # Note: Can run even with --skip-write (reviews existing posts)
         should_chatgpt_review = enable_chatgpt_review and not skip_chatgpt_review
         if should_chatgpt_review:
             from ..quality.chatgpt_reviewer import stage_chatgpt_review
@@ -2222,9 +2246,8 @@ def main(
                 max_iterations=chatgpt_iterations,
             )
             result.posts = generated_posts
-            # 如果 ChatGPT Pro 審查通過，記錄到結果
             if chatgpt_result.final_passed:
-                console.print("  [green]✓ ChatGPT Pro review passed[/green]")
+                console.print("  [green]✓ LLM review passed[/green]")
 
         # Stage 4: QA (after LLM review)
         qa_results = stage_qa(generated_posts, edition_pack)

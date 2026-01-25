@@ -161,12 +161,14 @@ def check_enhanced_quality_gates(post_json: dict) -> bool:
 
 def quality_gate_check(quality_report_path: str, mode: str) -> dict:
     """
-    檢查品質報告。
-    - draft/publish-no-email: 只警告
-    - publish-send: 必須通過才能繼續
+    檢查品質報告 - P0-4 Fail-Closed 策略
+
+    - draft: 只警告（允許預覽）
+    - publish-no-email: 必須通過才能繼續（防止爛稿上線）
+    - publish-send: 必須通過才能繼續（防止爛稿進信箱）
     """
     if not Path(quality_report_path).exists():
-        if mode == "publish-send":
+        if mode in ["publish-send", "publish-no-email"]:
             raise SystemExit(f"[BLOCKED] Quality report not found: {quality_report_path}")
         print(f"[WARN] Quality report not found: {quality_report_path}")
         return {}
@@ -181,9 +183,13 @@ def quality_gate_check(quality_report_path: str, mode: str) -> dict:
     print(f"       overall_passed: {passed}")
     print(f"       can_send_newsletter: {can_send}")
 
-    if mode == "publish-send":
+    # P0-4: Fail-closed for any publish mode (not just send)
+    if mode in ["publish-send", "publish-no-email"]:
         if not passed:
-            raise SystemExit("[BLOCKED] Quality check FAILED - cannot send newsletter")
+            raise SystemExit(f"[BLOCKED] Quality check FAILED - cannot {mode}. Use 'draft' mode to preview.")
+
+    # Additional check for newsletter
+    if mode == "publish-send":
         if not can_send:
             raise SystemExit("[BLOCKED] can_send_newsletter is False")
 
